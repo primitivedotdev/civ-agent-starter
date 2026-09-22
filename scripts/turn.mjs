@@ -3,51 +3,69 @@
 //
 //   npm run turn -- civ@your-name.primitive.email
 //   npm run turn -- civ@your-name.primitive.email examples/turns/04-ready-assault.txt
+//   npm run turn -- civ@your-name.primitive.email --from test@your-name.primitive.email
 //
 // The briefing is sent from arena-test@<your agent's domain>, exactly as the
-// arena would send it, and the reply is linted like a real turn. Needs
-// PRIMITIVE_API_KEY for the account that owns the address.
-import { readFileSync } from "node:fs";
-import { createPrimitiveClient } from "@primitivedotdev/sdk";
-import { getEmail, searchEmails } from "@primitivedotdev/sdk/api";
+// arena would send it, and the reply is linted like a real turn. Uses the
+// Primitive CLI's saved sign-in (or PRIMITIVE_API_KEY).
+import { execFileSync } from "node:child_process";
+import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { lastOrders } from "../src/agent.mjs";
 import { parseBriefing } from "../src/briefing.mjs";
 import { lintOrders } from "../src/lint.mjs";
 
-const [to, file = "examples/turns/01-opening.txt"] = process.argv.slice(2);
+const argv = process.argv.slice(2);
+const fromFlag = argv.indexOf("--from");
+const fromOverride = fromFlag >= 0 ? argv.splice(fromFlag, 2)[1] : null;
+const [to, file = "examples/turns/01-opening.txt"] = argv;
 if (!to || !to.includes("@")) {
 	console.error("usage: npm run turn -- <your agent's address> [examples/turns/<file>.txt]");
 	process.exit(2);
 }
-if (!process.env.PRIMITIVE_API_KEY) {
-	console.error("Set PRIMITIVE_API_KEY (the key for the account that owns your agent's address).");
-	process.exit(2);
-}
+const cli = (...a) => {
+	try {
+		return execFileSync("npx", ["--no-install", "primitive", ...a], { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
+	} catch (e) {
+		return String(e.stdout ?? "") + String(e.stderr ?? "");
+	}
+};
+const json = (text) => {
+	const i = text.search(/[[{]/);
+	if (i < 0) return null;
+	try {
+		const v = JSON.parse(text.slice(i, Math.max(text.lastIndexOf("}"), text.lastIndexOf("]")) + 1));
+		return v && !Array.isArray(v) && typeof v === "object" && "data" in v ? v.data : v;
+	} catch {
+		return null;
+	}
+};
 
 const text = readFileSync(file, "utf8");
 const brief = parseBriefing(text);
-const from = `arena-test@${to.split("@")[1]}`;
+const from = fromOverride || `arena-test@${to.split("@")[1]}`;
 const subject = `primitive civ [local-test]: ${brief.civ ?? "Test"} turn ${brief.turn ?? 0}`;
-const client = createPrimitiveClient({ apiKey: process.env.PRIMITIVE_API_KEY });
+const bodyFile = join(mkdtempSync(join(tmpdir(), "civ-turn-")), "briefing.txt");
+writeFileSync(bodyFile, text);
 
 console.log(`sending ${file} to ${to} (from ${from})...`);
-const sent = await client.send({ from, to, subject, bodyText: text });
-const started = Date.now();
-
-let reply = null;
-while (!reply && Date.now() - started < 120000) {
-	await new Promise((r) => setTimeout(r, 3000));
-	const found = await searchEmails({ client: client.client, query: { reply_to_sent_email_id: sent.id, limit: 1 }, throwOnError: true });
-	const row = found.data?.data?.[0];
-	if (!row?.id) continue;
-	const full = await getEmail({ client: client.client, path: { id: row.id }, throwOnError: true });
-	const d = full.data?.data ?? full.data;
-	reply = d?.body_text || d?.text || "";
-}
-if (reply == null) {
-	console.error("No reply within 120 seconds (the arena's deadline). Check `npm run logs` and that your route is bound to this address's domain.");
+const sentOut = cli("send", "--to", to, "--from", from, "--subject", subject, "--body-file", bodyFile);
+const sentId = json(sentOut)?.id;
+if (!sentId) {
+	console.error(`send failed:\n${sentOut.trim()}\n\nSigned in? Run: npx @primitivedotdev/cli signin`);
 	process.exit(1);
 }
+const started = Date.now();
+const waited = cli("emails", "wait", "--reply-to-sent-email-id", sentId, "--timeout", "120");
+const match = json(waited);
+const replyId = (Array.isArray(match) ? match[0] : match)?.id;
+if (!replyId) {
+	console.error("No reply within 120 seconds (the arena's deadline). Check `npm run logs` and that setup routed this address.");
+	process.exit(1);
+}
+const full = json(cli("emails", "get", "--id", replyId)) ?? {};
+const reply = full.body_text || full.text || "";
 console.log(`\nreplied in ${Math.round((Date.now() - started) / 1000)}s:\n\n${reply}\n`);
 const orders = lastOrders(reply);
 const findings = orders ? lintOrders(orders, brief) : [{ severity: "error", message: "no parseable <ORDERS> block" }];

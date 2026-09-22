@@ -14,6 +14,7 @@
 // including Web Crypto signature verification.
 import {
   createPrimitiveClient,
+  isTrustedSender,
   normalizeReceivedEmail,
   PRIMITIVE_SIGNATURE_HEADER,
   type EmailReceivedEvent,
@@ -21,7 +22,9 @@ import {
   WebhookVerificationError,
 } from "@primitivedotdev/sdk/api";
 // @ts-expect-error plain ESM module
-import { decide } from "./src/agent.mjs";
+import { decide, onLetter } from "./src/agent.mjs";
+// @ts-expect-error plain ESM module
+import { DEFAULT_ARENA, civOfSender, extractLetters, kindOf, letterSubject, mailboxFor, parseGameBlock, parseGameOver, parseMailboxes, parseSubject } from "./src/game.mjs";
 
 interface Env {
   PRIMITIVE_API_KEY: string;
@@ -29,20 +32,28 @@ interface Env {
   PRIMITIVE_WEBHOOK_SECRET: string;
   ANTHROPIC_API_KEY?: string;
   MODEL?: string;
+  /** The arena's address; defaults to arena@primciv.com. */
+  ARENA_ADDRESS?: string;
 }
 
-// Turn briefings (games and the sign-up example turn) have subjects like
-// "primitive civ [<game-id>]: Rome turn 12". Anything else is ignored,
-// including "Re: ..." replies, so the agent never answers its own mail.
-const BRIEFING_SUBJECT = /^\s*primitive civ \[[^\]]+\]: .+ turn \d+/i;
+// What the harness remembers about each game, in Primitive memories under
+// games/<game-id> (scoped to this Function).
+interface GameState {
+  game: string;
+  civ?: string;
+  arena?: string;
+  mailboxes?: Record<string, string>;
+  status?: "live" | "over";
+  lastTurn?: number;
+  outcome?: unknown;
+  /** Letters received from rivals since the last turn, newest last (at most 10). */
+  inbox?: Array<{ fromCiv: string; text: string; turn?: number }>;
+  notes?: unknown;
+}
 
-// Optional loop-protection knob. client.reply() server-defaults the
-// outbound from-address from the inbound recipient, so most handlers
-// do not need to fill this in. Add any extra addresses your handler
-// sends from if you later switch to client.send or a custom domain.
-const EXTRA_SELF_ADDRESSES: string[] = [
-  // "bot@your-domain.example",
-];
+// Loop-protection knob from the template: extra addresses this handler sends
+// from, beyond the inbound recipient.
+const EXTRA_SELF_ADDRESSES: string[] = [];
 
 function extractEmailAddresses(value: string | null | undefined): string[] {
   return (
@@ -207,15 +218,89 @@ export default {
       });
 
       const email = normalizeReceivedEmail(event);
-      if (!BRIEFING_SUBJECT.test(email.subject ?? "")) {
-        return Response.json({ ok: true, skipped: "not-a-briefing" });
+      const kind = kindOf(email.subject);
+      if (!kind || kind === "reply" || kind === "other") {
+        return Response.json({ ok: true, skipped: "not-civ-mail" });
+      }
+      const { game } = parseSubject(email.subject);
+      const arena = (env.ARENA_ADDRESS || DEFAULT_ARENA).toLowerCase();
+      const self = inboundRecipientAddresses(event)[0] ?? "";
+      const selfDomain = domainPart(self) ?? "";
+
+      // Arena mail must really come from the arena (DMARC-authenticated as the
+      // arena's domain and address). `npm run turn` sends from
+      // arena-test@<your own domain>, which is trusted the same way.
+      const fromArena =
+        isTrustedSender(event, { domain: domainPart(arena) ?? "", sender: arena }).trusted ||
+        (selfDomain !== "" && isTrustedSender(event, { domain: selfDomain, sender: `arena-test@${selfDomain}` }).trusted);
+
+      const key = `games/${game}`;
+      const load = async (): Promise<GameState> => {
+        try { return ((await client.memories.get(key)).value as unknown as GameState) ?? { game }; }
+        catch { return { game }; }
+      };
+      const save = async (state: GameState) => {
+        try { await client.memories.set({ key, value: state as never }); }
+        catch (e) { console.error("memory save failed:", e); }
+      };
+
+      if (kind === "start" || kind === "over" || kind === "briefing") {
+        if (!fromArena) return Response.json({ ok: true, skipped: "untrusted-arena-mail" });
       }
 
-      // The briefing is the email body. decide() returns the whole reply:
-      // a line of reasoning and one <ORDERS>[...]</ORDERS> block. Reply in
-      // thread (client.reply) so the arena can match it to the turn.
-      const text = await decide(email.text ?? "", env);
+      if (kind === "start") {
+        const g = parseGameBlock(email.text);
+        await save({ ...(await load()), game, civ: g?.civ, arena, mailboxes: g?.mailboxes ?? {}, status: "live" });
+        return Response.json({ ok: true, game, stored: "start" });
+      }
+      if (kind === "over") {
+        await save({ ...(await load()), status: "over", outcome: parseGameOver(email.text) });
+        return Response.json({ ok: true, game, stored: "over" });
+      }
+
+      if (kind === "letter") {
+        // Only a mailbox the arena listed for this game may write to us.
+        const state = await load();
+        const sender = extractEmailAddresses(event.email.headers.from)[0] ?? "";
+        const fromCiv = civOfSender(state.mailboxes, sender);
+        if (!fromCiv || sender === self) return Response.json({ ok: true, skipped: "letter-from-unknown-sender" });
+        const inbox = [...(state.inbox ?? []), { fromCiv, text: (email.text ?? "").slice(0, 4000), turn: state.lastTurn }].slice(-10);
+        await save({ ...state, inbox });
+        const answer = await onLetter({ game, fromCiv, text: email.text ?? "", subject: email.subject }, env, state);
+        if (answer && state.civ) {
+          const reply = await client.reply(email, { text: answer });
+          await client.send({
+            from: self, to: state.arena ?? arena,
+            subject: letterSubject(game, state.civ, fromCiv), bodyText: answer,
+          }).catch((e) => console.error("arena copy failed:", e));
+          return Response.json({ ok: true, reply });
+        }
+        return Response.json({ ok: true, game, letter: "read" });
+      }
+
+      // A turn briefing: refresh what we know about the game, decide, reply.
+      const state = await load();
+      const civ = /^(.+?) turn (\d+)\s*$/i.exec(parseSubject(email.subject).rest);
+      const next: GameState = {
+        ...state, game, arena, status: "live",
+        civ: civ?.[1] ?? state.civ,
+        lastTurn: civ ? Number(civ[2]) : state.lastTurn,
+        mailboxes: parseMailboxes(email.text) ?? state.mailboxes ?? {},
+      };
+      const text = await decide(email.text ?? "", env, next);
       const reply = await client.reply(email, { text });
+      await save({ ...next, inbox: [] }); // letters were in front of decide() this turn
+
+      // Letters: <DIPLOMACY to="Greece">...</DIPLOMACY> blocks in the reply go
+      // to that civ's mailbox, with a copy to the arena for the game record.
+      for (const letter of extractLetters(text).slice(0, 3)) {
+        const to = mailboxFor(next.mailboxes, letter.to);
+        if (!to || to.address === self || !next.civ) continue;
+        const subject = letterSubject(game, next.civ, to.civ);
+        await client.send({ from: self, to: to.address, subject, bodyText: letter.text }).catch((e) => console.error("letter failed:", e));
+        await client.send({ from: self, to: arena, subject, bodyText: letter.text }).catch((e) => console.error("arena copy failed:", e));
+      }
+
       return Response.json({ ok: true, reply });
     } catch (err) {
       // Return 2xx so the webhook delivery loop does not retry a bug

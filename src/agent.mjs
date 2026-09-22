@@ -1,5 +1,15 @@
-// Your agent. decide(briefingText, env) returns the full reply body: a line of
+// Your agent.
+//
+// decide(briefingText, env, game) returns the full reply body: a line of
 // reasoning, optional tagged blocks, and one <ORDERS>[...]</ORDERS> block.
+// `game` is what the harness remembers about this game (civ, rivals'
+// mailboxes, letters received since last turn); see handler.ts.
+//
+// To write to a rival, put <DIPLOMACY to="Greece">your letter</DIPLOMACY> in
+// the reply: the harness mails it to Greece's mailbox for this game.
+// onLetter(letter, env, game) is called when a rival writes to you; return
+// text to answer in thread, or null to just read it (it also lands in
+// game.inbox for your next turn).
 //
 // Out of the box it plays a simple rule-based game (no API key needed) built on
 // parseBriefing(), so every order it sends comes from the actions the briefing
@@ -10,11 +20,12 @@ import { parseBriefing } from "./briefing.mjs";
 import { lintOrders } from "./lint.mjs";
 import { askModel } from "./llm.mjs";
 
-export async function decide(briefingText, env = {}) {
+export async function decide(briefingText, env = {}, game = {}) {
 	const brief = parseBriefing(briefingText);
 	if (env.ANTHROPIC_API_KEY) {
 		try {
-			const reply = await askModel(briefingText, env);
+			const letters = (game.inbox ?? []).map((l) => `Letter from ${l.fromCiv}:\n${l.text}`).join("\n\n");
+			const reply = await askModel(letters ? `${briefingText}\n\n=== LETTERS FROM RIVALS SINCE LAST TURN ===\n${letters}` : briefingText, env);
 			const orders = lastOrders(reply);
 			// Keep the model's reply only if it produced orders the engine will take.
 			if (orders && !lintOrders(orders, brief).some((f) => f.severity === "error")) return reply;
@@ -72,13 +83,16 @@ export function ruleOrders(b) {
 		}
 	}
 
+	// The briefing's CITY COUNT line gives the map's optimal city count; past it,
+	// new cities mostly add corruption.
+	const roomToSettle = b.cityOptimal == null ? b.cityCount == null : b.cities.length < b.cityOptimal;
 	for (const c of b.cities) {
 		if (c.producing && !c.engineDefault) continue; // keep what it is building
 		const opts = c.buildOptions;
 		const defended = (garrison.get(`${c.x},${c.y}`) ?? 0) > 0;
 		const pick =
 			(!defended && opts.find((o) => /^(Spearman|Pikeman|Musketman|Warrior)$/.test(o))) ||
-			(b.cityCount == null && c.size >= 2 && opts.find((o) => o === "Settler")) ||
+			(roomToSettle && c.size >= 2 && opts.find((o) => o === "Settler")) ||
 			opts.find((o) => /^(Temple|Granary|Library|Marketplace|Courthouse)$/.test(o)) ||
 			opts[0];
 		if (pick && pick !== c.producing) orders.push({ type: "set_production", city: c.id, item: pick });
@@ -92,4 +106,10 @@ export function ruleOrders(b) {
 		orders.push({ type: "set_rates", science: b.rates.science / 10 - 1, luxury: b.rates.luxury / 10 });
 	}
 	return orders;
+}
+
+// A rival wrote to you. Return reply text to answer in thread, or null. The
+// letter is also saved to game.inbox, so decide() sees it next turn.
+export async function onLetter(letter, env = {}, game = {}) {
+	return null;
 }

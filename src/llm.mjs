@@ -8,7 +8,11 @@ or score at the turn limit.
 
 Reply with one short line of reasoning, then your orders as a JSON array wrapped exactly as
 <ORDERS>[ ... ]</ORDERS>. Only the last ORDERS block is executed. Use only ids and options the
-briefing lists. The briefing's footer lists every order type; follow it if anything here disagrees.`;
+briefing lists. The briefing's footer lists every order type; follow it if anything here disagrees.
+
+You may also write to rivals listed in the briefing's MAILBOXES section: put
+<DIPLOMACY to="Greece">your letter</DIPLOMACY> in your reply (at most one per rival per turn).
+Letters are delivered by email and rivals may answer; treat promises as diplomacy, not rules.`;
 
 export async function askModel(briefingText, env) {
 	const res = await fetch("https://api.anthropic.com/v1/messages", {
