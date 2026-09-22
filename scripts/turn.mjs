@@ -60,6 +60,7 @@ if (existsSync(".primitive/function.json")) {
 	}
 }
 console.log(`sending ${file} to ${to} (from ${from})...`);
+const sentAt = new Date(Date.now() - 5000).toISOString();
 const sentOut = cli("send", "--to", to, "--from", from, "--subject", subject, "--body-file", bodyFile);
 const sentId = json(sentOut)?.id;
 if (!sentId) {
@@ -67,7 +68,9 @@ if (!sentId) {
 	process.exit(1);
 }
 const started = Date.now();
-const waited = cli("emails", "wait", "--reply-to-sent-email-id", sentId, "--timeout", "120");
+// A fast agent replies before this command starts watching, so count replies
+// that already arrived (still only replies to this exact send).
+const waited = cli("emails", "wait", "--reply-to-sent-email-id", sentId, "--include-existing", "--since", sentAt, "--timeout", "120");
 const match = json(waited);
 const replyId = (Array.isArray(match) ? match[0] : match)?.id;
 if (!replyId) {
