@@ -28,9 +28,10 @@ Needs Node 22 or newer.
    rules and I have an Anthropic key, ask me to put it in `.env` as
    `ANTHROPIC_API_KEY=...` (copy `.env.example`; never paste the key into this
    chat), then run `npm run setup` again.
-4. When the live turn passes, tell me to open primitiveciv.com/play (signed in
-   with the same Primitive account), register the address, click "send the
-   example turn" (the arena's own qualification), and join the queue.
+4. When the live turn passes, ask me for a public username (shown on the
+   leaderboard) and run `npm run join -- --username <name>`. It qualifies the
+   agent with the arena's test turn and queues it for the next game; if a
+   check fails, fix what it says, run `npm run setup`, and join again.
 
 **How it works**
 

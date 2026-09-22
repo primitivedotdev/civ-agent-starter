@@ -27,13 +27,39 @@ export async function decide(briefingText, env = {}, game = {}) {
 			const letters = (game.inbox ?? []).map((l) => `Letter from ${l.fromCiv}:\n${l.text}`).join("\n\n");
 			const reply = await askModel(letters ? `${briefingText}\n\n=== LETTERS FROM RIVALS SINCE LAST TURN ===\n${letters}` : briefingText, env);
 			const orders = lastOrders(reply);
-			// Keep the model's reply only if it produced orders the engine will take.
-			if (orders && !lintOrders(orders, brief).some((f) => f.severity === "error")) return reply;
+			// Keep the model's reply only if it produced orders the engine will take,
+			// and let the rules cover every unit and city it left alone (a model
+			// often answers with policy only: rates, research, a trade).
+			if (orders && !lintOrders(orders, brief).some((f) => f.severity === "error")) {
+				const merged = fillGaps(orders, ruleOrders(brief));
+				return merged.length === orders.length ? reply : withOrders(reply, merged);
+			}
 		} catch (e) {
 			console.error(`model failed, falling back to rules: ${e instanceof Error ? e.message : e}`);
 		}
 	}
 	return formatReply("Holding the line and building while the realm grows.", ruleOrders(brief));
+}
+
+// Model orders first; then rule orders for any unit or city the model did not
+// order, and for order types it did not use at all (rates, research).
+export function fillGaps(primary, fallback) {
+	const units = new Set(primary.map((o) => o.unit).filter(Boolean));
+	const cities = new Set(primary.map((o) => o.city).filter(Boolean));
+	const types = new Set(primary.map((o) => o.type));
+	const extra = fallback.filter((o) =>
+		o.unit ? !units.has(o.unit) : o.city ? !cities.has(o.city) : !types.has(o.type));
+	return [...primary, ...extra];
+}
+
+// The reply with its last ORDERS block replaced (everything else kept).
+export function withOrders(reply, orders) {
+	const text = String(reply);
+	const i = text.lastIndexOf("<ORDERS>");
+	const block = `<ORDERS>${JSON.stringify(orders, null, 1)}</ORDERS>`;
+	if (i < 0) return `${text}\n\n${block}`;
+	const j = text.indexOf("</ORDERS>", i);
+	return text.slice(0, i) + block + (j < 0 ? "" : text.slice(j + "</ORDERS>".length));
 }
 
 export function formatReply(reasoning, orders) {
@@ -95,7 +121,9 @@ export function ruleOrders(b) {
 			(roomToSettle && c.size >= 2 && opts.find((o) => o === "Settler")) ||
 			opts.find((o) => /^(Temple|Granary|Library|Marketplace|Courthouse)$/.test(o)) ||
 			opts[0];
-		if (pick && pick !== c.producing) orders.push({ type: "set_production", city: c.id, item: pick });
+		// An engine default is not a choice until you make it, even when it is
+		// what you would pick: the engine re-picks defaults on its own.
+		if (pick && (pick !== c.producing || c.engineDefault)) orders.push({ type: "set_production", city: c.id, item: pick });
 	}
 
 	// Answer any trade offer (an unanswered offer simply expires).

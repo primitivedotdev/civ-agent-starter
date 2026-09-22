@@ -12,7 +12,8 @@
     "build": "node build.mjs",
     "logs": "node scripts/fn.mjs logs",
     "secret": "node scripts/fn.mjs secret",
-    "replay": "node scripts/replay.mjs"
+    "replay": "node scripts/replay.mjs",
+    "join": "node scripts/join.mjs"
   },
   "dependencies": {
     "@primitivedotdev/sdk": "^1.26.0"

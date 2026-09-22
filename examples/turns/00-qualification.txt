@@ -1,0 +1,88 @@
+=== YOUR DOCTRINE (play in this style above all else) ===
+You are the Pragmatist. Read the board every turn and do whatever wins from here: expand when land is free, trade and build when peace pays, strike when a rival is weak and exposed. Yesterday's plan means nothing; the board today is everything.
+
+=== YOUR DIPLOMATIC CHARACTER (your chancellor answers all rival mail in this spirit) ===
+Your word, once given, is iron, and you would sooner lose the game than break it. You declare intentions before acting on them, you refuse to lie even when lying is free, and you scorn those who scheme. You demand the same in return, loudly: name betrayers as betrayers, honor allies past the point of prudence, and never strike without fair warning. Rivals should learn that your promises and your threats are equally certain.
+
+=== TURN 21 | Carthage ===
+Government: Despotism   Gold: 67 (+4/turn)   Rates: science 60% / tax 40% / luxury 0% (use set_rates to raise science)   Beakers/turn: 2 (research scales with the number of cities you own)
+  (estimated break-even science rate: ~100% - at that rate gold/turn stays >= 0; a steady rate beats flip-flopping between 0% and 100%)
+  DESPOTISM PENALTY: Despotism docks the output of every tile you work, so you are producing far below your potential - free unit support does NOT make up for it. Research a GOVERNMENT tech (The Republic or Monarchy) as your TOP research priority, then revolt. SELF-CHECK: if 'Techs known' already includes The Republic or Monarchy, do not wait for anything else - issue {"type":"revolt"} this turn.
+Researching: Ceremonial Burial - 9/16 beakers (~4 turns left)  [switching now would lose the 9 invested beaker(s); re-issuing the same tech does nothing]
+Techs known: 3. Can research now:
+  Pottery (cost 16 beakers): unlocks Granary; opens research of Map Making
+  Ceremonial Burial (cost 7 beakers): unlocks Temple; opens research of Mysticism
+  Bronze Working (cost 19 beakers): unlocks Spearman a1/d2/m1, Hoplite a1/d3/m1, Impi a1/d2/m2, Numidian Mercenary a2/d3/m1, The Colossus; opens research of Iron Working
+  The Wheel (cost 32 beakers): unlocks Chariot a1/d1/m2, needs Horses, War Chariot a2/d1/m2, needs Horses, Three-Man Chariot a2/d2/m2, needs Horses; opens research of Horseback Riding
+  Writing (cost 64 beakers): no direct unlocks; opens research of Philosophy, Code of Laws, Literature, Map Making
+  Mathematics (cost 64 beakers): unlocks Catapult a0/d0/m1, The Statue of Zeus; opens research of Currency, Construction
+Strategic resources CONNECTED: none. (a unit needing a resource is only buildable in cities connected to it)
+  NOT connected - Horses (gates Chariot/Horseman/Knight): nearest known at (38,16), OUTSIDE your borders (expand a city near it)
+  NOT connected - Iron (gates Swordsman/Pikeman/Knight): nearest known at (34,20), OUTSIDE your borders (expand a city near it)
+  NOT connected - Saltpeter (gates Musketman/Cavalry/Cannon): nearest known at (40,22), OUTSIDE your borders (expand a city near it)
+  NOT connected - Coal (gates Ironclad): nearest known at (41,29), OUTSIDE your borders (expand a city near it)
+  NOT connected - Oil (gates Modern Paratrooper/Tank/Mech Infantry): nearest known at (43,21), inside your borders - ROAD that tile to connect it
+  NOT connected - Rubber (gates Marine/Modern Paratrooper/Infantry): nearest known at (38,20), OUTSIDE your borders (expand a city near it)
+  NOT connected - Aluminum (gates Radar Artillery/Cruise Missile/Tactical Nuke): nearest known at (43,27), OUTSIDE your borders (expand a city near it)
+  NOT connected - Uranium (gates Tactical Nuke/ICBM/AEGIS Cruiser): no known source - explore
+  PATH to Monarchy: Ceremonial Burial -> Mysticism -> Polytheism -> Monarchy (4 tech(s), total cost ~42)
+  PATH to The Republic: Writing -> Philosophy -> Code of Laws -> The Republic (4 tech(s), total cost ~52)
+
+CITIES (3):   (mechanics: each citizen eats 2 food/turn and surplus fills the food box until the city grows - a city at zero surplus NEVER grows until you work more food tiles or irrigate; if unhappy > happy the city RIOTS and produces nothing; corruption rises with distance from your capital)
+  city-3 Carthage (45,17) size 2 [0 happy/2 content/0 unhappy] culture 21 (+1/turn)
+      built: Palace
+      producing: Settler (4 turns left); food +3/turn, grows in 3 (food box 3/10, +3/turn)
+      build options: Settler(~4t, founds a new city (costs 2 pop)), Worker(~1t, improves tiles (irrigate/mine/road)), Warrior(~1t a1/d1/m1, weak early military - replace with stronger units as soon as you can build them), Archer(~3t a2/d1/m1, ranged attacker), Curragh(~2t a1/d1/m2, naval transport / coastal exploration), Barracks(~6t, upkeep -1g/turn, new land units start veteran (more HP); wounded units heal fully here in one turn), Walls(~3t, large defense multiplier for the garrison of this city), The Pyramids(~33t, +4 culture/turn), Heroic Epic(~16t, +4 culture/turn), Forbidden Palace(~33t, +2 culture/turn), The Pentagon(~66t, +1 culture/turn), Wealth(~1t)
+      hurry (1 pop): rush-buy the rest of Settler
+  city-4 Utica (43,19) size 2 [0 happy/2 content/0 unhappy]
+      producing: Settler [ENGINE DEFAULT - you did not choose this; set_production to change] (8 turns left); food +3/turn, grows in 4 (food box 0/10, +3/turn)
+      build options: Settler(~8t), Worker(~3t), Warrior(~3t a1/d1/m1), Archer(~5t a2/d1/m1), Barracks(~10t, upkeep -1g/turn), Walls(~5t), The Pyramids(~50t, +4 culture/turn), Heroic Epic(~25t, +4 culture/turn), Forbidden Palace(~50t, +2 culture/turn), The Pentagon(~100t, +1 culture/turn), Wealth(~1t)
+  city-7 Hippo (41,17) size 1 [0 happy/1 content/0 unhappy]
+      producing: Warrior (2 turns left); food +2/turn, grows in 2 (food box 6/10, +2/turn); corruption 25% (that share of shields/commerce is LOST - it grows with distance from your capital; a Courthouse cuts it)
+      build options: Settler(~12t), Worker(~2t), Warrior(~2t a1/d1/m1), Archer(~7t a2/d1/m1), Barracks(~17t, upkeep -1g/turn), Walls(~7t), The Pyramids(~97t, +4 culture/turn), Heroic Epic(~47t, +4 culture/turn), Forbidden Palace(~97t, +2 culture/turn), The Pentagon(~197t, +1 culture/turn), Wealth(~1t)
+
+UNITS (army 6/40, workers 2, settlers 0; army combat totals: attack 6 / defense 6):
+  (combat mechanics: battles run in HP rounds, each won at odds attack/(attack+defense); the DEFENDER'S d is MULTIPLIED by fortifying, terrain (hills/mountains/forest), river crossings, and city walls/size - a fortified d3 unit on a hill behind walls defends like d6+, so raw attacker counts lie; siege units bombard first to strip defender HP without risk; a wounded unit has fewer HP rounds and dies sooner)
+  Warrior-43 Warrior a1/d1/m1 (43,19) moves 1
+      on Grassland/Grassland f2s0c0 RES:NONE [CITY]
+      adjacent: N:Grassland NE:Grassland E:Grassland SE:Grassland S:Desert SW:Grassland W:occupied NW:Grassland   (move_unit by dir, or move_to x,y)
+      actions: move_unit dir N/NE/E/SE/S/SW/W/NW (or move_to x,y) | advance to nearest_enemy_city/nearest_enemy_unit/unexplored | explore | fortify | sentry | hold | disband
+  Settler-29 Settler (41,19) moves 1  [AUTO-SETTLING - standing order, walking to a foundable tile to found 'Hadrumetum'; no orders needed]
+  Warrior-19 Warrior a1/d1/m1 (34,10) moves 1  [ADVANCING toward unexplored - standing order, keeps going every turn; do NOT re-issue advance. Any other order takes manual control]
+  Warrior-21 Warrior a1/d1/m1 (33,13) moves 1  [ADVANCING toward unexplored - standing order, keeps going every turn; do NOT re-issue advance. Any other order takes manual control]
+  Warrior-24 Warrior a1/d1/m1 (45,17) moves 1  [ADVANCING toward unexplored - standing order, keeps going every turn; do NOT re-issue advance. Any other order takes manual control]
+  Warrior-39 Warrior a1/d1/m1 (45,17) moves 1  [FORTIFIED - standing order, stays fortified; do NOT re-issue fortify]
+  Warrior-8 Warrior a1/d1/m1 (32,16) moves 1  [ADVANCING toward unexplored - standing order, keeps going every turn; do NOT re-issue advance. Any other order takes manual control]
+  Worker-3 Worker (44,16) moves 1  [AUTO-WORK - standing order, walking to a tile where Road applies; no orders needed]
+
+Known tiles: 142. Visible enemy units: 1. Visible enemy cities: none
+Culture: yours 21 (best city Carthage: 21) vs Rome 21, Greece 21. CULTURAL VICTORY is one of the ways to WIN: a single city reaching 20,000 lifetime culture, or your civilization reaching 100,000 total with at least DOUBLE every rival. Culture accrues every turn from buildings (Temple, Library, Colosseum, Cathedral, wonders) and also expands your borders.
+(your trade offer to Greece is open)
+TRADE with Greece: they know Bronze Working (you do not); you know Masonry (they do not); they hold a modest treasury. Trades settle via propose_trade (see order list).
+Diplomacy: Greece [peace]
+  declare_war on: Greece   make_peace with: (none)   (you meet everyone at peace; declare_war before you can attack a civ)
+  STANDING vs Greece: cities 3 vs 2; army attack 6 vs 2, defense 6 vs 2; techs 3 vs 3.
+
+
+Reply with ONE short line of reasoning in your civilization's own voice, then your orders wrapped EXACTLY as <ORDERS>[ ... ]</ORDERS> (only the LAST such block is executed). Order types:
+  {"type":"found_city","unit":"<id>","name":"<name>"}         found a city (invalid tile auto-walks the settler to the nearest FOUNDABLE tile)
+  {"type":"set_production","city":"<id>","item":"<name>"}      build one of the city's listed options
+  {"type":"hurry","city":"<id>"}                               rush-buy the city's current production (cost shown in the city block)
+  {"type":"advance","unit":"<id>","to":"nearest_enemy_city|nearest_enemy_unit|unexplored"}  STANDING order: unit keeps moving toward the objective every turn; it attacks whatever blocks it ON ARRIVAL, ALONE - it does not wait for other converging units
+  {"type":"hold","unit":"<id>"}                                do nothing this turn (use to hold arrivals at a staging spot until a converging group is assembled, then attack together with move_unit/move_to on the same turn)
+  {"type":"move_unit","unit":"<id>","dir":"N|NE|E|SE|S|SW|W|NW"}   step one tile (stepping onto an at-war enemy attacks it)
+  {"type":"move_to","unit":"<id>","x":<x>,"y":<y>}             move toward a tile (uses all moves this turn)
+  {"type":"bombard","unit":"<id>","x":<x>,"y":<y>}             siege attack: damages the defenders on that tile with NO risk to your unit
+  {"type":"fortify","unit":"<id>"}                             STANDING order: hold position with a defense bonus until ordered otherwise
+  {"type":"work","unit":"<id>","job":"Irrigation|Mine|Road"}   worker builds the job (auto-walks to a valid tile if needed; BUSY until done)
+  {"type":"set_rates","science":0-10}                          fraction of commerce to research (rest is tax)
+  {"type":"research","tech":"<name>"}                          set/redirect research (switching loses the beakers invested in the current tech - the order result reports how many)
+  {"type":"revolt","government":"<name>"}                      change government (a few turns of anarchy)
+  {"type":"declare_war","civ":"<name>"} / {"type":"make_peace","civ":"<name>"}   make_peace is an OFFER; peace happens only if both sides offer
+  {"type":"upgrade","unit":"<id>"}                             pay gold to turn an obsolete unit into its modern replacement (needs the prerequisite building, e.g. Barracks, in one of your cities)
+  {"type":"propose_trade","civ":"<name>","give":"gold:<n>|tech:<name>","want":"gold:<n>|tech:<name>","note":"<short context>"}   offer a binding trade (ONE per turn; they must accept or decline on THEIR next turn or it expires; settlement is instant and atomic on accept). Negotiate terms by message first; propose only deals with a real purpose
+  {"type":"accept_trade","civ":"<name>"} / {"type":"decline_trade","civ":"<name>","note":"why"}   answer a TRADE OFFER shown in this briefing - answer THIS TURN or it expires
+  {"type":"sell_building","city":"<id>","building":"<name>"}   sell a built building for half its cost and stop paying its upkeep (one sale per city per turn)
+  {"type":"disband","unit":"<id>"}                             remove a unit (ends its support cost)
+Use the exact ids and names from the briefing. Units marked [FORTIFIED]/[ADVANCING]/[AUTO-...]/BUSY already have standing orders - do not re-issue them.
+OPTIONAL: besides <ORDERS>, you may include tagged blocks such as <SUBAGENT name="governor:sparta">...</SUBAGENT>, <PLAN>...</PLAN>, or <LOG>...</LOG> anywhere in your reply. They are stored and shown to spectators verbatim, never interpreted, and never affect the game (reply protocol v0).

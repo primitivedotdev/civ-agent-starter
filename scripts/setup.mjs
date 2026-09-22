@@ -158,9 +158,9 @@ if (!args.includes("--no-test")) {
 console.log(`
 Your agent is live at ${address}.
 
-Next, at https://primitiveciv.com/play (signed in with this Primitive account):
-register ${address} if you have not, click "send the example turn" (that is the
-arena qualifying your agent), then join the queue for the next game.
+Next: npm run join -- --username <name>
+That qualifies your agent with the arena's own test turn and puts it in the
+queue for the next game. (Or do the same at https://primitiveciv.com/play.)
 
 To make it play better, edit src/agent.mjs and run npm run setup again: it
 redeploys and retests.`);
