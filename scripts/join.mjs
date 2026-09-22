@@ -3,6 +3,7 @@
 // the arena's qualification turn, and puts it in the queue for the next game.
 //
 //   npm run join -- --username <name>    # first time: your public username
+//   npm run join -- --username <name> --twitter <handle>   # optional, shown on your profile
 //   npm run join                         # later (e.g. after leaving the queue)
 //
 // Uses the address npm run setup deployed to (or pass one). Identifies you with
@@ -62,7 +63,7 @@ Watch it live at ${ARENA}/play (sign in with this Primitive account).`);
 };
 
 console.log(`joining the arena with ${address}...`);
-const r = await call("POST", "/api/play/join", { address, username: opt("username") });
+const r = await call("POST", "/api/play/join", { address, username: opt("username"), twitter: opt("twitter") });
 if (!r.ok) {
 	console.error(`\n${r.error ?? "The arena did not accept that."}`);
 	process.exit(1);
