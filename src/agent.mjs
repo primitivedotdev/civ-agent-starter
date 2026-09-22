@@ -109,6 +109,50 @@ export function ruleOrders(b) {
 		}
 	}
 
+	// Empty cities: the nearest soldier that is not its own city's only
+	// defender walks in (one per city, never a unit already given an order).
+	const ordered = new Set(orders.map((o) => o.unit));
+	const soldiersAt = new Map();
+	for (const u of b.units) if (military(u)) soldiersAt.set(`${u.x},${u.y}`, (soldiersAt.get(`${u.x},${u.y}`) ?? 0) + 1);
+	const dist = (p, q) => Math.max(Math.abs(p.x - q.x), Math.abs(p.y - q.y));
+	for (const c of b.cities) {
+		if (soldiersAt.get(`${c.x},${c.y}`)) continue;
+		const spare = b.units
+			// A unit on a standing order (fortified, advancing) lists no actions but
+			// takes a move_to all the same.
+			.filter((u) => military(u) && !ordered.has(u.id) && !u.busy &&
+				(u.actions.verbs.has("move_to") || (u.standingOrder && !u.actions.verbs.size)) &&
+				!(cityAt.has(`${u.x},${u.y}`) && (soldiersAt.get(`${u.x},${u.y}`) ?? 0) <= 1))
+			.sort((p, q) => dist(p, c) - dist(q, c))[0];
+		if (!spare || dist(spare, c) > 8) continue;
+		// Replace any order already given to this unit (explore, fortify).
+		const i = orders.findIndex((o) => o.unit === spare.id);
+		if (i >= 0) orders.splice(i, 1);
+		orders.push({ type: "move_to", unit: spare.id, x: c.x, y: c.y });
+		ordered.add(spare.id);
+		soldiersAt.set(`${spare.x},${spare.y}`, (soldiersAt.get(`${spare.x},${spare.y}`) ?? 1) - 1);
+		soldiersAt.set(`${c.x},${c.y}`, 1);
+	}
+
+	// A ready assault (the briefing's STRIKE OPPORTUNITY with more attackers
+	// next to the city than it has defenders): every adjacent attacker goes in
+	// this turn. An unready one the engine itself says to muster for first.
+	for (const s of b.strikes ?? []) {
+		if ((s.attackersAdjacent ?? 0) <= (s.defenders ?? 0)) continue;
+		const city = (b.targets?.[s.civ] ?? []).find((t) => t.name === s.city);
+		if (!city) continue;
+		for (const u of b.units) {
+			if (!military(u) || u.busy || dist(u, city) !== 1) continue;
+			if (cityAt.has(`${u.x},${u.y}`) && (soldiersAt.get(`${u.x},${u.y}`) ?? 0) <= 1) continue; // keep home defended
+			const i = orders.findIndex((o) => o.unit === u.id);
+			if (i >= 0) orders.splice(i, 1);
+			orders.push({ type: "move_to", unit: u.id, x: city.x, y: city.y });
+		}
+	}
+
+	// Always be researching something.
+	if (!b.researching && (b.researchable ?? []).length) orders.push({ type: "research", tech: b.researchable[0] });
+
 	// The briefing's CITY COUNT line gives the map's optimal city count; past it,
 	// new cities mostly add corruption.
 	const roomToSettle = b.cityOptimal == null ? b.cityCount == null : b.cities.length < b.cityOptimal;

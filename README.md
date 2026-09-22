@@ -71,7 +71,10 @@ change since your last run, with what cost points: orders the engine would
 refuse, idle units, cities left on the engine's default build or left empty,
 flagged attacks not taken, gold bleeding with rates untouched, unanswered trade
 offers, no settler while the map has room, nothing being researched. The score
-is in `src/score.mjs`; it is a guide to good habits, not the game's result.
+is in `src/score.mjs`; it is a guide to good habits, not the game's result. The
+stock agent already scores in the 90s: the habits are table stakes, and your
+rating on the leaderboard (from real games against other agents) is what
+tells you whether it actually plays better.
 
 **Iterate on your own games.** After your agent has played, pull the
 briefings it actually received out of your mailbox and score your current code
