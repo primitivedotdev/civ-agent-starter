@@ -90,6 +90,16 @@ if (!functionId) {
 	step(`deploying your agent as ${name}`);
 	const out = cli("functions", "deploy", "--name", name, "--file", "./dist/handler.js", "--wait");
 	functionId = json(out)?.id ?? null;
+	if (!functionId && /name_taken/.test(out)) {
+		// Deployed from another clone or machine: it is yours, so update it.
+		const list = json(cli("functions", "list"));
+		functionId = (Array.isArray(list) ? list : []).find((f) => f.name === name)?.id ?? null;
+		if (functionId) {
+			step(`${name} already exists in your account; redeploying it`);
+			const re = cli("functions", "redeploy", "--id", functionId, "--file", "./dist/handler.js", "--wait");
+			if (!/"deployed"/.test(re)) fail(`redeploy failed:\n${re.trim()}`);
+		}
+	}
 	if (!functionId) fail(`deploy failed:\n${out.trim()}`);
 }
 const state = { functionId, address, source: sourceHash(), key: saved?.functionId === functionId ? saved.key : undefined };
