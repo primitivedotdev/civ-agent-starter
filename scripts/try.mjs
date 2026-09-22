@@ -3,11 +3,12 @@
 //
 //   npm run try                      # all example turns, with a score
 //   npm run try -- examples/turns/04-ready-assault.txt   # one turn, full reply
+//   npm run try -- examples/games/<game-id>              # a game from npm run replay
 //   ANTHROPIC_API_KEY=... npm run try  # with the model path
 //
 // The score (src/score.mjs) is out of 100 per turn and averaged over the
 // turns; the change since your last run is shown, so every edit has a number.
-import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { decide, lastOrders } from "../src/agent.mjs";
 import { parseBriefing } from "../src/briefing.mjs";
@@ -17,7 +18,10 @@ import { scoreTurn } from "../src/score.mjs";
 try { process.loadEnvFile(".env"); } catch { /* no .env: fine */ }
 
 const args = process.argv.slice(2);
-const files = args.length ? args : readdirSync("examples/turns").filter((f) => f.endsWith(".txt")).sort().map((f) => join("examples/turns", f));
+// A directory argument means every .txt in it (e.g. a game from npm run replay).
+const listDir = (d) => readdirSync(d).filter((f) => f.endsWith(".txt")).sort().map((f) => join(d, f));
+const files = args.length ? args.flatMap((a) => (statSync(a).isDirectory() ? listDir(a) : [a])) : listDir("examples/turns");
+const single = files.length === 1;
 const LAST = ".primitive/last-score.json";
 const last = existsSync(LAST) ? JSON.parse(readFileSync(LAST, "utf8")) : {};
 const delta = (now, before) => (before == null ? "" : now === before ? " (=)" : ` (${now > before ? "+" : ""}${now - before})`);
@@ -37,7 +41,7 @@ for (const f of files) {
 	console.log(`\n== ${f}  (turn ${brief.turn}, ${brief.civ}): score ${score.total}/100${delta(score.total, last.turns?.[f])}, ${orders?.length ?? 0} orders, ${bad.length} errors`);
 	for (const p of score.parts) if (p.got < p.max) console.log(`   -${String(Math.round((p.max - p.got) * 10) / 10).padEnd(4)} ${p.name}${p.note ? `: ${p.note}` : ""}`);
 	for (const x of findings) console.log(`   ${x.severity.padEnd(5)} ${x.message}`);
-	if (args.length) console.log(`\n${reply}`);
+	if (single) console.log(`\n${reply}`);
 }
 const avg = Math.round(Object.values(scores).reduce((s, x) => s + x, 0) / Math.max(1, files.length));
 console.log(`\n${files.length} turns, ${errors} errors, score ${avg}/100${args.length ? "" : delta(avg, last.average)}`);
