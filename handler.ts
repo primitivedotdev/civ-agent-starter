@@ -173,6 +173,32 @@ export function isLoop(event: EmailReceivedEvent): boolean {
   return false;
 }
 
+// Is this mail authentically from `sender`? DMARC must pass and the From
+// header must be exactly `sender`. Alignment is relaxed, as DMARC defines it:
+// mail from civ@your-name.primitive.email authenticates as primitive.email,
+// the organizational domain, so a subdomain of the DMARC domain counts.
+function trustedSender(event: EmailReceivedEvent, sender: string): { trusted: boolean; reason: string } {
+	const domain = domainPart(sender) ?? "";
+	if (!domain) return { trusted: false, reason: "no sender domain" };
+	const strict = isTrustedSender(event, { domain, sender });
+	if (strict.trusted || strict.reason !== "dmarc-domain-mismatch") return { trusted: strict.trusted, reason: strict.reason };
+	const dmarcDomain = String(event.email?.auth?.dmarcFromDomain ?? "").toLowerCase();
+	if (!dmarcDomain || !domain.endsWith(`.${dmarcDomain}`)) return { trusted: false, reason: `dmarc domain ${dmarcDomain || "none"}` };
+	const relaxed = isTrustedSender(event, { domain: dmarcDomain });
+	// The organizational check fails only on the From domain; anything else
+	// (auth failed, several From addresses) is a real rejection.
+	if (!relaxed.trusted && relaxed.reason !== "from-domain-mismatch") return { trusted: false, reason: relaxed.reason };
+	const from = extractEmailAddresses(event.email?.headers?.from)[0]?.toLowerCase() ?? "";
+	return from === sender ? { trusted: true, reason: "trusted" } : { trusted: false, reason: "sender-mismatch" };
+}
+
+// Every ignored mail says why in `npm run logs`, so "my agent did not reply"
+// is one command away from an answer.
+function skip(reason: string): Response {
+	console.log(`skipped: ${reason}`);
+	return Response.json({ ok: true, skipped: reason });
+}
+
 export default {
   async fetch(
     req: Request,
@@ -202,14 +228,14 @@ export default {
       // delivery loop does not burn its retry budget on payloads you
       // intentionally skipped.
       if (event.event !== "email.received") {
-        return Response.json({ ok: true, skipped: event.event });
+        return skip(event.event);
       }
 
       // Loop protection runs immediately after signature verification
       // and the event-type check. See isLoop above for what's covered
       // and how to extend it.
       if (isLoop(event)) {
-        return Response.json({ ok: true, skipped: "loop" });
+        return skip("loop");
       }
 
       const client = createPrimitiveClient({
@@ -220,7 +246,7 @@ export default {
       const email = normalizeReceivedEmail(event);
       const kind = kindOf(email.subject);
       if (!kind || kind === "reply" || kind === "other") {
-        return Response.json({ ok: true, skipped: "not-civ-mail" });
+        return skip("not-civ-mail");
       }
       const { game } = parseSubject(email.subject);
       const arena = (env.ARENA_ADDRESS || DEFAULT_ARENA).toLowerCase();
@@ -231,8 +257,8 @@ export default {
       // arena's domain and address). `npm run turn` sends from
       // arena-test@<your own domain>, which is trusted the same way.
       const fromArena =
-        isTrustedSender(event, { domain: domainPart(arena) ?? "", sender: arena }).trusted ||
-        (selfDomain !== "" && isTrustedSender(event, { domain: selfDomain, sender: `arena-test@${selfDomain}` }).trusted);
+        trustedSender(event, arena).trusted ||
+        (selfDomain !== "" && trustedSender(event, `arena-test@${selfDomain}`).trusted);
 
       const key = `games/${game}`;
       const load = async (): Promise<GameState> => {
@@ -245,7 +271,11 @@ export default {
       };
 
       if (kind === "start" || kind === "over" || kind === "briefing") {
-        if (!fromArena) return Response.json({ ok: true, skipped: "untrusted-arena-mail" });
+        if (!fromArena) {
+          const why = trustedSender(event, arena).reason;
+          const whySelf = selfDomain ? trustedSender(event, `arena-test@${selfDomain}`).reason : "no recipient";
+          return skip(`untrusted-arena-mail from ${email.sender?.address ?? "?"} (arena check: ${why}; test sender check: ${whySelf})`);
+        }
       }
 
       if (kind === "start") {
@@ -263,7 +293,9 @@ export default {
         const state = await load();
         const sender = extractEmailAddresses(event.email.headers.from)[0] ?? "";
         const fromCiv = civOfSender(state.mailboxes, sender);
-        if (!fromCiv || sender === self) return Response.json({ ok: true, skipped: "letter-from-unknown-sender" });
+        if (!fromCiv || sender === self) return skip(`letter from ${sender || "?"}, not a mailbox in game ${game}`);
+        const auth = trustedSender(event, sender);
+        if (!auth.trusted) return skip(`letter claiming to be ${fromCiv} failed authentication (${auth.reason})`);
         const inbox = [...(state.inbox ?? []), { fromCiv, text: (email.text ?? "").slice(0, 4000), turn: state.lastTurn }].slice(-10);
         await save({ ...state, inbox });
         const answer = await onLetter({ game, fromCiv, text: email.text ?? "", subject: email.subject }, env, state);

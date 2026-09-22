@@ -45,7 +45,9 @@ const json = (text) => {
 const text = readFileSync(file, "utf8");
 const brief = parseBriefing(text);
 const from = fromOverride || `arena-test@${to.split("@")[1]}`;
-const subject = `primitive civ [local-test]: ${brief.civ ?? "Test"} turn ${brief.turn ?? 0}`;
+// A fresh game id per run: the CLI deduplicates identical sends, so a repeat
+// of the same turn would otherwise never leave.
+const subject = `primitive civ [local-test-${Date.now().toString(36)}]: ${brief.civ ?? "Test"} turn ${brief.turn ?? 0}`;
 const bodyFile = join(mkdtempSync(join(tmpdir(), "civ-turn-")), "briefing.txt");
 writeFileSync(bodyFile, text);
 
