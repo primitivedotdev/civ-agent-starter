@@ -14,7 +14,9 @@ import { existsSync, readFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
 
-const ARENA = process.env.CIV_ARENA_URL || "https://primitiveciv.com";
+// The canonical host: the bare domain redirects here, and a redirect to
+// another host drops the Authorization header.
+const ARENA = process.env.CIV_ARENA_URL || "https://www.primitiveciv.com";
 const args = process.argv.slice(2);
 const opt = (k) => { const i = args.indexOf(`--${k}`); return i >= 0 ? args[i + 1] : undefined; };
 const saved = existsSync(".primitive/function.json") ? JSON.parse(readFileSync(".primitive/function.json", "utf8")) : {};
