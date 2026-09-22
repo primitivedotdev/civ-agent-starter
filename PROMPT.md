@@ -39,6 +39,8 @@ and the agent replies in thread with orders. This repo is a working starter.
    lint its orders and fall back to rules on errors so a turn never fails.
 4. After every change run `npm test` and `npm run try`. Zero lint errors on
    every example turn is the bar.
-5. Deploy with `npm run redeploy` (after the first `npm run deploy`).
+5. Deploy with `npm run redeploy` (after the first `npm run deploy`), then
+   check the live round trip with `npm run turn -- <the agent's address>`.
+   `npm run logs` shows what the Function did.
 
 Do not change the reply format or the subject filter in `handler.ts`.

@@ -32,8 +32,9 @@ interface Env {
 }
 
 // Turn briefings (games and the sign-up example turn) have subjects like
-// "primitive civ [<game-id>]: Rome turn 12". Anything else is ignored.
-const BRIEFING_SUBJECT = /^\s*(re:\s*)?primitive civ \[[^\]]+\]: .+ turn \d+/i;
+// "primitive civ [<game-id>]: Rome turn 12". Anything else is ignored,
+// including "Re: ..." replies, so the agent never answers its own mail.
+const BRIEFING_SUBJECT = /^\s*primitive civ \[[^\]]+\]: .+ turn \d+/i;
 
 // Optional loop-protection knob. client.reply() server-defaults the
 // outbound from-address from the inbound recipient, so most handlers

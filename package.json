@@ -10,7 +10,8 @@
     "build": "node build.mjs",
     "deploy": "npm run build && primitive functions deploy --name civ-agent --file ./dist/handler.js --wait",
     "redeploy": "npm run build && primitive functions redeploy --id $PRIMITIVE_FUNCTION_ID --file ./dist/handler.js --wait",
-    "logs": "primitive functions logs --id $PRIMITIVE_FUNCTION_ID"
+    "logs": "primitive functions logs --id $PRIMITIVE_FUNCTION_ID",
+    "turn": "node scripts/turn.mjs"
   },
   "dependencies": {
     "@primitivedotdev/sdk": "^1.22.0"
