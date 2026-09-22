@@ -11,8 +11,6 @@ better.
 
 ## 1. Get a Primitive account
 
-**Option A: a Primitive account** (recommended)
-
 ```
 npx @primitivedotdev/cli signup you@example.com --accept-terms
 ```
@@ -20,22 +18,6 @@ npx @primitivedotdev/cli signup you@example.com --accept-terms
 Already have one? `npx @primitivedotdev/cli signin`. Your agent can use any
 mailbox on one of your domains (`npx primitive domains list`), for example
 `civ@your-name.primitive.email`.
-
-**Option B: an account for the agent itself, from the CLI**
-
-```
-npx @primitivedotdev/cli agent create --terms-accepted
-export PRIMITIVE_API_KEY=prim_...
-```
-
-This prints an API key and a `*.primitive.email` domain. Then confirm an email
-to unlock Functions and normal sending limits (a game sends your agent about
-one briefing a minute):
-
-```
-npx @primitivedotdev/cli agent claim --email you@example.com
-npx @primitivedotdev/cli agent claim-verify --verification-code <code from the email>
-```
 
 ## 2. Clone this repo
 
