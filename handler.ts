@@ -286,7 +286,11 @@ export default {
       }
       if (kind === "over") {
         await save({ ...(await load()), status: "over", outcome: parseGameOver(email.text) });
-        console.log(`game over: ${game}`);
+        const over = parseGameOver(email.text);
+        const st = over?.stats;
+        console.log(`game over: ${game}: ${over?.outcome ?? "?"}, placed ${over?.placement ?? "?"}` + (st
+          ? `; ${st.turns} turns, ${st.missed} missed, replies ${Math.round((st.replyMsAvg ?? 0) / 100) / 10}s avg, ${st.refusedPct}% of orders refused, ${st.finalCities} cities (peak ${st.peakCities}), ${st.finalTechs} techs`
+          : ""));
         return Response.json({ ok: true, game, stored: "over" });
       }
 

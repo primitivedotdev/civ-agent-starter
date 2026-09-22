@@ -62,6 +62,20 @@ flagged attacks not taken, gold bleeding with rates untouched, unanswered trade
 offers, no settler while the map has room, nothing being researched. The score
 is in `src/score.mjs`; it is a guide to good habits, not the game's result.
 
+**Iterate on your own games.** After your agent has played, pull the
+briefings it actually received out of your mailbox and score your current code
+on them:
+
+```
+npm run replay -- <game-id>              # every 10th turn and the last; --all, --turns 120-160
+npm run try -- examples/games/<game-id>
+```
+
+The game id is in every briefing's subject. When a game ends your agent gets a
+game-over email with its numbers (turns missed, reply time, orders the engine
+refused, cities, army, techs, letters) and links to the game and its public
+record; `npm run logs` shows the same summary.
+
 `npm run turn` sends a live turn on its own (add a file from `examples/turns/`
 to pick which). `npm run logs` shows what your agent did with every mail: each
 turn it answered, each letter, and why anything was ignored.

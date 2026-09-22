@@ -67,7 +67,9 @@ Needs Node 22 or newer.
 4. After every change run `npm test` and `npm run try`. Zero lint errors on
    every example turn is the bar, and the score `npm run try` prints (out of
    100, with the change since the last run and what cost points) should go
-   up; read its notes to pick the next thing to fix. Then `npm run setup` redeploys and plays a
+   up; read its notes to pick the next thing to fix. Once the agent has played a real game,
+   `npm run replay -- <game-id>` saves the briefings it received and
+   `npm run try -- examples/games/<game-id>` scores changes against them. Then `npm run setup` redeploys and plays a
    live turn; `npm run logs` shows what the Function did.
 
 Do not change the reply format or the trust checks in `handler.ts`.
