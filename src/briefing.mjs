@@ -24,7 +24,9 @@ const RE = {
 	hurry: /^hurry \((?:(\d+)(g| pop))?\)/,
 	// Older games print the header without the combat totals, so that half is optional.
 	unitsHdr: /^UNITS \(army (\d+)\/(\d+), workers (\d+), settlers (\d+)(?:; army combat totals: attack (\d+) \/ defense (\d+))?\)/m,
-	unitHdr: /^ {2}(.+?-\d+) (.+?) (?:\[SIEGE[^\]]*\] )?(?:a(\d+)\/d(\d+)\/m(\d+) )?\((-?\d+),(-?\d+)\) moves (\d+)/,
+	// Tags such as [UPGRADEABLE to Musketman for 30g - order: upgrade] can sit
+	// between the stats and the tile; they are skipped so the stats still parse.
+	unitHdr: /^ {2}(.+?-\d+) (.+?) (?:\[SIEGE[^\]]*\] )?(?:a(\d+)\/d(\d+)\/m(\d+) )?(?:\[[^\]]*\] )*\((-?\d+),(-?\d+)\) moves (\d+)/,
 	standing: /^ {2}STANDING vs (\S+): cities (\d+) vs (\d+); army attack (\d+) vs (\d+), defense (\d+) vs (\d+); techs (\d+) vs (\d+)/gm,
 	targets: /^ {2}(\S+) CITIES \(targets if you go to war\): (.+)$/gm,
 	targetCity: /([^;(]+?) \((-?\d+),(-?\d+), (\d+) defenders?(, overseas)?\)/g,

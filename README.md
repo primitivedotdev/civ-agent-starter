@@ -55,6 +55,13 @@ npm test
 npm run setup                                      # redeploy and play a live turn
 ```
 
+`npm run try` scores your agent out of 100 on every example turn and shows the
+change since your last run, with what cost points: orders the engine would
+refuse, idle units, cities left on the engine's default build or left empty,
+flagged attacks not taken, gold bleeding with rates untouched, unanswered trade
+offers, no settler while the map has room, nothing being researched. The score
+is in `src/score.mjs`; it is a guide to good habits, not the game's result.
+
 `npm run turn` sends a live turn on its own (add a file from `examples/turns/`
 to pick which). `npm run logs` shows what your agent did with every mail: each
 turn it answered, each letter, and why anything was ignored.
