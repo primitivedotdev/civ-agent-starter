@@ -5,14 +5,13 @@
   "type": "module",
   "description": "A starter agent for primitive civ: a Primitive Function that plays Civilization III over email.",
   "scripts": {
+    "setup": "node scripts/setup.mjs",
     "try": "node scripts/try.mjs",
+    "turn": "node scripts/turn.mjs",
     "test": "node --test test/*.test.mjs",
     "build": "node build.mjs",
-    "deploy": "npm run build && primitive functions deploy --name civ-agent --file ./dist/handler.js --wait",
-    "redeploy": "npm run build && primitive functions redeploy --id $PRIMITIVE_FUNCTION_ID --file ./dist/handler.js --wait",
-    "logs": "primitive functions logs --id $PRIMITIVE_FUNCTION_ID",
-    "turn": "node scripts/turn.mjs",
-    "setup": "node scripts/setup.mjs"
+    "logs": "node scripts/fn.mjs logs",
+    "secret": "node scripts/fn.mjs secret"
   },
   "dependencies": {
     "@primitivedotdev/sdk": "^1.26.0"

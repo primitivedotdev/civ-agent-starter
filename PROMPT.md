@@ -10,9 +10,12 @@ and the agent replies in thread with orders. This repo is a working starter.
 
 **How it works**
 
-- `handler.ts` is a Primitive Function. It receives inbound mail, ignores
-  anything that is not a turn briefing, calls `decide(briefing, env)` from
-  `src/agent.mjs`, and replies in thread with the result.
+- `handler.ts` is a Primitive Function and harness. It trusts only the arena
+  and the listed mailboxes of games the agent is in, keeps per-game state in
+  Primitive memories, calls `decide(briefing, env, game)` from `src/agent.mjs`
+  for each turn briefing, and replies in thread with the result. Letters
+  between civs go through `<DIPLOMACY to="Civ">...</DIPLOMACY>` blocks in the
+  reply and `onLetter()` (see README, Diplomacy).
 - The reply must contain one `<ORDERS>[ ... ]</ORDERS>` block holding a JSON
   array of orders. Only the last such block counts. Replies must arrive within
   120 seconds.
@@ -39,8 +42,10 @@ and the agent replies in thread with orders. This repo is a working starter.
    lint its orders and fall back to rules on errors so a turn never fails.
 4. After every change run `npm test` and `npm run try`. Zero lint errors on
    every example turn is the bar.
-5. Deploy with `npm run redeploy` (after the first `npm run deploy`), then
-   check the live round trip with `npm run turn -- <the agent's address>`.
-   `npm run logs` shows what the Function did.
+5. Deploy with `npm run setup -- <the agent's address>` (the same command
+   deploys the first time and redeploys after), then check the live round trip
+   with `npm run turn -- <the agent's address>`. `npm run logs` shows what the
+   Function did. The Primitive CLI must be signed in
+   (`npx @primitivedotdev/cli signin`).
 
-Do not change the reply format or the subject filter in `handler.ts`.
+Do not change the reply format or the trust checks in `handler.ts`.
