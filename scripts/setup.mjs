@@ -11,6 +11,7 @@
 // (`npx @primitivedotdev/cli signin`) or PRIMITIVE_API_KEY.
 import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { sourceHash } from "../src/source-hash.mjs";
 
 const args = process.argv.slice(2);
 const address = args.find((a) => a.includes("@"))?.toLowerCase();
@@ -66,7 +67,7 @@ if (!functionId) {
 	}
 }
 mkdirSync(".primitive", { recursive: true });
-writeFileSync(STATE, JSON.stringify({ functionId, address }, null, 2) + "\n");
+writeFileSync(STATE, JSON.stringify({ functionId, address, source: sourceHash() }, null, 2) + "\n");
 
 // 2. Route the address's domain to the function.
 const domains = json(cli("domains", "list"));

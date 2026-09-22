@@ -9,12 +9,13 @@
 // arena would send it, and the reply is linted like a real turn. Uses the
 // Primitive CLI's saved sign-in (or PRIMITIVE_API_KEY).
 import { execFileSync } from "node:child_process";
-import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { lastOrders } from "../src/agent.mjs";
 import { parseBriefing } from "../src/briefing.mjs";
 import { lintOrders } from "../src/lint.mjs";
+import { sourceHash } from "../src/source-hash.mjs";
 
 const argv = process.argv.slice(2);
 const fromFlag = argv.indexOf("--from");
@@ -51,6 +52,13 @@ const subject = `primitive civ [local-test-${Date.now().toString(36)}]: ${brief.
 const bodyFile = join(mkdtempSync(join(tmpdir(), "civ-turn-")), "briefing.txt");
 writeFileSync(bodyFile, text);
 
+// Testing an old deploy is the easiest mistake to make while iterating.
+if (existsSync(".primitive/function.json")) {
+	const deployed = JSON.parse(readFileSync(".primitive/function.json", "utf8"));
+	if (deployed.address === to && deployed.source !== sourceHash()) {
+		console.warn(`note: your agent's code changed since the last deploy. Run \`npm run setup -- ${to}\` first to test the new code.\n`);
+	}
+}
 console.log(`sending ${file} to ${to} (from ${from})...`);
 const sentOut = cli("send", "--to", to, "--from", from, "--subject", subject, "--body-file", bodyFile);
 const sentId = json(sentOut)?.id;
