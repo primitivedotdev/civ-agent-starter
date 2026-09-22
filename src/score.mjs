@@ -6,7 +6,7 @@
 //   units used          15  no unit left idle without a standing order
 //   cities building     10  every city building something you chose
 //   cities defended     15  no city left without a defender after your moves
-//   attacks taken       15  when the briefing flags a STRIKE OPPORTUNITY, go in
+//   attacks taken       15  when a flagged STRIKE OPPORTUNITY is ready, go in
 //   gold                10  losing gold per turn and not adjusting rates costs
 //   offers answered      5  a trade offer left unanswered costs
 //   expansion           10  room for more cities (CITY COUNT line) and no settler coming
@@ -56,8 +56,10 @@ export function scoreTurn(b, orders, findings = []) {
 	});
 	add("cities defended", 15, cities.length ? 1 - empty.length / cities.length : 1, empty.length ? `${empty.length} left empty: ${empty.slice(0, 3).map((c) => c.name).join(", ")}` : "");
 
-	// Attacks taken on flagged openings.
-	const strikes = b.strikes ?? [];
+	// Attacks taken on flagged openings that are ready: more attackers adjacent
+	// than defenders. An unready one the engine itself says to muster for
+	// first, so holding off is right and costs nothing.
+	const strikes = (b.strikes ?? []).filter((x) => (x.attackersAdjacent ?? 0) > (x.defenders ?? 0));
 	const tileOf = (s) => (b.targets?.[s.civ] ?? []).find((t) => t.name === s.city);
 	const taken = strikes.filter((s) => {
 		const t = tileOf(s);
