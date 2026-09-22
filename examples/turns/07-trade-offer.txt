@@ -1,0 +1,77 @@
+=== TURN 30 | Ottomans ===
+Government: Despotism   Gold: 110 (+3/turn)   Rates: science 60% / tax 40% / luxury 0% (use set_rates to raise science)   Beakers/turn: 4 (research scales with the number of cities you own)
+  (estimated break-even science rate: ~100% - at that rate gold/turn stays >= 0; a steady rate beats flip-flopping between 0% and 100%)
+  DESPOTISM PENALTY: Despotism docks the output of every tile you work, so you are producing far below your potential - free unit support does NOT make up for it. Research a GOVERNMENT tech (The Republic or Monarchy) as your TOP research priority, then revolt. SELF-CHECK: if 'Techs known' already includes The Republic or Monarchy, do not wait for anything else - issue {"type":"revolt"} this turn.
+Researching: Warrior Code - 8/29 beakers (~6 turns left)  [switching now would lose the 8 invested beaker(s); re-issuing the same tech does nothing]
+Techs known: 4. Can research now:
+  Warrior Code (cost 21 beakers): unlocks Archer a2/d1/m1, Jaguar Warrior a1/d1/m2, Bowman a2/d2/m1, Javelin Thrower a2/d2/m1; opens research of Horseback Riding, Monarchy
+  The Wheel (cost 64 beakers): unlocks Chariot a1/d1/m2, needs Horses, War Chariot a2/d1/m2, needs Horses, Three-Man Chariot a2/d2/m2, needs Horses; opens research of Horseback Riding
+  Mysticism (cost 64 beakers): unlocks The Oracle; opens research of Polytheism
+  Alphabet (cost 80 beakers): unlocks Curragh a1/d1/m2; opens research of Writing, Mathematics
+  Iron Working (cost 96 beakers): unlocks Swordsman a3/d2/m1, needs Iron, Legionary a3/d3/m1, needs Iron, Immortals a4/d2/m1, needs Iron, Gallic Swordsman a3/d2/m2, needs Iron; opens research of Construction
+Strategic resources CONNECTED: none. (a unit needing a resource is only buildable in cities connected to it)
+  NOT connected - Horses (gates Chariot/Horseman/Knight): nearest known at (31,37), OUTSIDE your borders (expand a city near it)
+  NOT connected - Iron (gates Swordsman/Pikeman/Knight): no known source - explore
+  NOT connected - Saltpeter (gates Musketman/Cavalry/Cannon): nearest known at (33,35), OUTSIDE your borders (expand a city near it)
+  NOT connected - Coal (gates Ironclad): no known source - explore
+  NOT connected - Oil (gates Modern Paratrooper/Tank/Mech Infantry): nearest known at (35,33), OUTSIDE your borders (expand a city near it)
+  NOT connected - Rubber (gates Marine/Modern Paratrooper/Infantry): no known source - explore
+  NOT connected - Aluminum (gates Radar Artillery/Cruise Missile/Tactical Nuke): no known source - explore
+  NOT connected - Uranium (gates Tactical Nuke/ICBM/AEGIS Cruiser): nearest known at (34,30), OUTSIDE your borders (expand a city near it)
+  PATH to Monarchy: Warrior Code -> Mysticism -> Polytheism -> Monarchy (4 tech(s), total cost ~43)
+  PATH to The Republic: Alphabet -> Writing -> Philosophy -> Code of Laws -> The Republic (5 tech(s), total cost ~57)
+
+CITIES (1):   (mechanics: each citizen eats 2 food/turn and surplus fills the food box until the city grows - a city at zero surplus NEVER grows until you work more food tiles or irrigate; if unhappy > happy the city RIOTS and produces nothing; corruption rises with distance from your capital)
+  city-1 Istanbul (30,32) size 2 [0 happy/2 content/0 unhappy] culture 30 (+1/turn)
+      built: Palace
+      producing: Settler (30 turns left); food +2/turn, grows in 10 (food box 0/20, +2/turn)
+      build options: Settler(~30t, founds a new city (costs 2 pop)), Worker(~10t, improves tiles (irrigate/mine/road)), Warrior(~10t a1/d1/m1, weak early military - replace with stronger units as soon as you can build them), Spearman(~20t a1/d2/m1, strong DEFENDER - garrison your cities with these), Barracks(~40t, upkeep -1g/turn, new land units start veteran (more HP); wounded units heal fully here in one turn), Granary(~60t, upkeep -1g/turn, on growth the food box stays half full - only matters if the city has a food SURPLUS), Temple(~60t, +2 culture/turn, upkeep -1g/turn, +1 content citizen (happiness) and culture (borders expand)), Walls(~20t, large defense multiplier for the garrison of this city), The Pyramids(~200t, +4 culture/turn), The Colossus(~200t, +3 culture/turn), Heroic Epic(~200t, +4 culture/turn), Forbidden Palace(~200t, +2 culture/turn)
+
+UNITS (army 1/40, workers 2, settlers 0; army combat totals: attack 1 / defense 1):
+  (combat mechanics: battles run in HP rounds, each won at odds attack/(attack+defense); the DEFENDER'S d is MULTIPLIED by fortifying, terrain (hills/mountains/forest), river crossings, and city walls/size - a fortified d3 unit on a hill behind walls defends like d6+, so raw attacker counts lie; siege units bombard first to strip defender HP without risk; a wounded unit has fewer HP rounds and dies sooner)
+  Settler-17 Settler (30,32) moves 1
+      on Grassland/Grassland f2s0c0 RES:NONE [CITY]
+      adjacent: N:Coast NE:Grassland E:Grassland SE:Grassland S:occupied SW:Coast W:Coast NW:Coast   (move_unit by dir, or move_to x,y)
+      actions: move_unit dir N/NE/E/SE/S/SW/W/NW (or move_to x,y) | advance to nearest_enemy_city/nearest_enemy_unit/unexplored | explore | fortify | sentry | hold | disband
+  Worker-1 Worker (30,34) moves 1
+      on Grassland/Grassland f2s0c0 RES:Tobacco [irrigation] [occupied]; can build here: Mine, Road
+      adjacent: N:city NE:Grassland E:Grassland SE:Grassland S:Grassland SW:Coast W:Coast NW:Coast   (move_unit by dir, or move_to x,y)
+      actions: move_unit dir N/NE/E/SE/S/SW/W/NW (or move_to x,y) | advance to nearest_enemy_city/nearest_enemy_unit/unexplored | work job Mine/Road | explore | fortify | sentry | hold | disband
+  Warrior-13 Warrior a1/d1/m1 (30,32) moves 1  [ADVANCING toward unexplored - standing order, keeps going every turn; do NOT re-issue advance. Any other order takes manual control]
+
+Known tiles: 49. Visible enemy units: 0. Visible enemy cities: none
+Culture: yours 30 (best city Istanbul: 30) vs Russia 30, Persia 30. CULTURAL VICTORY is one of the ways to WIN: a single city reaching 20,000 lifetime culture, or your civilization reaching 100,000 total with at least DOUBLE every rival. Culture accrues every turn from buildings (Temple, Library, Colosseum, Cathedral, wonders) and also expands your borders.
+*** TRADE OFFER from Russia - THIS TURN ONLY: they give you the secret of Warrior Code, they want the secret of Ceremonial Burial (researching Warrior Code yourself would cost ~21 beakers) (the Ceremonial Burial they ask for would cost THEM ~16 beakers to research - price accordingly). Their note: "Fair exchange of knowledge between enlightened peoples." Reply THIS TURN with {"type":"accept_trade","civ":"Russia"} or {"type":"decline_trade","civ":"Russia","note":"why"} - an unanswered offer expires when your turn ends. Accepting settles BOTH sides instantly and atomically. Do not accept lopsided deals.
+(your trade offer to Russia is open - await their answer, NO order needed from you)
+TRADE with Russia: they know Warrior Code (you do not); you know Ceremonial Burial (they do not); they hold a modest treasury. A swap is available NOW: {"type":"propose_trade","civ":"Russia","give":"tech:Ceremonial Burial","want":"tech:Warrior Code","note":"<why>"}
+TRADE with Persia: they know Warrior Code (you do not); you know nothing they lack; they hold a modest treasury. You could BUY Warrior Code: {"type":"propose_trade","civ":"Persia","give":"gold:55","want":"tech:Warrior Code","note":"<why>"}
+Diplomacy: Russia [peace] (history: TRADE EXECUTED T27: Russia gave the secret of Pottery for the secret of Masonry; TRADE EXECUTED T27: Ottomans gave the secret of Masonry for the secret of Pottery; trade declined by Ottomans T29), Persia [peace] (history: trade declined by Ottomans T28)
+  declare_war on: Russia, Persia   make_peace with: (none)   (you meet everyone at peace; declare_war before you can attack a civ)
+  STANDING vs Russia: cities 1 vs 1; army attack 1 vs 5, defense 1 vs 5; techs 4 vs 4.
+  Russia CITIES (targets if you go to war): Moscow (49,39, 5 defenders). To attack one: build a strike stack, advance/move_to its coordinates, declare_war, and move onto it.
+  STANDING vs Persia: cities 1 vs 2; army attack 1 vs 0, defense 1 vs 0; techs 4 vs 5.
+  Persia CITIES (targets if you go to war): Persepolis (35,51, 0 defenders). To attack one: build a strike stack, advance/move_to its coordinates, declare_war, and move onto it.
+
+
+Reply with ONE short line of reasoning in your civilization's own voice, then your orders wrapped EXACTLY as <ORDERS>[ ... ]</ORDERS> (only the LAST such block is executed). Order types:
+  {"type":"found_city","unit":"<id>","name":"<name>"}         found a city (invalid tile auto-walks the settler to the nearest FOUNDABLE tile)
+  {"type":"set_production","city":"<id>","item":"<name>"}      build one of the city's listed options
+  {"type":"hurry","city":"<id>"}                               rush-buy the city's current production (cost shown in the city block)
+  {"type":"advance","unit":"<id>","to":"nearest_enemy_city|nearest_enemy_unit|unexplored"}  STANDING order: unit keeps moving toward the objective every turn; it attacks whatever blocks it ON ARRIVAL, ALONE - it does not wait for other converging units
+  {"type":"hold","unit":"<id>"}                                do nothing this turn (use to hold arrivals at a staging spot until a converging group is assembled, then attack together with move_unit/move_to on the same turn)
+  {"type":"move_unit","unit":"<id>","dir":"N|NE|E|SE|S|SW|W|NW"}   step one tile (stepping onto an at-war enemy attacks it)
+  {"type":"move_to","unit":"<id>","x":<x>,"y":<y>}             move toward a tile (uses all moves this turn)
+  {"type":"bombard","unit":"<id>","x":<x>,"y":<y>}             siege attack: damages the defenders on that tile with NO risk to your unit
+  {"type":"fortify","unit":"<id>"}                             STANDING order: hold position with a defense bonus until ordered otherwise
+  {"type":"work","unit":"<id>","job":"Irrigation|Mine|Road"}   worker builds the job (auto-walks to a valid tile if needed; BUSY until done)
+  {"type":"set_rates","science":0-10,"luxury":0-10}            science = fraction of commerce to research, luxury = fraction to keeping cities happy (raise it to END civil disorder); tax (gold) is whatever remains
+  {"type":"research","tech":"<name>"}                          set/redirect research (switching loses the beakers invested in the current tech - the order result reports how many)
+  {"type":"revolt","government":"<name>"}                      change government (a few turns of anarchy)
+  {"type":"declare_war","civ":"<name>"} / {"type":"make_peace","civ":"<name>"}   make_peace is an OFFER; peace happens only if both sides offer
+  {"type":"upgrade","unit":"<id>"}                             pay gold to turn an obsolete unit into its modern replacement (needs the prerequisite building, e.g. Barracks, in one of your cities)
+  {"type":"propose_trade","civ":"<name>","give":"<bundle>","want":"<bundle>","note":"<short context>"}   offer a binding trade (ONE per turn; they accept or decline on THEIR next turn or it expires; settlement is instant and atomic). Each side is a "+"-joined bundle of items: gold:<n>, tech:<name>, city:<name>, or the word peace (ends a war). Examples: "gold:120" / "tech:Currency" / "peace+city:Hippo" wanted for "gold:200+tech:Writing". A city cession and a peace treaty settle atomically only through this order - a promise in a letter moves NOTHING. Negotiate by message first; propose only deals with a real purpose
+  {"type":"accept_trade","civ":"<name>"} / {"type":"decline_trade","civ":"<name>","note":"why"}   answer a TRADE OFFER shown in this briefing - answer THIS TURN or it expires
+  {"type":"sell_building","city":"<id>","building":"<name>"}   sell a built building for half its cost and stop paying its upkeep (one sale per city per turn)
+  {"type":"disband","unit":"<id>"}                             remove a unit (ends its support cost)
+Use the exact ids and names from the briefing. Units marked [FORTIFIED]/[ADVANCING]/[AUTO-...]/BUSY already have standing orders - do not re-issue them.
+OPTIONAL: besides <ORDERS>, you may include tagged blocks such as <SUBAGENT name="governor:sparta">...</SUBAGENT>, <PLAN>...</PLAN>, or <LOG>...</LOG> anywhere in your reply. They are stored and shown to spectators verbatim, never interpreted, and never affect the game (reply protocol v0).

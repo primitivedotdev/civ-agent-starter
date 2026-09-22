@@ -1,0 +1,71 @@
+=== TURN 0 | Ottomans ===
+Government: Despotism   Gold: 10 (+0/turn)   Rates: science 50% / tax 50% / luxury 0% (use set_rates to raise science)   Beakers/turn: 0 (research scales with the number of cities you own)
+  Unit support: you have 2 unit(s), 2 over your free limit of 0 - support cost 2 gold/turn (each disband past the limit saves 1 gold/turn).
+  DESPOTISM PENALTY: Despotism docks the output of every tile you work, so you are producing far below your potential - free unit support does NOT make up for it. Research a GOVERNMENT tech (The Republic or Monarchy) as your TOP research priority, then revolt. SELF-CHECK: if 'Techs known' already includes The Republic or Monarchy, do not wait for anything else - issue {"type":"revolt"} this turn.
+Researching: NONE - choose a tech to research!
+Techs known: 2. Can research now:
+  Pottery (cost 32 beakers): unlocks Granary; opens research of Map Making
+  Ceremonial Burial (cost 32 beakers): unlocks Temple; opens research of Mysticism
+  Warrior Code (cost 48 beakers): unlocks Archer a2/d1/m1, Jaguar Warrior a1/d1/m2, Bowman a2/d2/m1, Javelin Thrower a2/d2/m1; opens research of Horseback Riding, Monarchy
+  The Wheel (cost 64 beakers): unlocks Chariot a1/d1/m2, needs Horses, War Chariot a2/d1/m2, needs Horses, Three-Man Chariot a2/d2/m2, needs Horses; opens research of Horseback Riding
+  Alphabet (cost 80 beakers): unlocks Curragh a1/d1/m2; opens research of Writing, Mathematics
+  Iron Working (cost 96 beakers): unlocks Swordsman a3/d2/m1, needs Iron, Legionary a3/d3/m1, needs Iron, Immortals a4/d2/m1, needs Iron, Gallic Swordsman a3/d2/m2, needs Iron; opens research of Construction
+Strategic resources CONNECTED: none. (a unit needing a resource is only buildable in cities connected to it)
+  NOT connected - Horses (gates Chariot/Horseman/Knight): no known source - explore
+  NOT connected - Iron (gates Swordsman/Pikeman/Knight): no known source - explore
+  NOT connected - Saltpeter (gates Musketman/Cavalry/Cannon): no known source - explore
+  NOT connected - Coal (gates Ironclad): no known source - explore
+  NOT connected - Oil (gates Modern Paratrooper/Tank/Mech Infantry): no known source - explore
+  NOT connected - Rubber (gates Marine/Modern Paratrooper/Infantry): no known source - explore
+  NOT connected - Aluminum (gates Radar Artillery/Cruise Missile/Tactical Nuke): nearest known at (24,40), OUTSIDE your borders (expand a city near it)
+  NOT connected - Uranium (gates Tactical Nuke/ICBM/AEGIS Cruiser): no known source - explore
+  PATH to Monarchy: Warrior Code -> Ceremonial Burial -> Mysticism -> Polytheism -> Monarchy (5 tech(s), total cost ~45)
+  PATH to The Republic: Alphabet -> Writing -> Philosophy -> Code of Laws -> The Republic (5 tech(s), total cost ~57)
+
+CITIES (0):   (mechanics: each citizen eats 2 food/turn and surplus fills the food box until the city grows - a city at zero surplus NEVER grows until you work more food tiles or irrigate; if unhappy > happy the city RIOTS and produces nothing; corruption rises with distance from your capital)
+
+UNITS (army 0/40, workers 1, settlers 1; army combat totals: attack 0 / defense 0):
+  (combat mechanics: battles run in HP rounds, each won at odds attack/(attack+defense); the DEFENDER'S d is MULTIPLIED by fortifying, terrain (hills/mountains/forest), river crossings, and city walls/size - a fortified d3 unit on a hill behind walls defends like d6+, so raw attacker counts lie; siege units bombard first to strip defender HP without risk; a wounded unit has fewer HP rounds and dies sooner)
+  Settler-3 Settler (25,41) moves 1  <- SETTLER, can found a city
+      HERE: Grassland/Grassland f2s0c0 RES:NONE [occupied]  FOUNDABLE
+      N : Grassland/Grassland f2s0c0 RES:NONE  FOUNDABLE
+      NE: Grassland/Grassland f2s0c0 RES:NONE  FOUNDABLE
+      E : Grassland/Grassland f2s0c0 RES:Wheat  FOUNDABLE
+      SE: Grassland/Grassland f2s0c0 RES:NONE  FOUNDABLE
+      S : Grassland/Grassland f2s0c0 RES:NONE  FOUNDABLE
+      SW: Grassland/Grassland f2s0c0 RES:NONE  FOUNDABLE
+      W : Grassland/Hills f2s0c0 RES:NONE  FOUNDABLE
+      NW: Grassland/Hills f2s0c0 RES:Aluminum  FOUNDABLE
+      actions: move_unit dir N/NE/E/SE/S/SW/W/NW (or move_to x,y) | advance to nearest_enemy_city/nearest_enemy_unit/unexplored | found_city | explore | fortify | sentry | hold | disband
+  Worker-3 Worker (25,41) moves 1
+      on Grassland/Grassland f2s0c0 RES:NONE [occupied]; can build here: Mine, Road
+      adjacent: N:Grassland NE:Grassland E:Grassland SE:Grassland S:Grassland SW:Grassland W:Grassland NW:Grassland   (move_unit by dir, or move_to x,y)
+      actions: move_unit dir N/NE/E/SE/S/SW/W/NW (or move_to x,y) | advance to nearest_enemy_city/nearest_enemy_unit/unexplored | work job Mine/Road | explore | fortify | sentry | hold | disband
+
+Known tiles: 10. Visible enemy units: 0. Visible enemy cities: none
+Culture: yours 0 vs Hittites 0, Persia 0. CULTURAL VICTORY is one of the ways to WIN: a single city reaching 20,000 lifetime culture, or your civilization reaching 100,000 total with at least DOUBLE every rival. Culture accrues every turn from buildings (Temple, Library, Colosseum, Cathedral, wonders) and also expands your borders.
+Diplomacy: you have not met any other civilization yet.
+
+
+Reply with ONE short line of reasoning in your civilization's own voice, then your orders wrapped EXACTLY as <ORDERS>[ ... ]</ORDERS> (only the LAST such block is executed). Order types:
+  {"type":"found_city","unit":"<id>","name":"<name>"}         found a city (invalid tile auto-walks the settler to the nearest FOUNDABLE tile)
+  {"type":"set_production","city":"<id>","item":"<name>"}      build one of the city's listed options
+  {"type":"hurry","city":"<id>"}                               rush-buy the city's current production (cost shown in the city block)
+  {"type":"advance","unit":"<id>","to":"nearest_enemy_city|nearest_enemy_unit|unexplored"}  STANDING order: unit keeps moving toward the objective every turn; it attacks whatever blocks it ON ARRIVAL, ALONE - it does not wait for other converging units
+  {"type":"hold","unit":"<id>"}                                do nothing this turn (use to hold arrivals at a staging spot until a converging group is assembled, then attack together with move_unit/move_to on the same turn)
+  {"type":"move_unit","unit":"<id>","dir":"N|NE|E|SE|S|SW|W|NW"}   step one tile (stepping onto an at-war enemy attacks it)
+  {"type":"move_to","unit":"<id>","x":<x>,"y":<y>}             move toward a tile (uses all moves this turn)
+  {"type":"bombard","unit":"<id>","x":<x>,"y":<y>}             siege attack: damages the defenders on that tile with NO risk to your unit
+  {"type":"fortify","unit":"<id>"}                             STANDING order: hold position with a defense bonus until ordered otherwise
+  {"type":"work","unit":"<id>","job":"Irrigation|Mine|Road"}   worker builds the job (auto-walks to a valid tile if needed; BUSY until done)
+  {"type":"set_rates","science":0-10,"luxury":0-10}            science = fraction of commerce to research, luxury = fraction to keeping cities happy (raise it to END civil disorder); tax (gold) is whatever remains
+  {"type":"research","tech":"<name>"}                          set/redirect research (switching loses the beakers invested in the current tech - the order result reports how many)
+  {"type":"revolt","government":"<name>"}                      change government (a few turns of anarchy)
+  {"type":"declare_war","civ":"<name>"} / {"type":"make_peace","civ":"<name>"}   make_peace is an OFFER; peace happens only if both sides offer
+  {"type":"upgrade","unit":"<id>"}                             pay gold to turn an obsolete unit into its modern replacement (needs the prerequisite building, e.g. Barracks, in one of your cities)
+  {"type":"propose_trade","civ":"<name>","give":"<bundle>","want":"<bundle>","note":"<short context>"}   offer a binding trade (ONE per turn; they accept or decline on THEIR next turn or it expires; settlement is instant and atomic). Each side is a "+"-joined bundle of items: gold:<n>, tech:<name>, city:<name>, or the word peace (ends a war). Examples: "gold:120" / "tech:Currency" / "peace+city:Hippo" wanted for "gold:200+tech:Writing". A city cession and a peace treaty settle atomically only through this order - a promise in a letter moves NOTHING. Negotiate by message first; propose only deals with a real purpose
+  {"type":"accept_trade","civ":"<name>"} / {"type":"decline_trade","civ":"<name>","note":"why"}   answer a TRADE OFFER shown in this briefing - answer THIS TURN or it expires
+  {"type":"sell_building","city":"<id>","building":"<name>"}   sell a built building for half its cost and stop paying its upkeep (one sale per city per turn)
+  {"type":"disband","unit":"<id>"}                             remove a unit (ends its support cost)
+Use the exact ids and names from the briefing. Units marked [FORTIFIED]/[ADVANCING]/[AUTO-...]/BUSY already have standing orders - do not re-issue them.
+OPTIONAL: besides <ORDERS>, you may include tagged blocks such as <SUBAGENT name="governor:sparta">...</SUBAGENT>, <PLAN>...</PLAN>, or <LOG>...</LOG> anywhere in your reply. They are stored and shown to spectators verbatim, never interpreted, and never affect the game (reply protocol v0).

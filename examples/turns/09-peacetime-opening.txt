@@ -1,0 +1,165 @@
+=== TURN 179 | Ottomans ===
+Government: Republic   Gold: 341 (+10/turn)   Rates: science 20% / tax 50% / luxury 30% (use set_rates to raise science)   Beakers/turn: 29 (research scales with the number of cities you own)
+  (your current science rate is sustainable: gold/turn is non-negative)
+  Unit support: you have 22 unit(s), 8 over your free limit of 14 - support cost 16 gold/turn (each disband past the limit saves 2 gold/turn).
+  Last 10 turns you disbanded 6 unit(s) (3 Worker, 2 Spearman, 1 Pikeman), saving some support gold.
+  Can revolt to: Despotism, Monarchy, Feudalism (a few turns of anarchy to switch).
+Researching: Printing Press - 201/288 beakers (~3 turns left)  [switching now would lose the 201 invested beaker(s); re-issuing the same tech does nothing]
+Techs known: 26. Can research now:
+  Printing Press (cost 87 beakers): no direct unlocks; opens research of Democracy
+  Invention (cost 352 beakers): unlocks Longbowman a4/d1/m1, Berserk a6/d2/m1, Leonardo's Workshop; opens research of Gunpowder
+  Education (cost 352 beakers): unlocks University; opens research of Music Theory, Banking, Astronomy
+Strategic resources CONNECTED: Horses, Iron. (a unit needing a resource is only buildable in cities connected to it)
+  NOT connected - Saltpeter (gates Musketman/Cavalry/Cannon): nearest known at (30,44), inside your borders
+  NOT connected - Coal (gates Ironclad): nearest known at (24,54), inside your borders
+  NOT connected - Oil (gates Modern Paratrooper/Tank/Mech Infantry): nearest known at (30,52), inside your borders
+  NOT connected - Rubber (gates Marine/Modern Paratrooper/Infantry): nearest known at (18,46), OUTSIDE your borders (expand a city near it)
+  NOT connected - Aluminum (gates Radar Artillery/Cruise Missile/Tactical Nuke): nearest known at (31,47), inside your borders
+  NOT connected - Uranium (gates Tactical Nuke/ICBM/AEGIS Cruiser): nearest known at (29,55), inside your borders - ROAD that tile to connect it
+
+CITIES (12):   (mechanics: each citizen eats 2 food/turn and surplus fills the food box until the city grows - a city at zero surplus NEVER grows until you work more food tiles or irrigate; if unhappy > happy the city RIOTS and produces nothing; corruption rises with distance from your capital)
+  *** 6 of your 12 cities are NOT GROWING; 2 are at the size-6 cap (need an Aqueduct).
+  city-4 Istanbul (27,49) size 4 [4 happy/0 content/0 unhappy] culture 690 (+11/turn)
+      built: Palace, Granary, Temple, Barracks, Library, Marketplace, Aqueduct, Walls, Cathedral, Colosseum
+      producing: Forbidden Palace [ENGINE DEFAULT - you did not choose this; set_production to change] (12 turns left); food +2/turn, grows in 3 (food box 5/10, +2/turn)
+      build options: Settler(~2t, founds a new city (costs 2 pop)), Worker(~1t, improves tiles (irrigate/mine/road)), Pikeman(~2t a1/d3/m1, strong DEFENDER - garrison your cities with these), Knight(~4t a4/d3/m2, fast mounted attacker (needs the Horses resource)), Medieval Infantry(~3t a4/d2/m1), Trebuchet(~2t, SIEGE - bombards a city's defenses down before you assault it; bring these to actually capture cities instead of dying on the walls), Courthouse(~5t, upkeep -1g/turn, reduces corruption in this city (matters far from the capital)), Sistine Chapel(~34t, +6 culture/turn), The Pentagon(~23t, +1 culture/turn), The Temple of Artemis(~28t, +4 culture/turn), Wealth(~1t)
+  city-6 Ankara (26,46) size 6 [6 happy/0 content/0 unhappy] culture 517 (+10/turn)
+      built: Granary, Temple, Walls, Barracks, Library, Courthouse, Aqueduct, Marketplace, Colosseum, Cathedral
+      producing: The Great Library (2 turns left); food +1/turn, grows in 10 (food box 0/10, +1/turn)
+      build options: Settler(~1t), Worker(~1t), Pikeman(~1t a1/d3/m1), Knight(~1t a4/d3/m2), Medieval Infantry(~1t a4/d2/m1), Trebuchet(~1t), Sistine Chapel(~30t, +6 culture/turn), The Pentagon(~16t, +1 culture/turn), The Temple of Artemis(~23t, +4 culture/turn), Wealth(~1t)
+      hurry (40g): rush-buy the rest of The Great Library
+  city-10 Izmir (29,47) size 5 [4 happy/1 content/0 unhappy] culture 516 (+10/turn)
+      built: Walls, Granary, Barracks, Temple, Courthouse, Library, Marketplace, Aqueduct, Colosseum, Cathedral
+      producing: Heroic Epic (6 turns left); food +0/turn, NOT GROWING (zero food surplus)
+      build options: Settler(~1t), Worker(~1t), Pikeman(~1t a1/d3/m1), Knight(~1t a4/d3/m2), Medieval Infantry(~1t a4/d2/m1), Trebuchet(~1t), Sistine Chapel(~28t, +6 culture/turn), The Pentagon(~17t, +1 culture/turn), The Temple of Artemis(~22t, +4 culture/turn), Wealth(~1t)
+      hurry (184g): rush-buy the rest of Heroic Epic
+  city-11 Bursa (24,42) size 8 [7 happy/1 content/0 unhappy] culture 420 (+10/turn)
+      built: Granary, Walls, Library, Temple, Aqueduct, Courthouse, Marketplace, Cathedral, Colosseum, Barracks, Harbor
+      producing: Knights Templar [ENGINE DEFAULT - you did not choose this; set_production to change] (10 turns left); food +2/turn, grows in 3 (food box 14/20, +2/turn); corruption 46% (that share of shields/commerce is LOST - it grows with distance from your capital; a Courthouse cuts it)
+      build options: Settler(~1t), Worker(~1t), Pikeman(~1t a1/d3/m1), Knight(~1t a4/d3/m2), Galley(~1t a1/d1/m3, naval transport / coastal exploration), Medieval Infantry(~1t a4/d2/m1), Trebuchet(~1t), The Great Lighthouse(~10t, +2 culture/turn), Sistine Chapel(~22t, +6 culture/turn), The Pentagon(~14t, +1 culture/turn), The Temple of Artemis(~18t, +4 culture/turn), Wealth(~1t)
+  city-18 Edirne (25,51) size 6 [6 happy/0 content/0 unhappy] culture 462 (+14/turn)
+      built: Walls, Temple, Courthouse, Marketplace, Aqueduct, Library, Colosseum, Cathedral, The Oracle, Granary
+      producing: Barracks (1 turns left); food +0/turn, NOT GROWING (zero food surplus)
+      build options: Settler(~1t), Worker(~1t), Pikeman(~1t a1/d3/m1), Knight(~3t a4/d3/m2), Medieval Infantry(~1t a4/d2/m1), Trebuchet(~1t), Barracks(~1t, upkeep -1g/turn, new land units start veteran (more HP); wounded units heal fully here in one turn), Sistine Chapel(~29t, +6 culture/turn), The Pentagon(~19t, +1 culture/turn), The Temple of Artemis(~24t, +4 culture/turn), Wealth(~1t)
+      hurry (40g): rush-buy the rest of Barracks
+  city-37 Konya (29,51) size 2 [2 happy/0 content/0 unhappy] culture 20 (+2/turn)
+      built: Temple
+      producing: Marketplace (6 turns left); food +0/turn, NOT GROWING (zero food surplus); corruption 20% (that share of shields/commerce is LOST - it grows with distance from your capital; a Courthouse cuts it)
+      build options: Settler(~1t), Worker(~1t), Pikeman(~1t a1/d3/m1), Knight(~1t a4/d3/m2), Medieval Infantry(~1t a4/d2/m1), Trebuchet(~1t), Barracks(~1t, upkeep -1g/turn), Granary(~1t, upkeep -1g/turn, on growth the food box stays half full - only matters if the city has a food SURPLUS), Marketplace(~6t, upkeep -1g/turn, +50% gold in this city), Library(~1t, +3 culture/turn, upkeep -1g/turn, +50% science in this city, plus culture), Courthouse(~2t, upkeep -1g/turn), Walls(~1t, large defense multiplier for the garrison of this city)
+      hurry (64g): rush-buy the rest of Marketplace
+  city-39 Bolu (24,48) size 6 [6 happy/0 content/0 unhappy] culture 372 (+10/turn)
+      built: Library, Marketplace, Courthouse, Temple, Aqueduct, Granary, Cathedral, Colosseum, Walls
+      producing: Sun Tzu's Art of War (37 turns left); food +1/turn, grows in 2 (food box 8/10, +1/turn)
+      build options: Settler(~1t), Worker(~1t), Pikeman(~1t a1/d3/m1), Knight(~1t a4/d3/m2), Medieval Infantry(~1t a4/d2/m1), Trebuchet(~1t), Barracks(~1t, upkeep -1g/turn), Sistine Chapel(~37t, +6 culture/turn), The Pentagon(~23t, +1 culture/turn), The Temple of Artemis(~30t, +4 culture/turn), Wealth(~1t)
+  city-41 Trabzon (31,49) size 3 [2 happy/1 content/0 unhappy] culture 140 (+5/turn)
+      built: Library, Temple, Marketplace
+      producing: Aqueduct (2 turns left); food +0/turn, NOT GROWING (zero food surplus); corruption 30% (that share of shields/commerce is LOST - it grows with distance from your capital; a Courthouse cuts it)
+      build options: Settler(~1t), Worker(~1t), Pikeman(~1t a1/d3/m1), Knight(~1t a4/d3/m2), Medieval Infantry(~1t a4/d2/m1), Trebuchet(~1t), Barracks(~1t, upkeep -1g/turn), Granary(~1t, upkeep -1g/turn), Courthouse(~1t, upkeep -1g/turn), Walls(~1t), Aqueduct(~2t, upkeep -1g/turn, required for the city to grow past size 6), Cathedral(~7t, +3 culture/turn, upkeep -2g/turn)
+      hurry (32g): rush-buy the rest of Aqueduct
+  city-42 Sinop (27,53) size 6 [3 happy/2 content/1 unhappy] culture 90 (+5/turn)
+      built: Library, Courthouse, Temple
+      producing: Aqueduct (6 turns left); food +0/turn, NOT GROWING (zero food surplus) (size 6 is the growth cap without an Aqueduct); corruption 27% (that share of shields/commerce is LOST - it grows with distance from your capital; a Courthouse cuts it)
+      build options: Settler(~1t), Worker(~1t), Pikeman(~1t a1/d3/m1), Knight(~3t a4/d3/m2), Medieval Infantry(~1t a4/d2/m1), Trebuchet(~1t), Barracks(~1t, upkeep -1g/turn), Granary(~2t, upkeep -1g/turn), Marketplace(~6t, upkeep -1g/turn), Walls(~1t), Aqueduct(~6t, upkeep -1g/turn), Cathedral(~11t, +3 culture/turn, upkeep -2g/turn)
+      hurry (128g): rush-buy the rest of Aqueduct
+  city-43 Amasya (22,50) size 6 [3 happy/1 content/2 unhappy] culture 84 (+3/turn)
+      built: Library, Marketplace, Courthouse
+      producing: Aqueduct (8 turns left); food +2/turn, grows in 0 (food box 10/10, +2/turn) (size 6 is the growth cap without an Aqueduct); corruption 32% (that share of shields/commerce is LOST - it grows with distance from your capital; a Courthouse cuts it)
+      build options: Settler(~1t), Worker(~1t), Pikeman(~1t a1/d3/m1), Knight(~4t a4/d3/m2), Medieval Infantry(~1t a4/d2/m1), Trebuchet(~1t), Barracks(~1t, upkeep -1g/turn), Granary(~3t, upkeep -1g/turn), Temple(~3t, +2 culture/turn, upkeep -1g/turn, +1 content citizen (happiness) and culture (borders expand)), Walls(~1t), Aqueduct(~8t, upkeep -1g/turn), Colosseum(~10t, +2 culture/turn, upkeep -2g/turn)
+      hurry (120g): rush-buy the rest of Aqueduct
+  city-44 Samsun (23,45) size 3 [2 happy/1 content/0 unhappy] culture 75 (+3/turn)
+      built: Library, Courthouse
+      producing: Marketplace (6 turns left); food +0/turn, NOT GROWING (zero food surplus); corruption 36% (that share of shields/commerce is LOST - it grows with distance from your capital; a Courthouse cuts it)
+      build options: Settler(~1t), Worker(~1t), Pikeman(~1t a1/d3/m1), Knight(~1t a4/d3/m2), Medieval Infantry(~1t a4/d2/m1), Trebuchet(~1t), Barracks(~1t, upkeep -1g/turn), Granary(~1t, upkeep -1g/turn), Temple(~1t, +2 culture/turn, upkeep -1g/turn), Marketplace(~6t, upkeep -1g/turn), Walls(~1t), Aqueduct(~6t, upkeep -1g/turn)
+      hurry (68g): rush-buy the rest of Marketplace
+  city-45 Konya2 (27,43) size 5 [3 happy/1 content/1 unhappy] culture 72 (+3/turn)
+      built: Library, Courthouse
+      producing: Marketplace (12 turns left); food +1/turn, grows in 4 (food box 6/10, +1/turn); corruption 39% (that share of shields/commerce is LOST - it grows with distance from your capital; a Courthouse cuts it)
+      build options: Settler(~1t), Worker(~1t), Pikeman(~1t a1/d3/m1), Knight(~7t a4/d3/m2), Galley(~1t a1/d1/m3), Medieval Infantry(~2t a4/d2/m1), Trebuchet(~1t), Barracks(~2t, upkeep -1g/turn), Granary(~5t, upkeep -1g/turn), Temple(~5t, +2 culture/turn, upkeep -1g/turn), Marketplace(~12t, upkeep -1g/turn), Walls(~1t)
+      hurry (140g): rush-buy the rest of Marketplace
+
+UNITS (army 10/40, workers 12, settlers 0; army combat totals: attack 29 / defense 24):
+  (combat mechanics: battles run in HP rounds, each won at odds attack/(attack+defense); the DEFENDER'S d is MULTIPLIED by fortifying, terrain (hills/mountains/forest), river crossings, and city walls/size - a fortified d3 unit on a hill behind walls defends like d6+, so raw attacker counts lie; siege units bombard first to strip defender HP without risk; a wounded unit has fewer HP rounds and dies sooner)
+  Worker-1034 Worker (30,54) moves 1
+      on Desert/Forest f0s1c0 RES:NONE [road+barricade] [occupied]; can build here: Clear Forest
+      adjacent: N:Desert NE:Desert E:Desert SE:Desert S:Grassland SW:Grassland W:Grassland NW:Desert   (move_unit by dir, or move_to x,y)
+      actions: move_unit dir N/NE/E/SE/S/SW/W/NW (or move_to x,y) | advance to nearest_enemy_city/nearest_enemy_unit/unexplored | work job Clear Forest | explore | fortify | sentry | hold | disband
+  Worker-1037 Worker (21,45) moves 1
+      on Grassland/Mountains f2s0c0 RES:Uranium [road+mine+fortress] [occupied]; can build here: Barricade
+      adjacent: N:Plains NE:Grassland E:city SE:Grassland S:Grassland SW:Plains W:Plains NW:Plains   (move_unit by dir, or move_to x,y)
+      actions: move_unit dir N/NE/E/SE/S/SW/W/NW (or move_to x,y) | advance to nearest_enemy_city/nearest_enemy_unit/unexplored | work job Barricade | explore | fortify | sentry | hold | disband
+  Worker-1085 Worker (34,46) moves 1
+      on Desert/Desert f0s1c0 RES:NONE [road+mine] [occupied]; can build here: Irrigation, Fortress
+      adjacent: N:Coast NE:Desert E:Coast SE:Desert S:Grassland SW:Desert W:Desert NW:Desert   (move_unit by dir, or move_to x,y)
+      actions: move_unit dir N/NE/E/SE/S/SW/W/NW (or move_to x,y) | advance to nearest_enemy_city/nearest_enemy_unit/unexplored | work job Irrigation/Fortress | explore | fortify | sentry | hold | disband
+  Worker-1094 Worker (23,41) moves 1
+      on Plains/Plains f1s1c0 RES:NONE [road+mine] [occupied]; can build here: Fortress
+      adjacent: N:Coast NE:Coast E:Coast SE:city S:Grassland SW:Plains W:Grassland NW:Grassland   (move_unit by dir, or move_to x,y)
+      actions: move_unit dir N/NE/E/SE/S/SW/W/NW (or move_to x,y) | advance to nearest_enemy_city/nearest_enemy_unit/unexplored | work job Fortress | explore | fortify | sentry | hold | disband
+  Worker-1158 Worker (27,49) moves 1
+      on Grassland/Grassland f2s0c0 RES:NONE [CITY]
+      adjacent: N:Grassland NE:Grassland E:Grassland SE:Grassland S:Grassland SW:Grassland W:Grassland NW:Grassland   (move_unit by dir, or move_to x,y)
+      NOTE: no useful job on this tile. Nearest useful job: Road at (27,55) - issue work with that job and the worker walks there itself.
+      actions: move_unit dir N/NE/E/SE/S/SW/W/NW (or move_to x,y) | advance to nearest_enemy_city/nearest_enemy_unit/unexplored | explore | fortify | sentry | hold | disband
+  Worker-833 Worker (29,41) moves 1
+      on Grassland/Grassland f2s0c0 RES:NONE [road+mine+fortress] [occupied]; can build here: Barricade
+      adjacent: N:Coast NE:Grassland E:Grassland SE:Grassland S:Grassland SW:Grassland W:Grassland NW:Coast   (move_unit by dir, or move_to x,y)
+      actions: move_unit dir N/NE/E/SE/S/SW/W/NW (or move_to x,y) | advance to nearest_enemy_city/nearest_enemy_unit/unexplored | work job Barricade | explore | fortify | sentry | hold | disband
+  Worker-876 Worker (24,54) moves 1
+      on Grassland/Hills f2s0c0 RES:Coal [road+mine+fortress] [occupied]; can build here: Barricade
+      adjacent: N:Tundra NE:Grassland E:Grassland SE:Grassland S:Desert SW:Desert W:Grassland NW:Grassland   (move_unit by dir, or move_to x,y)
+      actions: move_unit dir N/NE/E/SE/S/SW/W/NW (or move_to x,y) | advance to nearest_enemy_city/nearest_enemy_unit/unexplored | work job Barricade | explore | fortify | sentry | hold | disband
+  Catapult-34 Catapult [SIEGE: bombard strength 4, range 1] (29,47) moves 1  [FORTIFIED - standing order, stays fortified; do NOT re-issue fortify]
+  Knight-22 Knight a4/d3/m2 (27,49) moves 2  [FORTIFIED - standing order, stays fortified; do NOT re-issue fortify]
+  Pikeman-117 Pikeman a1/d3/m1 (29,51) moves 1  [FORTIFIED - standing order, stays fortified; do NOT re-issue fortify]
+  Pikeman-13 Pikeman a1/d3/m1 (29,51) moves 1  [FORTIFIED - standing order, stays fortified; do NOT re-issue fortify]
+  Pikeman-70 Pikeman a1/d3/m1 (29,51) moves 1  [FORTIFIED - standing order, stays fortified; do NOT re-issue fortify]
+  Swordsman-121 Medieval Infantry a4/d2/m1 (27,49) moves 1  [FORTIFIED - standing order, stays fortified; do NOT re-issue fortify]
+  Swordsman-133 Swordsman a3/d2/m1 [UPGRADEABLE to Medieval Infantry for 10g - order: upgrade] (24,42) moves 1  [FORTIFIED - standing order, stays fortified; do NOT re-issue fortify]
+  Swordsman-144 Medieval Infantry a4/d2/m1 (27,49) moves 1  [FORTIFIED - standing order, stays fortified; do NOT re-issue fortify]
+  Swordsman-16 Medieval Infantry a4/d2/m1 (27,49) moves 1  [FORTIFIED - standing order, stays fortified; do NOT re-issue fortify]
+  Swordsman-37 Medieval Infantry a4/d2/m1 (27,49) moves 1  [FORTIFIED - standing order, stays fortified; do NOT re-issue fortify]
+  Swordsman-49 Swordsman a3/d2/m1 (25,51) moves 1  [FORTIFIED - standing order, stays fortified; do NOT re-issue fortify]
+  Worker-1073 Worker (26,44) moves 1  [AUTO-WORK - standing order, walking to a tile where Road applies; no orders needed]
+  Worker-1137 Worker (24,42) moves 1  [AUTO-WORK - standing order, walking to a tile where Road applies; no orders needed]
+  Worker-362 Worker (21,39) moves 1  [AUTO-WORK - standing order, walking to a tile where Road applies; no orders needed]
+  Worker-602 Worker (31,43) moves 1  [AUTO-WORK - standing order, walking to a tile where Road applies; no orders needed]
+
+Known tiles: 300. Visible enemy units: 9. Visible enemy cities: Moscow(12,38) of Russia [1 defender(s), top defender effective d3.7 - your best attacker (a4) wins a combat round ~51%], Novgorod(14,36) of Russia [2 defender(s), top defender effective d3.7 - your best attacker (a4) wins a combat round ~51%], Kiev(14,40) of Russia [2 defender(s), top defender effective d3.7 - your best attacker (a4) wins a combat round ~51%], Tver(16,38) of Russia [no visible defenders]
+Culture: yours 3458 (best city Istanbul: 690) vs Persia 3493, America 5471, Russia 660. CULTURAL VICTORY is one of the ways to WIN: a single city reaching 20,000 lifetime culture, or your civilization reaching 100,000 total with at least DOUBLE every rival. Culture accrues every turn from buildings (Temple, Library, Colosseum, Cathedral, wonders) and also expands your borders.
+LAST TURN, 1 of your orders FAILED (do not repeat them unchanged):
+  - set_production: 'Knights Templar' not buildable in Bursa. This city's options: Settler, Worker, Pikeman, Knight, Galley, Medieval Infantry, Trebuchet, The Great Lighthouse, Sistine Chapel, The Pentagon, The Temple of Artemis, Wealth
+TRADE with Persia: they know nothing you lack; you know nothing they lack; they hold a rich treasury.
+TRADE with America: they know nothing you lack; you know Engineering, Theology, Chivalry (they do not); they hold a modest treasury. They could BUY Engineering from you: {"type":"propose_trade","civ":"America","give":"tech:Engineering","want":"gold:37","note":"<why>"}
+TRADE with Russia: they know nothing you lack; you know Construction, Monotheism, Feudalism, Engineering, Theology (they do not); they hold an empty treasury.
+Diplomacy: Persia [peace] (history: trade declined by Persia T166; trade declined by Persia T173; trade declined by Persia T175), America [peace] (history: TRADE EXECUTED T110: Ottomans gave 37 gold for the secret of The Republic; trade declined by America T139; trade declined by America T147), Russia [peace] (history: TRADE EXECUTED T11: Ottomans gave the secret of Masonry for the secret of Pottery; war declared by Ottomans T35; TRADE EXECUTED T108: Russia gave a peace treaty for a peace treaty)
+  declare_war on: Persia, America, Russia   make_peace with: (none)   (you meet everyone at peace; declare_war before you can attack a civ)
+  STANDING vs Persia: cities 12 vs 16; army attack 29 vs 46, defense 24 vs 54; techs 26 vs 26.
+  Persia CITIES (targets if you go to war): Persepolis (46,20, 0 defenders). To attack one: build a strike stack, advance/move_to its coordinates, declare_war, and move onto it.
+  STANDING vs America: cities 12 vs 15; army attack 29 vs 62, defense 24 vs 35; techs 26 vs 23.
+  America CITIES (targets if you go to war): Washington (48,40, 5 defenders). To attack one: build a strike stack, advance/move_to its coordinates, declare_war, and move onto it.
+  STANDING vs Russia: cities 12 vs 4; army attack 29 vs 5, defense 24 vs 9; techs 26 vs 20.
+  Russia CITIES (targets if you go to war): Tver (16,38, 0 defenders); Kiev (14,40, 2 defenders); Novgorod (14,36, 2 defenders); Moscow (12,38, 1 defender). To attack one: build a strike stack, advance/move_to its coordinates, declare_war, and move onto it.
+
+
+Reply with ONE short line of reasoning in your civilization's own voice, then your orders wrapped EXACTLY as <ORDERS>[ ... ]</ORDERS> (only the LAST such block is executed). Order types:
+  {"type":"found_city","unit":"<id>","name":"<name>"}         found a city (invalid tile auto-walks the settler to the nearest FOUNDABLE tile)
+  {"type":"set_production","city":"<id>","item":"<name>"}      build one of the city's listed options
+  {"type":"hurry","city":"<id>"}                               rush-buy the city's current production (cost shown in the city block)
+  {"type":"advance","unit":"<id>","to":"nearest_enemy_city|nearest_enemy_unit|unexplored"}  STANDING order: unit keeps moving toward the objective every turn; it attacks whatever blocks it ON ARRIVAL, ALONE - it does not wait for other converging units
+  {"type":"hold","unit":"<id>"}                                do nothing this turn (use to hold arrivals at a staging spot until a converging group is assembled, then attack together with move_unit/move_to on the same turn)
+  {"type":"move_unit","unit":"<id>","dir":"N|NE|E|SE|S|SW|W|NW"}   step one tile (stepping onto an at-war enemy attacks it)
+  {"type":"move_to","unit":"<id>","x":<x>,"y":<y>}             move toward a tile (uses all moves this turn)
+  {"type":"bombard","unit":"<id>","x":<x>,"y":<y>}             siege attack: damages the defenders on that tile with NO risk to your unit
+  {"type":"fortify","unit":"<id>"}                             STANDING order: hold position with a defense bonus until ordered otherwise
+  {"type":"work","unit":"<id>","job":"Irrigation|Mine|Road"}   worker builds the job (auto-walks to a valid tile if needed; BUSY until done)
+  {"type":"set_rates","science":0-10,"luxury":0-10}            science = fraction of commerce to research, luxury = fraction to keeping cities happy (raise it to END civil disorder); tax (gold) is whatever remains
+  {"type":"research","tech":"<name>"}                          set/redirect research (switching loses the beakers invested in the current tech - the order result reports how many)
+  {"type":"revolt","government":"<name>"}                      change government (a few turns of anarchy)
+  {"type":"declare_war","civ":"<name>"} / {"type":"make_peace","civ":"<name>"}   make_peace is an OFFER; peace happens only if both sides offer
+  {"type":"upgrade","unit":"<id>"}                             pay gold to turn an obsolete unit into its modern replacement (needs the prerequisite building, e.g. Barracks, in one of your cities)
+  {"type":"propose_trade","civ":"<name>","give":"<bundle>","want":"<bundle>","note":"<short context>"}   offer a binding trade (ONE per turn; they accept or decline on THEIR next turn or it expires; settlement is instant and atomic). Each side is a "+"-joined bundle of items: gold:<n>, tech:<name>, city:<name>, or the word peace (ends a war). Examples: "gold:120" / "tech:Currency" / "peace+city:Hippo" wanted for "gold:200+tech:Writing". A city cession and a peace treaty settle atomically only through this order - a promise in a letter moves NOTHING. Negotiate by message first; propose only deals with a real purpose
+  {"type":"accept_trade","civ":"<name>"} / {"type":"decline_trade","civ":"<name>","note":"why"}   answer a TRADE OFFER shown in this briefing - answer THIS TURN or it expires
+  {"type":"sell_building","city":"<id>","building":"<name>"}   sell a built building for half its cost and stop paying its upkeep (one sale per city per turn)
+  {"type":"disband","unit":"<id>"}                             remove a unit (ends its support cost)
+Use the exact ids and names from the briefing. Units marked [FORTIFIED]/[ADVANCING]/[AUTO-...]/BUSY already have standing orders - do not re-issue them.
+OPTIONAL: besides <ORDERS>, you may include tagged blocks such as <SUBAGENT name="governor:sparta">...</SUBAGENT>, <PLAN>...</PLAN>, or <LOG>...</LOG> anywhere in your reply. They are stored and shown to spectators verbatim, never interpreted, and never affect the game (reply protocol v0).

@@ -1,0 +1,23 @@
+{
+  "name": "civ-agent-starter",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "A starter agent for primitive civ: a Primitive Function that plays Civilization III over email.",
+  "scripts": {
+    "try": "node scripts/try.mjs",
+    "test": "node --test test/*.test.mjs",
+    "build": "node build.mjs",
+    "deploy": "npm run build && primitive functions deploy --name civ-agent --file ./dist/handler.js --wait",
+    "redeploy": "npm run build && primitive functions redeploy --id $PRIMITIVE_FUNCTION_ID --file ./dist/handler.js --wait",
+    "logs": "primitive functions logs --id $PRIMITIVE_FUNCTION_ID"
+  },
+  "dependencies": {
+    "@primitivedotdev/sdk": "^1.22.0"
+  },
+  "devDependencies": {
+    "@primitivedotdev/cli": "^1.22.0",
+    "esbuild": "^0.27.0",
+    "typescript": "^5.7.2"
+  }
+}
