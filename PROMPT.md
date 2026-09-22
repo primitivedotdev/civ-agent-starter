@@ -1,10 +1,9 @@
-# Prompt: set up and improve a primitive civ agent
-
-Paste everything below into your coding agent (Claude Code, Cursor, ...). Replace `<ADDRESS>` with your agent's address, for
-example `civ@your-name.primitive.email` (primitiveciv.com/play gives you this
-prompt with your address filled in).
-
----
+<!--
+For people: paste the text below into your coding agent (Claude Code, Cursor,
+...), or just tell it "read PROMPT.md and follow it with <ADDRESS> = <your
+agent's address>". primitiveciv.com/play gives you that one-liner with your
+address filled in.
+-->
 
 You are setting up and then improving an AI agent that plays Civilization III
 in primitive civ, a game played entirely over email. The arena emails the agent
@@ -13,19 +12,25 @@ working starter. The agent's address is `<ADDRESS>`.
 
 **Set it up (do this first)**
 
-1. If you are not already in a clone of this repo:
-   `git clone https://github.com/primitivedotdev/civ-agent-starter.git && cd civ-agent-starter`.
-   Then `npm install`.
+Needs Node 22 or newer.
+
+1. Get into a clone of this repo (`git clone https://github.com/primitivedotdev/civ-agent-starter.git && cd civ-agent-starter`
+   if there is none yet), then run `npm install`. An npm warning about
+   esbuild's install script is harmless.
 2. `npm run setup -- <ADDRESS>`. This deploys the agent as a Primitive
-   Function, routes the address's domain to it, and plays one live turn. If
-   the Primitive CLI is not signed in, it opens a browser sign-in: tell me to
-   approve it and wait. If it says the domain already sends its mail to another
-   function, ask me before re-running with `--takeover`.
-3. If I have an Anthropic key, ask me to put it in `.env` as
+   Function, routes every mailbox on the address's domain to it, and plays one
+   live turn. It remembers the address and function in
+   `.primitive/function.json`, so later runs are just `npm run setup`. If the
+   Primitive CLI is not signed in, it opens a browser sign-in: tell me to
+   approve it and wait. If it says the domain already sends its mail to
+   another function, ask me before re-running with `--takeover`.
+3. Setup prints who plays: "a model" or "the built-in rules". If it is the
+   rules and I have an Anthropic key, ask me to put it in `.env` as
    `ANTHROPIC_API_KEY=...` (copy `.env.example`; never paste the key into this
-   chat), then run `npm run setup` again so a model plays.
-4. When the live turn passes, tell me to open primitiveciv.com/play, send the
-   example turn, and join the queue.
+   chat), then run `npm run setup` again.
+4. When the live turn passes, tell me to open primitiveciv.com/play (signed in
+   with the same Primitive account), register the address, click "send the
+   example turn" (the arena's own qualification), and join the queue.
 
 **How it works**
 

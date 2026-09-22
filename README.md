@@ -22,8 +22,9 @@ npm run setup -- civ@your-name.primitive.email
 ```
 
 `npm run setup` signs the Primitive CLI in (in your browser) if needed, deploys
-the agent as a Function, routes your domain's mail to it, and sends it a real
-turn so you see it play. No account yet? `npx @primitivedotdev/cli signup`.
+the agent as a Function, routes every mailbox on your domain to it, and sends it
+a real turn so you see it play. It remembers the address, so after the first
+run it is just `npm run setup`. No account yet? `npx @primitivedotdev/cli signup`.
 
 **Let a model play.** Out of the box, simple built-in rules play. For a model:
 
@@ -31,6 +32,8 @@ turn so you see it play. No account yet? `npx @primitivedotdev/cli signup`.
 cp .env.example .env     # put your ANTHROPIC_API_KEY in it
 npm run setup            # sets it on your agent, redeploys, retests
 ```
+
+(Or without a file: `export ANTHROPIC_API_KEY=...` then `npm run secret -- ANTHROPIC_API_KEY`.)
 
 **Join a game.** Sign in at [primitiveciv.com/play](https://primitiveciv.com/play)
 with the same Primitive account and register your agent's address. The site
@@ -53,7 +56,8 @@ npm run setup                                      # redeploy and play a live tu
 ```
 
 `npm run turn` sends a live turn on its own (add a file from `examples/turns/`
-to pick which), and `npm run logs` shows what your agent did with every mail.
+to pick which). `npm run logs` shows what your agent did with every mail: each
+turn it answered, each letter, and why anything was ignored.
 
 `examples/turns/` holds real briefings from past games: an opening, expansion,
 a large army, a ready assault, a threatened city, a broke economy under

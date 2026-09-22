@@ -86,21 +86,30 @@ if (functionId) {
 	}
 }
 if (!functionId) {
-	const name = `civ-${address.split("@")[0].replace(/[^a-z0-9_-]/g, "-")}`.slice(0, 63);
-	step(`deploying your agent as ${name}`);
-	const out = cli("functions", "deploy", "--name", name, "--file", "./dist/handler.js", "--wait");
-	functionId = json(out)?.id ?? null;
-	if (!functionId && /name_taken/.test(out)) {
-		// Deployed from another clone or machine: it is yours, so update it.
-		const list = json(cli("functions", "list"));
-		functionId = (Array.isArray(list) ? list : []).find((f) => f.name === name)?.id ?? null;
-		if (functionId) {
-			step(`${name} already exists in your account; redeploying it`);
-			const re = cli("functions", "redeploy", "--id", functionId, "--file", "./dist/handler.js", "--wait");
-			if (!/"deployed"/.test(re)) fail(`redeploy failed:\n${re.trim()}`);
-		}
+	const local = address.split("@")[0].replace(/[^a-z0-9_-]/g, "-");
+	const base = (local === "civ" || local === "civ-agent" ? "civ-agent" : `civ-agent-${local}`).slice(0, 63);
+	// Deployed for this address from another clone or machine (possibly under
+	// the older civ-<mailbox> name)? Update it rather than add another, but only
+	// a function already receiving this domain's mail: a same-named function
+	// doing something else is never touched.
+	const list = json(cli("functions", "list"));
+	const routedHere = (f) => json(cli("functions", "route-get", "--id", f.id))?.domain?.name?.toLowerCase() === domain;
+	const existing = (Array.isArray(list) ? list : [])
+		.filter((f) => f.name === base || f.name === `civ-${local}`.slice(0, 63))
+		.find(routedHere);
+	if (existing) {
+		functionId = existing.id;
+		step(`updating ${existing.name}, deployed for this address earlier (another clone or machine)`);
+		const out = cli("functions", "redeploy", "--id", functionId, "--file", "./dist/handler.js", "--wait");
+		if (!/"deployed"/.test(out)) fail(`redeploy failed:\n${out.trim()}`);
+	} else {
+		const taken = new Set((Array.isArray(list) ? list : []).map((f) => f.name));
+		const name = taken.has(base) ? `${base}-${domain.split(".")[0]}`.slice(0, 63) : base;
+		step(`deploying your agent as ${name}`);
+		const out = cli("functions", "deploy", "--name", name, "--file", "./dist/handler.js", "--wait");
+		functionId = json(out)?.id ?? null;
+		if (!functionId) fail(`deploy failed:\n${out.trim()}`);
 	}
-	if (!functionId) fail(`deploy failed:\n${out.trim()}`);
 }
 const state = { functionId, address, source: sourceHash(), key: saved?.functionId === functionId ? saved.key : undefined };
 const save = () => {
@@ -120,12 +129,14 @@ if (key) {
 		state.key = fingerprint;
 		save();
 	}
-} else if (!state.key && !/"key"\s*:\s*"ANTHROPIC_API_KEY"/.test(cli("functions", "list-secrets", "--id", functionId) + cli("functions", "list-org-secrets"))) {
-	console.log("\n  No ANTHROPIC_API_KEY, so the built-in rules will play. To have a model play,\n  put ANTHROPIC_API_KEY=sk-ant-... in .env and run npm run setup again.");
 }
+const modelPlays = !!state.key || /"key"\s*:\s*"ANTHROPIC_API_KEY"/.test(cli("functions", "list-secrets", "--id", functionId) + cli("functions", "list-org-secrets"));
+console.log(modelPlays
+	? "\n  Player: a model (ANTHROPIC_API_KEY is set on your agent)."
+	: "\n  Player: the built-in rules. To have a model play, put ANTHROPIC_API_KEY=sk-ant-...\n  in .env and run npm run setup again.");
 
 // 5. Route the domain.
-step(`routing mail for ${domain} to your agent`);
+step(`routing every mailbox on ${domain} to your agent`);
 const routeArgs = ["functions", "route-set", "--id", functionId, "--domain", match.id];
 if (takeover) routeArgs.push("--takeover");
 const routed = cli(...routeArgs);
@@ -147,6 +158,9 @@ if (!args.includes("--no-test")) {
 console.log(`
 Your agent is live at ${address}.
 
-Next: open https://primitiveciv.com/play, send it the example turn, and join
-the queue. To make it play better, edit src/agent.mjs and run npm run setup
-again: it redeploys and retests.`);
+Next, at https://primitiveciv.com/play (signed in with this Primitive account):
+register ${address} if you have not, click "send the example turn" (that is the
+arena qualifying your agent), then join the queue for the next game.
+
+To make it play better, edit src/agent.mjs and run npm run setup again: it
+redeploys and retests.`);

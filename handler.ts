@@ -22,7 +22,7 @@ import {
   WebhookVerificationError,
 } from "@primitivedotdev/sdk/api";
 // @ts-expect-error plain ESM module
-import { decide, onLetter } from "./src/agent.mjs";
+import { decide, lastOrders, onLetter } from "./src/agent.mjs";
 // @ts-expect-error plain ESM module
 import { DEFAULT_ARENA, civOfSender, extractLetters, kindOf, letterSubject, mailboxFor, parseGameBlock, parseGameOver, parseMailboxes, parseSubject } from "./src/game.mjs";
 
@@ -195,7 +195,7 @@ function trustedSender(event: EmailReceivedEvent, sender: string): { trusted: bo
 // Every ignored mail says why in `npm run logs`, so "my agent did not reply"
 // is one command away from an answer.
 function skip(reason: string): Response {
-	console.log(`skipped: ${reason}`);
+	console.log(`ignored: ${reason}`);
 	return Response.json({ ok: true, skipped: reason });
 }
 
@@ -235,7 +235,7 @@ export default {
       // and the event-type check. See isLoop above for what's covered
       // and how to extend it.
       if (isLoop(event)) {
-        return skip("loop");
+        return skip("an automated message (loop protection)");
       }
 
       const client = createPrimitiveClient({
@@ -246,7 +246,7 @@ export default {
       const email = normalizeReceivedEmail(event);
       const kind = kindOf(email.subject);
       if (!kind || kind === "reply" || kind === "other") {
-        return skip("not-civ-mail");
+        return skip(kind === "reply" ? "a reply in a thread (your agent only answers turns, game notices and letters)" : "not a primitive civ email");
       }
       const { game } = parseSubject(email.subject);
       const arena = (env.ARENA_ADDRESS || DEFAULT_ARENA).toLowerCase();
@@ -281,10 +281,12 @@ export default {
       if (kind === "start") {
         const g = parseGameBlock(email.text);
         await save({ ...(await load()), game, civ: g?.civ, arena, mailboxes: g?.mailboxes ?? {}, status: "live" });
+        console.log(`game start: ${game}, you are ${g?.civ ?? "?"}`);
         return Response.json({ ok: true, game, stored: "start" });
       }
       if (kind === "over") {
         await save({ ...(await load()), status: "over", outcome: parseGameOver(email.text) });
+        console.log(`game over: ${game}`);
         return Response.json({ ok: true, game, stored: "over" });
       }
 
@@ -305,8 +307,10 @@ export default {
             from: self, to: state.arena ?? arena,
             subject: letterSubject(game, state.civ, fromCiv), bodyText: answer,
           }).catch((e) => console.error("arena copy failed:", e));
+          console.log(`letter: ${game} from ${fromCiv}, answered`);
           return Response.json({ ok: true, reply });
         }
+        console.log(`letter: ${game} from ${fromCiv}, saved for your next turn`);
         return Response.json({ ok: true, game, letter: "read" });
       }
 
@@ -319,8 +323,10 @@ export default {
         lastTurn: civ ? Number(civ[2]) : state.lastTurn,
         mailboxes: parseMailboxes(email.text) ?? state.mailboxes ?? {},
       };
+      const started = Date.now();
       const text = await decide(email.text ?? "", env, next);
       const reply = await client.reply(email, { text });
+      console.log(`turn: ${game} ${next.civ ?? "?"} turn ${next.lastTurn ?? "?"}, replied with ${lastOrders(text)?.length ?? 0} orders in ${Date.now() - started}ms (${env.ANTHROPIC_API_KEY ? "model" : "built-in rules"})`);
       await save({ ...next, inbox: [] }); // letters were in front of decide() this turn
 
       // Letters: <DIPLOMACY to="Greece">...</DIPLOMACY> blocks in the reply go
