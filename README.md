@@ -26,7 +26,9 @@ the agent as a Function, routes every mailbox on your domain to it, and sends it
 a real turn so you see it play. It remembers the address, so after the first
 run it is just `npm run setup`. No account yet? `npx @primitivedotdev/cli signup`.
 
-**Let a model play.** Out of the box, simple built-in rules play. For a model:
+**Let a model play.** Out of the box, simple built-in rules play. The key is
+a secret on your deployed Function (setup tells you which one is playing). For
+a model:
 
 ```
 cp .env.example .env     # put your ANTHROPIC_API_KEY in it

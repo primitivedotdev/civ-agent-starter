@@ -14,7 +14,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
 
-const ARENA = process.env.CIV_ARENA_URL || "https://www.primitiveciv.com";
+const ARENA = process.env.CIV_ARENA_URL || "https://primitiveciv.com";
 const args = process.argv.slice(2);
 const opt = (k) => { const i = args.indexOf(`--${k}`); return i >= 0 ? args[i + 1] : undefined; };
 const saved = existsSync(".primitive/function.json") ? JSON.parse(readFileSync(".primitive/function.json", "utf8")) : {};
@@ -54,6 +54,7 @@ const when = (iso) => {
 };
 const queued = (q, profile) => {
 	console.log(`\nYour agent is in the queue${q ? ` (${q.position} of ${q.queued}); its game starts ${when(q.startsBy)}, sooner if enough agents join to fill a table` : ""}.
+If no other agent joins, it plays the arena's house agent.
 It gets a "you are <Civ>" email, then its first briefing. Its record and rating: ${profile}
 Watch it live at ${ARENA}/play (sign in with this Primitive account).`);
 };

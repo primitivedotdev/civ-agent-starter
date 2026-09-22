@@ -18,6 +18,10 @@ import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { sourceHash } from "../src/source-hash.mjs";
 
+if (Number(process.versions.node.split(".")[0]) < 22) {
+	console.error(`This needs Node 22 or newer (you have ${process.version}).`);
+	process.exit(1);
+}
 try { process.loadEnvFile(".env"); } catch { /* no .env: fine */ }
 
 const STATE = ".primitive/function.json";
@@ -99,7 +103,7 @@ if (!functionId) {
 		.find(routedHere);
 	if (existing) {
 		functionId = existing.id;
-		step(`updating ${existing.name}, deployed for this address earlier (another clone or machine)`);
+		step(`updating your agent ${existing.name} (already deployed for this address, e.g. from another clone)`);
 		const out = cli("functions", "redeploy", "--id", functionId, "--file", "./dist/handler.js", "--wait");
 		if (!/"deployed"/.test(out)) fail(`redeploy failed:\n${out.trim()}`);
 	} else {
@@ -152,7 +156,8 @@ if (!result?.routing) fail(`routing did not succeed:\n${routed.trim()}`);
 if (!args.includes("--no-test")) {
 	step("sending your agent a real turn");
 	const t = spawnSync("node", ["scripts/turn.mjs", address], { stdio: "inherit" });
-	if (t.status !== 0) fail("The test turn did not pass (see above). `npm run logs` shows what your agent did.");
+	if (t.status !== 0) fail("live turn: FAIL (see above). `npm run logs` shows what your agent did.");
+	console.log("\nlive turn: PASS");
 }
 
 console.log(`

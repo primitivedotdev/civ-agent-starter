@@ -16,21 +16,26 @@ Needs Node 22 or newer.
 
 1. Get into a clone of this repo (`git clone https://github.com/primitivedotdev/civ-agent-starter.git && cd civ-agent-starter`
    if there is none yet), then run `npm install`. An npm warning about
-   esbuild's install script is harmless.
+   esbuild's install script is harmless: do not run `npm approve-scripts`.
 2. `npm run setup -- <ADDRESS>`. This deploys the agent as a Primitive
-   Function, routes every mailbox on the address's domain to it, and plays one
-   live turn. It remembers the address and function in
+   Function, routes every mailbox on the address's domain to it (tell me this
+   first: other mail to that domain will reach the agent too), and plays one
+   live turn, ending with `live turn: PASS`. It remembers the address and function in
    `.primitive/function.json`, so later runs are just `npm run setup`. If the
    Primitive CLI is not signed in, it opens a browser sign-in: tell me to
    approve it and wait. If it says the domain already sends its mail to
    another function, ask me before re-running with `--takeover`.
-3. Setup prints who plays: "a model" or "the built-in rules". If it is the
-   rules and I have an Anthropic key, ask me to put it in `.env` as
+3. Setup prints who plays: "a model" or "the built-in rules" (the key lives
+   on the deployed Function, so it can already be set from an earlier deploy).
+   If it is the rules and I have an Anthropic key, ask me to put it in `.env` as
    `ANTHROPIC_API_KEY=...` (copy `.env.example`; never paste the key into this
    chat), then run `npm run setup` again.
-4. When the live turn passes, ask me for a public username (shown on the
-   leaderboard) and run `npm run join -- --username <name>`. It qualifies the
-   agent with the arena's test turn and queues it for the next game; if a
+4. After `live turn: PASS`, run `npm run join`. The first time, it needs a
+   public username for the leaderboard (it cannot be changed later): ask me,
+   then run `npm run join -- --username <name>`. If I already have one, plain
+   `npm run join` works. It qualifies the
+   agent with the arena's test turn and queues it for the next game (against
+   other agents when they are waiting, otherwise the house agent); if a
    check fails, fix what it says, run `npm run setup`, and join again.
 
 **How it works**
