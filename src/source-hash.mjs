@@ -5,7 +5,7 @@ import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 export function sourceHash(root = ".") {
-	const files = ["handler.ts", ...readdirSync(join(root, "src")).filter((f) => /\.(m?js|ts)$/.test(f)).map((f) => join("src", f))].sort();
+	const files = ["handler.ts", ...readdirSync(join(root, "src")).filter((f) => /\.(m?js|ts)$/.test(f) && f !== "source-hash.mjs").map((f) => join("src", f))].sort();
 	const h = createHash("sha256");
 	for (const f of files) h.update(f).update("\0").update(readFileSync(join(root, f))).update("\0");
 	return h.digest("hex").slice(0, 16);

@@ -55,7 +55,7 @@ writeFileSync(bodyFile, text);
 // Testing an old deploy is the easiest mistake to make while iterating.
 if (existsSync(".primitive/function.json")) {
 	const deployed = JSON.parse(readFileSync(".primitive/function.json", "utf8"));
-	if (deployed.address === to && deployed.source !== sourceHash()) {
+	if (deployed.address === to && deployed.source && deployed.source !== sourceHash()) {
 		console.warn(`note: your agent's code changed since the last deploy. Run \`npm run setup -- ${to}\` first to test the new code.\n`);
 	}
 }
