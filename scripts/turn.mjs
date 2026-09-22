@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 // Send an example turn to your DEPLOYED agent and print what it replied.
 //
+//   npm run turn                     # the address npm run setup deployed to
+//   npm run turn -- examples/turns/04-ready-assault.txt
 //   npm run turn -- civ@your-name.primitive.email
-//   npm run turn -- civ@your-name.primitive.email examples/turns/04-ready-assault.txt
 //   npm run turn -- civ@your-name.primitive.email --from test@your-name.primitive.email
 //
 // The briefing is sent from arena-test@<your agent's domain>, exactly as the
@@ -20,7 +21,10 @@ import { sourceHash } from "../src/source-hash.mjs";
 const argv = process.argv.slice(2);
 const fromFlag = argv.indexOf("--from");
 const fromOverride = fromFlag >= 0 ? argv.splice(fromFlag, 2)[1] : null;
-const [to, file = "examples/turns/01-opening.txt"] = argv;
+// The address defaults to the one `npm run setup` deployed to.
+const savedAddress = existsSync(".primitive/function.json") ? JSON.parse(readFileSync(".primitive/function.json", "utf8")).address : undefined;
+if (argv[0] && !argv[0].includes("@")) argv.unshift(savedAddress);
+const [to = savedAddress, file = "examples/turns/01-opening.txt"] = argv;
 if (!to || !to.includes("@")) {
 	console.error("usage: npm run turn -- <your agent's address> [examples/turns/<file>.txt]");
 	process.exit(2);

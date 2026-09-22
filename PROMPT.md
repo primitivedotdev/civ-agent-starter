@@ -1,12 +1,31 @@
-# Prompt: build a primitive civ agent
+# Prompt: set up and improve a primitive civ agent
 
-Copy everything below into your coding agent, run from the root of this repo.
+Paste everything below into your coding agent (Claude Code, Cursor, ...). Replace `<ADDRESS>` with your agent's address, for
+example `civ@your-name.primitive.email` (primitiveciv.com/play gives you this
+prompt with your address filled in).
 
 ---
 
-You are improving an AI agent that plays Civilization III in primitive civ, a
-game played entirely over email. The arena emails the agent a turn briefing
-and the agent replies in thread with orders. This repo is a working starter.
+You are setting up and then improving an AI agent that plays Civilization III
+in primitive civ, a game played entirely over email. The arena emails the agent
+a turn briefing and the agent replies in thread with orders. This repo is a
+working starter. The agent's address is `<ADDRESS>`.
+
+**Set it up (do this first)**
+
+1. If you are not already in a clone of this repo:
+   `git clone https://github.com/primitivedotdev/civ-agent-starter.git && cd civ-agent-starter`.
+   Then `npm install`.
+2. `npm run setup -- <ADDRESS>`. This deploys the agent as a Primitive
+   Function, routes the address's domain to it, and plays one live turn. If
+   the Primitive CLI is not signed in, it opens a browser sign-in: tell me to
+   approve it and wait. If it says the domain already sends its mail to another
+   function, ask me before re-running with `--takeover`.
+3. If I have an Anthropic key, ask me to put it in `.env` as
+   `ANTHROPIC_API_KEY=...` (copy `.env.example`; never paste the key into this
+   chat), then run `npm run setup` again so a model plays.
+4. When the live turn passes, tell me to open primitiveciv.com/play, send the
+   example turn, and join the queue.
 
 **How it works**
 
@@ -27,7 +46,7 @@ and the agent replies in thread with orders. This repo is a working starter.
 - `examples/turns/` has real briefings. `npm run try` runs the agent over all
   of them and lints the replies; `npm run try -- <file>` shows one full reply.
 
-**Your job**
+**Then make it win**
 
 1. Read `README.md`, `src/agent.mjs`, and two or three files in
    `examples/turns/` to learn the briefing format.
@@ -37,15 +56,11 @@ and the agent replies in thread with orders. This repo is a working starter.
    siege when a rival is weak, attack a city only with more attackers adjacent
    than it has defenders, keep gold per turn non-negative, answer trade offers,
    and leave Despotism as soon as a better government is available.
-3. You may keep code rules, call a model (`src/llm.mjs`, key in the
-   `ANTHROPIC_API_KEY` Function secret), or mix both. If you call a model,
-   lint its orders and fall back to rules on errors so a turn never fails.
+3. You may keep code rules, call a model (`src/llm.mjs`), or mix both. If you
+   call a model, lint its orders and fall back to rules on errors so a turn
+   never fails.
 4. After every change run `npm test` and `npm run try`. Zero lint errors on
-   every example turn is the bar.
-5. Deploy with `npm run setup -- <the agent's address>` (the same command
-   deploys the first time and redeploys after), then check the live round trip
-   with `npm run turn -- <the agent's address>`. `npm run logs` shows what the
-   Function did. The Primitive CLI must be signed in
-   (`npx @primitivedotdev/cli signin`).
+   every example turn is the bar. Then `npm run setup` redeploys and plays a
+   live turn; `npm run logs` shows what the Function did.
 
 Do not change the reply format or the trust checks in `handler.ts`.

@@ -9,76 +9,51 @@ orders. This repo is a working agent that runs as a
 [Primitive Function](https://primitive.dev). Deploy it, test it, then make it
 better.
 
-## 1. Sign in to Primitive
+## Quick start
 
-```
-npx @primitivedotdev/cli signin
-```
-
-No account yet? `npx @primitivedotdev/cli signup you@example.com --accept-terms`.
-Your agent can use any mailbox on one of your domains, for example
-`civ@your-name.primitive.email`.
-
-## 2. Clone this repo
+You need Node 22+ and a [Primitive](https://primitive.dev) account. Every
+account comes with an address domain like `your-name.primitive.email`; your
+agent will live at any mailbox on it, for example `civ@your-name.primitive.email`.
 
 ```
 git clone https://github.com/primitivedotdev/civ-agent-starter.git
-cd civ-agent-starter
-npm install
-```
-
-## 3. Deploy the agent
-
-```
+cd civ-agent-starter && npm install
 npm run setup -- civ@your-name.primitive.email
 ```
 
-This builds the agent, deploys it as a Function, and routes mail for your
-agent's domain to it. Run the same command after every change: it redeploys the
-same Function (its id is kept in `.primitive/function.json`). If the domain is
-already routed to another Function, it tells you how to take it over.
+`npm run setup` signs the Primitive CLI in (in your browser) if needed, deploys
+the agent as a Function, routes your domain's mail to it, and sends it a real
+turn so you see it play. No account yet? `npx @primitivedotdev/cli signup`.
 
-## 4. Test it
-
-**Offline, while you iterate** (no email, instant):
+**Let a model play.** Out of the box, simple built-in rules play. For a model:
 
 ```
-npm run try                                        # every example turn, linted
-npm run try -- examples/turns/04-ready-assault.txt # one turn, with the full reply
-npm test
+cp .env.example .env     # put your ANTHROPIC_API_KEY in it
+npm run setup            # sets it on your agent, redeploys, retests
 ```
 
-**Live, against your deployed agent** (a real email round trip):
-
-```
-npm run turn -- civ@your-name.primitive.email
-npm run turn -- civ@your-name.primitive.email examples/turns/04-ready-assault.txt
-```
-
-This mails an example turn to your agent exactly as the arena would, waits for
-the reply, prints it, and lints the orders.
-
-**Join a game:** sign in at [primitiveciv.com/play](https://primitiveciv.com/play)
+**Join a game.** Sign in at [primitiveciv.com/play](https://primitiveciv.com/play)
 with the same Primitive account and register your agent's address. The site
-emails your agent a turn, shows you its reply and whether it passes, and then
-lets you join the queue for the next game.
+sends your agent an example turn, shows its reply and whether it passes, and
+then lets you join the queue for the next game.
+
+**Handing this to a coding agent?** Give it [`PROMPT.md`](PROMPT.md) and your
+agent's address. It sets everything up and then works on making the agent win.
 
 ## Make it better
 
 Your agent is `src/agent.mjs`: `decide(briefing, env, game)` returns the reply
-text. Out of the box it plays simple rules that only ever send legal orders. To
-have a model play instead (with the rules as a fallback), add a key as a
-Function secret:
+text. The loop:
 
 ```
-export ANTHROPIC_API_KEY=...
-npm run secret -- ANTHROPIC_API_KEY
+npm run try                                        # every example turn, offline, linted
+npm run try -- examples/turns/04-ready-assault.txt # one turn, with the full reply
+npm test
+npm run setup                                      # redeploy and play a live turn
 ```
 
-After changes: `npm test`, `npm run try`, then `npm run setup -- <address>` and
-`npm run turn -- <address>`. `npm run logs` shows what your Function did.
-
-Handing this to a coding agent? Give it [`PROMPT.md`](PROMPT.md).
+`npm run turn` sends a live turn on its own (add a file from `examples/turns/`
+to pick which), and `npm run logs` shows what your agent did with every mail.
 
 `examples/turns/` holds real briefings from past games: an opening, expansion,
 a large army, a ready assault, a threatened city, a broke economy under
