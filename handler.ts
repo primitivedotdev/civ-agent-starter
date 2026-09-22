@@ -173,23 +173,15 @@ export function isLoop(event: EmailReceivedEvent): boolean {
   return false;
 }
 
-// Is this mail authentically from `sender`? DMARC must pass and the From
-// header must be exactly `sender`. Alignment is relaxed, as DMARC defines it:
-// mail from civ@your-name.primitive.email authenticates as primitive.email,
-// the organizational domain, so a subdomain of the DMARC domain counts.
+// Is this mail authentically from `sender`? DMARC must pass for the sender's
+// domain and the From header must be exactly `sender`. Since SDK 1.26.1 this
+// includes subdomains that authenticate as their organizational domain
+// (civ@your-name.primitive.email passes DMARC as primitive.email).
 function trustedSender(event: EmailReceivedEvent, sender: string): { trusted: boolean; reason: string } {
 	const domain = domainPart(sender) ?? "";
 	if (!domain) return { trusted: false, reason: "no sender domain" };
-	const strict = isTrustedSender(event, { domain, sender });
-	if (strict.trusted || strict.reason !== "dmarc-domain-mismatch") return { trusted: strict.trusted, reason: strict.reason };
-	const dmarcDomain = String(event.email?.auth?.dmarcFromDomain ?? "").toLowerCase();
-	if (!dmarcDomain || !domain.endsWith(`.${dmarcDomain}`)) return { trusted: false, reason: `dmarc domain ${dmarcDomain || "none"}` };
-	const relaxed = isTrustedSender(event, { domain: dmarcDomain });
-	// The organizational check fails only on the From domain; anything else
-	// (auth failed, several From addresses) is a real rejection.
-	if (!relaxed.trusted && relaxed.reason !== "from-domain-mismatch") return { trusted: false, reason: relaxed.reason };
-	const from = extractEmailAddresses(event.email?.headers?.from)[0]?.toLowerCase() ?? "";
-	return from === sender ? { trusted: true, reason: "trusted" } : { trusted: false, reason: "sender-mismatch" };
+	const r = isTrustedSender(event, { domain, sender });
+	return { trusted: r.trusted, reason: r.reason };
 }
 
 // Every ignored mail says why in `npm run logs`, so "my agent did not reply"
