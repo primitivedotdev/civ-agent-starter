@@ -23,6 +23,7 @@ import {
 } from "@primitivedotdev/sdk/api";
 // @ts-expect-error plain ESM module
 import { decide, lastOrders, onLetter } from "./src/agent.mjs";
+import { emptyLedger, ledgerKey, recordLetter } from "./src/diplomacy.mjs";
 // @ts-expect-error plain ESM module
 import { DEFAULT_ARENA, civOfSender, extractLetters, kindOf, letterSubject, mailboxFor, parseGameBlock, parseGameOver, parseMailboxes, parseSubject } from "./src/game.mjs";
 
@@ -48,6 +49,13 @@ interface GameState {
   outcome?: unknown;
   /** Letters received from rivals since the last turn, newest last (at most 10). */
   inbox?: Array<{ fromCiv: string; text: string; turn?: number }>;
+  /**
+   * What you and each rival have said, and what you think you agreed, across
+   * the whole game (src/diplomacy.mjs). Loaded from its own memory key and
+   * attached here so decide() and onLetter() both see it; it is not saved as
+   * part of this object.
+   */
+  diplomacy?: { game: string; rivals: Record<string, unknown> };
   notes?: unknown;
 }
 
@@ -258,8 +266,22 @@ export default {
         catch { return { game }; }
       };
       const save = async (state: GameState) => {
-        try { await client.memories.set({ key, value: state as never }); }
+        // The ledger lives under its own key, so it never rides along here.
+        const { diplomacy, ...rest } = state;
+        void diplomacy;
+        try { await client.memories.set({ key, value: rest as never }); }
         catch (e) { console.error("memory save failed:", e); }
+      };
+      // The diplomacy ledger: its own memory, because letters arrive between
+      // turns and a letter writing it must not clobber a turn writing state.
+      const dKey = ledgerKey(game);
+      const loadLedger = async () => {
+        try { return ((await client.memories.get(dKey)).value as never) ?? emptyLedger(game); }
+        catch { return emptyLedger(game); }
+      };
+      const saveLedger = async (ledger: unknown) => {
+        try { await client.memories.set({ key: dKey, value: ledger as never }); }
+        catch (e) { console.error("diplomacy memory save failed:", e); }
       };
 
       if (kind === "start" || kind === "over" || kind === "briefing") {
@@ -296,7 +318,15 @@ export default {
         if (!auth.trusted) return skip(`letter claiming to be ${fromCiv} failed authentication (${auth.reason})`);
         const inbox = [...(state.inbox ?? []), { fromCiv, text: (email.text ?? "").slice(0, 4000), turn: state.lastTurn }].slice(-10);
         await save({ ...state, inbox });
-        const answer = await onLetter({ game, fromCiv, text: email.text ?? "", subject: email.subject }, env, state);
+        const ledger = await loadLedger();
+        recordLetter(ledger, { civ: fromCiv, direction: "in", text: email.text ?? "", turn: state.lastTurn });
+        const answer = await onLetter(
+          { game, fromCiv, text: email.text ?? "", subject: email.subject },
+          env,
+          { ...state, diplomacy: ledger },
+        );
+        if (answer) recordLetter(ledger, { civ: fromCiv, direction: "out", text: answer, turn: state.lastTurn });
+        await saveLedger(ledger);
         if (answer && state.civ) {
           const reply = await client.reply(email, { text: answer });
           await client.send({
@@ -320,7 +350,8 @@ export default {
         mailboxes: parseMailboxes(email.text) ?? state.mailboxes ?? {},
       };
       const started = Date.now();
-      const text = await decide(email.text ?? "", env, next);
+      const ledger = await loadLedger();
+      const text = await decide(email.text ?? "", env, { ...next, diplomacy: ledger });
       const reply = await client.reply(email, { text });
       console.log(`turn: ${game} ${next.civ ?? "?"} turn ${next.lastTurn ?? "?"}, replied with ${lastOrders(text)?.length ?? 0} orders in ${Date.now() - started}ms (${env.ANTHROPIC_API_KEY ? "model" : "built-in rules"})`);
       await save({ ...next, inbox: [] }); // letters were in front of decide() this turn

@@ -14,7 +14,12 @@ You may also write to rivals listed in the briefing's MAILBOXES section: put
 <DIPLOMACY to="Greece">your letter</DIPLOMACY> in your reply (at most one per rival per turn).
 Letters are delivered by email and rivals may answer; treat promises as diplomacy, not rules.`;
 
-export async function askModel(briefingText, env) {
+/**
+ * Ask the model. `opts.system` replaces the turn system prompt (a letter is a
+ * different job from a turn), and `opts.maxTokens` caps the reply: a letter
+ * needs a paragraph, not four thousand tokens.
+ */
+export async function askModel(briefingText, env, opts = {}) {
 	const res = await fetch("https://api.anthropic.com/v1/messages", {
 		method: "POST",
 		headers: {
@@ -24,8 +29,8 @@ export async function askModel(briefingText, env) {
 		},
 		body: JSON.stringify({
 			model: env.MODEL || "claude-sonnet-5",
-			max_tokens: 4000,
-			system: SYSTEM,
+			max_tokens: opts.maxTokens ?? 4000,
+			system: opts.system ?? SYSTEM,
 			messages: [{ role: "user", content: briefingText }],
 		}),
 	});

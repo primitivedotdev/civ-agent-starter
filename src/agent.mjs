@@ -19,13 +19,24 @@
 import { parseBriefing } from "./briefing.mjs";
 import { lintOrders } from "./lint.mjs";
 import { askModel } from "./llm.mjs";
+import { diplomacyContext, noteAgreement, pendingOffers, recordLetter, setStance } from "./diplomacy.mjs";
 
 export async function decide(briefingText, env = {}, game = {}) {
 	const brief = parseBriefing(briefingText);
 	if (env.ANTHROPIC_API_KEY) {
 		try {
+			// Three things the model needs beyond the briefing: letters that
+			// arrived since last turn, what you and each rival have said before
+			// now (game.diplomacy, see src/diplomacy.mjs), and which offers the
+			// ENGINE says are actually on the table this turn.
 			const letters = (game.inbox ?? []).map((l) => `Letter from ${l.fromCiv}:\n${l.text}`).join("\n\n");
-			const reply = await askModel(letters ? `${briefingText}\n\n=== LETTERS FROM RIVALS SINCE LAST TURN ===\n${letters}` : briefingText, env);
+			const diplo = diplomacyContext(game.diplomacy, brief);
+			const context = [
+				briefingText,
+				letters ? `=== LETTERS FROM RIVALS SINCE LAST TURN ===\n${letters}` : "",
+				diplo,
+			].filter(Boolean).join("\n\n");
+			const reply = await askModel(context, env);
 			const orders = lastOrders(reply);
 			// Keep the model's reply only if it produced orders the engine will take,
 			// and let the rules cover every unit and city it left alone (a model
@@ -180,8 +191,54 @@ export function ruleOrders(b) {
 	return orders;
 }
 
-// A rival wrote to you. Return reply text to answer in thread, or null. The
-// letter is also saved to game.inbox, so decide() sees it next turn.
+// A rival wrote to you. Return reply text to answer in thread, or null to read
+// it without answering. The letter is saved either way: to game.inbox, so
+// decide() sees it on your next turn, and to the ledger in src/diplomacy.mjs,
+// so you still know what was said ten turns from now.
+//
+// This is the obvious place to start iterating. Out of the box it answers
+// briefly and non-committally, because the one thing a default must not do is
+// promise something on your behalf. What it will NOT do is act: a letter
+// cannot move gold, sign peace, or start a war. Only orders from decide() do
+// that, so if you want to take a deal, the accept_trade or make_peace goes in
+// your next turn's orders.
+const LETTER_SYSTEM = [
+	"You are the ruler of a civilization in a game of Civilization III, writing a short",
+	"private letter to a rival ruler. Two or three sentences, in character, no preamble",
+	"and no signature.",
+	"",
+	"You cannot execute anything in a letter. Gold, cities, techs and peace move only",
+	"through game orders on a turn. So do not claim a payment has been made and do not",
+	"state that a deal is done. You may propose, refuse, warn, stall or ask a question.",
+	"Never promise something you would not actually order next turn.",
+].join("\n");
+
 export async function onLetter(letter, env = {}, game = {}) {
-	return null;
+	const from = letter?.fromCiv ?? "a rival";
+	const me = game?.civ ?? "our civilization";
+	if (!env.ANTHROPIC_API_KEY) {
+		// No model key: acknowledge, commit to nothing. Silence reads as hostility
+		// and costs you alliances you might have wanted.
+		return `${from}, your message reached us. We have read it and will answer with our actions.`;
+	}
+	try {
+		const history = diplomacyContext(game?.diplomacy, null);
+		const prompt = [
+			`You are ${me}. ${from} has written to you.`,
+			"",
+			`Their letter:\n${String(letter?.text ?? "").slice(0, 2000)}`,
+			history ? `\n${history}` : "",
+			"",
+			`Write your reply to ${from}.`,
+		].filter(Boolean).join("\n");
+		const reply = await askModel(prompt, env, { system: LETTER_SYSTEM, maxTokens: 400 });
+		const text = String(reply ?? "").trim();
+		return text || null;
+	} catch (e) {
+		console.error(`letter reply failed: ${e instanceof Error ? e.message : e}`);
+		return null;
+	}
 }
+
+// Re-exported so your agent can reach the ledger without a second import.
+export { diplomacyContext, noteAgreement, pendingOffers, recordLetter, setStance };

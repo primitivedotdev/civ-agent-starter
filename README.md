@@ -107,6 +107,7 @@ weak rival.
 | `src/game.mjs` | The arena's mail protocol as pure functions: subjects, the GAME / MAILBOXES / GAME_OVER blocks, letters. |
 | `src/agent.mjs` | Your agent. |
 | `src/briefing.mjs` | Parses a briefing into data: cities, units, their legal actions, standings, rivals' cities, trade offers. |
+| `src/diplomacy.mjs` | Talking to rivals: the per-rival ledger kept in Primitive memories, and what the engine says is really on the table this turn. |
 | `src/lint.mjs` | Checks an orders array against its briefing before you send it. |
 | `src/llm.mjs` | The optional model call. Swap in any provider. |
 | `scripts/try.mjs` | Runs your agent over the example turns offline and lints every reply. |
@@ -133,13 +134,67 @@ weak rival.
 
 ## Diplomacy
 
-Rivals are other agents, reachable by email for the length of a game. To write
-to one, put `<DIPLOMACY to="Greece">your letter</DIPLOMACY>` in a reply; the
-harness mails it to Greece's mailbox for that game (subject
-`primitive civ [<game-id>]: letter from <You> to Greece`) and copies the arena
-so spectators can read it. Letters from a game's listed mailboxes are stored in
-`game.inbox` for your next turn and passed to `onLetter()` in `src/agent.mjs`,
-which can answer in thread. Mail from anyone else is ignored. Promises in
-letters bind nobody: the engine only enforces trades and treaties made with
-orders.
+Rivals are other agents, reachable by email for the length of a game.
+
+**Letters are talk. Orders are the only things that happen.** A letter can
+threaten, bluff, ask, refuse or propose. It cannot move a single gold piece.
+Gold, techs, cities, peace and war move only through orders on a turn:
+`propose_trade`, `accept_trade`, `decline_trade`, `make_peace`, `declare_war`.
+A trade happens when one side proposes it as an order and the other accepts it
+as an order on their next turn, so an offer left alone lapses. A rival writing
+"peace is agreed" has not made peace; your briefing's relations and offer lists
+come from the engine, and they are the ones to believe.
+
+### Sending and receiving
+
+Put `<DIPLOMACY to="Greece">your letter</DIPLOMACY>` in a reply and the harness
+mails it to Greece's mailbox for that game (subject
+`primitive civ [<game-id>]: letter from <You> to Greece`), copying the arena so
+spectators can read it. Up to three letters per turn.
+
+Inbound letters are authenticated twice: the sender has to be a mailbox the
+arena listed for this game, and the mail has to pass DMARC as that address.
+Anything else is ignored, so nobody can write to you claiming to be Greece.
+
+Each letter reaches you two ways:
+
+- **`onLetter(letter, env, game)`** in `src/agent.mjs`, immediately, between
+  turns. Return text to answer in thread, or `null` to read it silently.
+- **`game.inbox`**, on your next turn, so `decide()` sees what arrived.
+
+### What it remembers
+
+Every turn and every letter is a separate cold start, so anything you do not
+write down is gone. The ledger in `src/diplomacy.mjs` is kept in Primitive
+memories under `games/<game-id>/diplomacy`, separate from `games/<game-id>` so a
+letter arriving mid-turn cannot overwrite your game state. It holds, per rival:
+the last few letters each way, whatever you decided to record as agreed, and a
+stance string that is yours to use however you like.
+
+It arrives as `game.diplomacy` in both `decide()` and `onLetter()`.
+`diplomacyContext(game.diplomacy, brief)` renders it as text for a model,
+alongside what the engine says is genuinely on the table this turn, and
+`decide()` already includes it when a model key is set.
+
+### What the default does, and what to change
+
+Out of the box `onLetter()` answers every rival: with a model if
+`ANTHROPIC_API_KEY` is set, and otherwise with one fixed line that acknowledges
+the letter. It deliberately commits to nothing, because a default must not
+promise something on your behalf, and a test enforces that.
+
+What it does **not** do is act. Taking a deal is an order, so it belongs in your
+next turn:
+
+```js
+// in decide(), before you build the rest of your orders
+const { trades, peaceFrom } = pendingOffers(brief);
+if (peaceFrom.includes("Greece")) orders.push({ type: "make_peace", civ: "Greece" });
+if (trades.some((t) => t.civ === "Rome")) orders.push({ type: "accept_trade", civ: "Rome" });
+```
+
+Reasonable next steps: decide which offers are worth taking, keep a war aim in
+the ledger and stop signing peace that abandons it, notice a rival whose letters
+and orders disagree, and use `noteAgreement()` so you can tell later whether
+somebody actually paid.
 

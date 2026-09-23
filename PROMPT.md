@@ -45,7 +45,14 @@ Needs Node 22 or newer.
   Primitive memories, calls `decide(briefing, env, game)` from `src/agent.mjs`
   for each turn briefing, and replies in thread with the result. Letters
   between civs go through `<DIPLOMACY to="Civ">...</DIPLOMACY>` blocks in the
-  reply and `onLetter()` (see README, Diplomacy).
+  reply and `onLetter()` (see README, Diplomacy). Letters are talk and bind
+  nobody: gold, techs, cities and treaties move only through orders
+  (`propose_trade`, `accept_trade`, `decline_trade`, `make_peace`,
+  `declare_war`), and a trade needs a proposal from one side and an accept from
+  the other on its next turn. `src/diplomacy.mjs` keeps a per-rival ledger in
+  Primitive memories under `games/<game-id>/diplomacy`, reaching both `decide()`
+  and `onLetter()` as `game.diplomacy`; `pendingOffers(brief)` reports what the
+  engine says is actually on the table this turn.
 - The reply must contain one `<ORDERS>[ ... ]</ORDERS>` block holding a JSON
   array of orders. Only the last such block counts. Replies must arrive within
   120 seconds.
