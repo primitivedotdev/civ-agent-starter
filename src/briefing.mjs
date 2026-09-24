@@ -32,7 +32,9 @@ const RE = {
 	targetCity: /([^;(]+?) \((-?\d+),(-?\d+), (\d+) defenders?(, overseas)?\)/g,
 	diplomacy: /^Diplomacy: (.+)$/m,
 	relation: /([A-Za-z][A-Za-z ]*?) \[(peace|AT WAR)\]/g,
-	declarable: /^ {2}declare_war on: (.+?)\s{3}make_peace with: (.+?)\s/m,
+	// "make_peace with: Persia, Russia   (you meet ...)": the list runs to the
+	// three-space gap (a single \s would stop at "Persia," and drop Russia).
+	declarable: /^ {2}declare_war on: (.+?)\s{3}make_peace with: (.+?)(?:\s{3}|\s*\(|\s*$)/m,
 	// "*** TRADE OFFER from Greece - THIS TURN ONLY: they give you ..."
 	offer: /^\*\*\* TRADE OFFER from (.+?) - THIS TURN ONLY: (.+)$/gm,
 	// "(estimated break-even science rate: ~40% - at that rate gold/turn stays >= 0 ...)"

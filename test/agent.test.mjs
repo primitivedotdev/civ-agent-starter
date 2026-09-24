@@ -58,3 +58,12 @@ test("the stock rules pass the arena's qualification turn (two or more listed id
 	const ids = new Set(orders.flatMap((o) => [o.unit, o.city]).filter((id) => listed.has(id)));
 	assert.ok(ids.size >= 2, `only ${[...ids].join(", ")}`);
 });
+
+test("every civ on the make_peace line is offerable, not just the first", () => {
+	const b = parseBriefing("  declare_war on: Ottomans   make_peace with: Persia, Russia   (you meet everyone at peace; declare_war before you can attack a civ)\n");
+	assert.deepEqual(b.offerablePeace, ["Persia", "Russia"]);
+	assert.deepEqual(b.declarableWar, ["Ottomans"]);
+	const none = parseBriefing("  declare_war on: Rome, Greece   make_peace with: (none)   (you meet everyone at peace)\n");
+	assert.deepEqual(none.offerablePeace, []);
+	assert.deepEqual(none.declarableWar, ["Rome", "Greece"]);
+});
