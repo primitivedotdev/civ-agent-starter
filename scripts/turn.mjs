@@ -79,6 +79,7 @@ const match = json(waited);
 const replyId = (Array.isArray(match) ? match[0] : match)?.id;
 if (!replyId) {
 	console.error("No reply within 120 seconds (the arena's deadline). Check `npm run logs` and that setup routed this address.");
+	console.error(`This script sends as ${from}, which the agent trusts only when its ALLOW_TEST_SENDER secret is set: npm run secret -- ALLOW_TEST_SENDER`);
 	process.exit(1);
 }
 const full = json(cli("emails", "get", "--id", replyId)) ?? {};

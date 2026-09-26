@@ -33,8 +33,10 @@ interface Env {
   PRIMITIVE_WEBHOOK_SECRET: string;
   ANTHROPIC_API_KEY?: string;
   MODEL?: string;
-  /** The arena's address; defaults to arena@primciv.com. */
   ARENA_ADDRESS?: string;
+  /** Trust arena-test@<own domain> as an arena sender (for `npm run turn`).
+   * Off in production: it is an own-domain impersonation primitive. */
+  ALLOW_TEST_SENDER?: string;
 }
 
 // What the harness remembers about each game, in Primitive memories under
@@ -254,11 +256,14 @@ export default {
       const selfDomain = domainPart(self) ?? "";
 
       // Arena mail must really come from the arena (DMARC-authenticated as the
-      // arena's domain and address). `npm run turn` sends from
-      // arena-test@<your own domain>, which is trusted the same way.
-      const fromArena =
-        trustedSender(event, arena).trusted ||
-        (selfDomain !== "" && trustedSender(event, `arena-test@${selfDomain}`).trusted);
+      // arena's domain and address). The local-test path (`npm run turn` sends
+      // from arena-test@<your own domain>) is trusted only when explicitly
+      // enabled: in production it is exactly an own-domain impersonation
+      // primitive, so it is off unless ALLOW_TEST_SENDER says otherwise.
+      const testSenderTrusted =
+        !!env.ALLOW_TEST_SENDER && selfDomain !== "" &&
+        trustedSender(event, `arena-test@${selfDomain}`).trusted;
+      const fromArena = trustedSender(event, arena).trusted || testSenderTrusted;
 
       const key = `games/${game}`;
       const load = async (): Promise<GameState> => {
@@ -287,7 +292,7 @@ export default {
       if (kind === "start" || kind === "over" || kind === "briefing") {
         if (!fromArena) {
           const why = trustedSender(event, arena).reason;
-          const whySelf = selfDomain ? trustedSender(event, `arena-test@${selfDomain}`).reason : "no recipient";
+          const whySelf = env.ALLOW_TEST_SENDER && selfDomain ? trustedSender(event, `arena-test@${selfDomain}`).reason : "test sender not enabled (ALLOW_TEST_SENDER)";
           return skip(`untrusted-arena-mail from ${email.sender?.address ?? "?"} (arena check: ${why}; test sender check: ${whySelf})`);
         }
       }
@@ -299,10 +304,14 @@ export default {
         return Response.json({ ok: true, game, stored: "start" });
       }
       if (kind === "over") {
-        await save({ ...(await load()), status: "over", outcome: parseGameOver(email.text) });
+        // A real game-over mail carries a parseable <GAME_OVER> block; anything
+        // else is untrusted noise and must not flip state (a forged "game over"
+        // used to freeze this game's memory here with zero validation).
         const over = parseGameOver(email.text);
-        const st = over?.stats;
-        console.log(`game over: ${game}: ${over?.outcome ?? "?"}, placed ${over?.placement ?? "?"}` + (st
+        if (!over) return skip("a game-over mail with no parseable <GAME_OVER> block");
+        await save({ ...(await load()), status: "over", outcome: over });
+        const st = over.stats;
+        console.log(`game over: ${game}: ${over.outcome ?? "?"}, placed ${over.placement ?? "?"}` + (st
           ? `; ${st.turns} turns, ${st.missed} missed, replies ${Math.round((st.replyMsAvg ?? 0) / 100) / 10}s avg, ${st.refusedPct}% of orders refused, ${st.finalCities} cities (peak ${st.peakCities}), ${st.finalTechs} techs`
           : ""));
         return Response.json({ ok: true, game, stored: "over" });
@@ -343,11 +352,20 @@ export default {
       // A turn briefing: refresh what we know about the game, decide, reply.
       const state = await load();
       const civ = /^(.+?) turn (\d+)\s*$/i.exec(parseSubject(email.subject).rest);
+      // Mailboxes merge-only: the roster is established by the game's "you are"
+      // mail and later briefings may introduce a civ we had not met, but a
+      // briefing never REMOVES or REPOINTS an established entry. Otherwise any
+      // trusted-sender mail can swap a rival's address for one it controls.
+      const fresh = (parseMailboxes(email.text) ?? {}) as Record<string, string>;
+      const mailboxes: Record<string, string> = { ...(state.mailboxes ?? {}) };
+      for (const [k, v] of Object.entries(fresh)) {
+        if (!mailboxes[k] || mailboxes[k].toLowerCase() === String(v).toLowerCase()) mailboxes[k] = String(v);
+      }
       const next: GameState = {
         ...state, game, arena, status: "live",
         civ: civ?.[1] ?? state.civ,
         lastTurn: civ ? Number(civ[2]) : state.lastTurn,
-        mailboxes: parseMailboxes(email.text) ?? state.mailboxes ?? {},
+        mailboxes,
       };
       const started = Date.now();
       const ledger = await loadLedger();
