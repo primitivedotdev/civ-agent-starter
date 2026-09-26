@@ -102,6 +102,63 @@ a large army, a ready assault, a threatened city, a broke economy under
 Despotism, a trade offer, civil disorder, and a peacetime opening against a
 weak rival.
 
+## Rules worth knowing
+
+The arena plays Civilization III rules. These are the ones that most often
+change what an agent should do. The briefing reports each one when it applies,
+`src/briefing.mjs` parses it, and `src/lint.mjs` checks the orders that depend
+on it.
+
+- **Bankruptcy.** While you cannot pay upkeep, your gold stays at 0 and each
+  turn the game sells one thing, with no refund: your highest-upkeep building
+  that is not defensive (not the Palace, a wonder, or a building a wonder
+  grants); if there is none, your cheapest unit that costs support; only then
+  a defensive building. The next briefing lists what was taken on
+  `BANKRUPTCY last turn:` lines (`brief.bankruptcyEvents`).
+- **Science at 0%.** Research advances only on turns that make at least one
+  beaker, so at 0% science the current tech does not complete.
+- **Zone of control.** It does not stop movement. Moving between two tiles
+  next to an enemy unit that exerts zone of control can draw one free shot
+  from it: at most 1 HP, not lethal, and no return fire.
+- **War weariness.** Points build up against each civ you fight and fade in
+  peace. Under Republic and Democracy (and Feudalism) they make citizens
+  unhappy. The `War weariness:` line gives the points per civ
+  (`brief.warWeariness`) and a city's `war weary:` line the citizens affected
+  (`city.warWeary`).
+- **Captured cities.** Capture costs the city a citizen and destroys its
+  Palace, small wonders and culture buildings. Its citizens may resist: while
+  any do, the city produces nothing and cannot hurry, and each land combat unit
+  in the city can quell one resister per turn (`city.resisting`). A city can
+  also flip to another civ by culture at the end of a turn; the chance shows as
+  `flip risk:` (`city.flipRisk`) and drops with each land combat unit inside.
+  Units in a city that flips are lost.
+- **Golden Age.** A civ's one Golden Age starts when its unique unit wins a
+  battle, or when its Great Wonders cover both of its civilization's
+  strengths. For 20 turns every worked tile that already makes a shield makes
+  one more, and likewise commerce (`brief.goldenAgeTurnsLeft`).
+- **Selling and hurrying.** The Palace and wonders cannot be sold, and a wonder
+  cannot be hurried with gold or population, so the briefing prints no hurry
+  line for one.
+- **Attacking.** A unit that is not Blitz attacks once per turn and keeps its
+  remaining moves. Its actions then say `already attacked this turn`
+  (`unit.actions.attackedThisTurn`).
+- **City count.** The `CITY COUNT` line gives your own civilization's optimal
+  number of cities (`brief.cityOptimal`); cities past it lose most of their
+  output to corruption.
+
+Three orders go with these rules. Each is accepted only where the briefing
+offers it:
+
+| Order | What it does |
+|---|---|
+| `{"type":"join_city","unit":"Worker-2"}` | Adds a Settler (2 citizens) or Worker (1) to the city it stands in; the unit is used up. Listed in the unit's actions when the city can grow that far. |
+| `{"type":"leader_hurry","unit":"Leader-9"}` | A Military Great Leader in one of your cities completes that city's current build next turn (not a Great Wonder); the leader is used up. |
+| `{"type":"raze","city":"city-7"}` | Destroys a city you captured by force this turn and leaves Workers on its tile. Offered only by a `raze:` line on the capture turn. |
+
+Orders run in the order you list them, so an order for a unit placed after its
+`join_city`, `leader_hurry` or `disband` fails, and a capturing move has to
+come before the `raze` of that city.
+
 ## What is in here
 
 | File | What it does |

@@ -39,7 +39,9 @@ const RE = {
 	offer: /^\*\*\* TRADE OFFER from (.+?) - THIS TURN ONLY: (.+)$/gm,
 	// "(estimated break-even science rate: ~40% - at that rate gold/turn stays >= 0 ...)"
 	breakEven: /estimated break-even science rate: ~(\d+)%/,
-	// "CITY COUNT: you have 17 cities; this map's optimal is ~14."
+	// "CITY COUNT: you have 17 cities; this map's optimal is ~14 for your civilization."
+	// The number is your civilization's own optimal (it differs between civs on
+	// the same map); older briefings end the sentence at the number.
 	cityCount: /CITY COUNT: you have (\d+) cities; this map's optimal is ~(\d+)/,
 	offersPeace: /^ {2}(.+?) OFFERS PEACE \(since turn/gm,
 	standingOrder: /\[(FORTIFIED[^\]]*|ADVANCING[^\]]*|AUTO-[^\]]*)\]/,
@@ -50,8 +52,12 @@ const RE = {
 	// "Can revolt to: Monarchy, Republic (a few turns of anarchy to switch)." and
 	// "Can revolt to: Despotism - and you SHOULD, now: ..." both occur.
 	canRevolt: /^ {2}Can revolt to: (.+?)(?:\s*\(|\s+-\s+|$)/m,
-	// ">>> STRIKE OPPORTUNITY: Greece's Pella (2 defenders), your force adjacent: 3 attacker(s) + 1 siege."
+	// Two spellings of the same facts: older briefings print the first, newer
+	// ones the second, and saved turns hold both, so both parse:
+	//   ">>> STRIKE OPPORTUNITY: Greece's Pella (2 defenders), your force adjacent: 3 attacker(s) + 1 siege."
+	//   "ADJACENT RIVAL CITY: Greece's Pella at (12,30), 2 defenders; your units next to it that can still act: 3 attacker(s) + 1 siege."
 	strike: /^ {2}>>> STRIKE OPPORTUNITY: (.+?)'s (.+?) \((\d+) defenders?\), your force adjacent: (\d+) attacker\(s\)(?: \+ (\d+) siege)?/gm,
+	strikeStateOnly: /^ {2}ADJACENT RIVAL CITY: (.+?)'s (.+?) at \((-?\d+),(-?\d+)\), (\d+) defenders?; your units next to it that can still act: (\d+) attacker\(s\)(?: \+ (\d+) siege)?/gm,
 	// "*** THREATENED: Hattusa (22,22) has 5 enemy unit(s) adjacent; garrison 6."
 	threat: /^ {2}\*\*\* THREATENED: (.+?) \((-?\d+),(-?\d+)\) has (\d+) enemy unit\(s\) adjacent; garrison (\d+)/gm,
 };
@@ -73,9 +79,12 @@ export function parseBuildOptions(value) {
 
 // "actions: move_unit dir N/NE | advance to nearest_enemy_city | bombard x45 y23 | fortify"
 // -> { verbs: Set{move_unit, advance, bombard, fortify}, bombard: [{x,y}], jobs: [...] }
-const KNOWN_VERBS = ["move_unit", "move_to", "advance", "bombard", "pillage", "explore", "fortify", "sentry", "hold", "disband", "work", "upgrade", "found_city"];
+const KNOWN_VERBS = ["move_unit", "move_to", "move_path", "advance", "bombard", "pillage", "explore", "fortify", "sentry", "hold", "disband", "work", "upgrade", "found_city", "join_city", "leader_hurry"];
 function parseActions(line) {
 	const verbs = new Set(), bombard = [], jobs = [], attack = [];
+	// "already attacked this turn: it may still move, but not attack again until
+	// next turn" replaces the attack entries of a unit that has spent its attack.
+	const attackedThisTurn = /\balready attacked this turn\b/.test(line);
 	// A verb can appear anywhere in a segment, e.g.
 	// "move_unit dir N/NE/... (or move_to x,y)" offers both move_unit and move_to.
 	for (const v of KNOWN_VERBS) if (new RegExp(`\\b${v}\\b`).test(line)) verbs.add(v);
@@ -91,7 +100,36 @@ function parseActions(line) {
 		const w = /^work job (.+)$/.exec(t);
 		if (w) jobs.push(...w[1].split("/").map((s) => s.trim()).filter(Boolean));
 	}
-	return { verbs, bombard, jobs, attack };
+	return { verbs, bombard, jobs, attack, attackedThisTurn };
+}
+
+// "OBSERVED FOREIGN UNITS (2; current sight, excludes cargo):" followed by one
+// "  CONTACT {json}" line per unit. A partial or malformed list cannot prove
+// what is out there, so it parses as null (unknown); an advertised empty list
+// is a complete empty observation.
+export function parseObservedUnits(text) {
+	const header = /^OBSERVED FOREIGN UNITS \((\d+); current sight, excludes cargo\):\r?$/m.exec(text);
+	if (!header) return null;
+	const expected = Number(header[1]), units = [], ids = new Set();
+	if (!Number.isSafeInteger(expected)) return null;
+	for (const line of text.slice(header.index + header[0].length).split("\n")) {
+		if (!line.trim()) continue;
+		if (!line.startsWith("  CONTACT ")) {
+			// Sections start at column zero. Unexpected indented content is
+			// a malformed observation, even when the advertised count is zero.
+			if (/^\s/.test(line)) return null;
+			break;
+		}
+		try {
+			const u = JSON.parse(line.slice("  CONTACT ".length));
+			if (!u || !["id", "civ", "type"].every(k => typeof u[k] === "string" && u[k].length)
+				|| !["x", "y", "hp", "maxHp", "attack", "defense", "speed"].every(k => Number.isSafeInteger(u[k]) && u[k] >= 0)
+				|| u.hp < 1 || u.hp > u.maxHp || u.speed < 1
+				|| typeof u.land !== "boolean" || typeof u.fortified !== "boolean" || ids.has(u.id)) return null;
+			ids.add(u.id); units.push(u);
+		} catch { return null; }
+	}
+	return units.length === expected ? units : null;
 }
 
 export function parseBriefing(text) {
@@ -107,7 +145,11 @@ export function parseBriefing(text) {
 		itemStats: {},
 		unitSupport: null,
 		researchCost: {}, techsFrom: {}, overseasTargets: {}, unconnectedResources: [], itemUpkeep: {},
+		bankruptcyEvents: [], warWeariness: {}, goldenAgeTurnsLeft: 0,
 	};
+	out.pathMovement = /^  Movement option: move_path directions follows up to 60 ordered compass steps, stopping before foreign units or cities\.$/m.test(text);
+	out.cautiousMovement = /^  Movement option: move_to attack=false stops before foreign units or cities\.$/m.test(text);
+	out.observedUnits = parseObservedUnits(text);
 	let m;
 	if ((m = RE.turn.exec(text))) { out.turn = Number(m[1]); out.civ = m[2]; }
 	if ((m = RE.gov.exec(text))) { out.government = m[1]; out.gold = Number(m[2]); out.goldPerTurn = Number(m[3]); }
@@ -158,6 +200,12 @@ export function parseBriefing(text) {
 			attackersAdjacent: Number(m[4]), siegeAdjacent: m[5] ? Number(m[5]) : 0,
 		});
 	}
+	for (const m of text.matchAll(RE.strikeStateOnly)) {
+		out.strikes.push({
+			civ: m[1].trim(), city: m[2].trim(), x: Number(m[3]), y: Number(m[4]),
+			defenders: Number(m[5]), attackersAdjacent: Number(m[6]), siegeAdjacent: m[7] ? Number(m[7]) : 0,
+		});
+	}
 	for (const m of text.matchAll(RE.threat)) {
 		out.threats.push({ city: m[1].trim(), x: Number(m[2]), y: Number(m[3]), enemiesAdjacent: Number(m[4]), garrison: Number(m[5]) });
 	}
@@ -179,6 +227,14 @@ export function parseBriefing(text) {
 	for (const r of text.matchAll(/NOT connected - ([A-Za-z]+) \(gates [^)]*\): nearest known at \((-?\d+),(-?\d+)\), (inside|OUTSIDE) your borders( - ROAD that tile)?/g)) {
 		out.unconnectedResources.push({ resource: r[1], x: Number(r[2]), y: Number(r[3]), inside: r[4] === "inside", needsRoad: !!r[5] });
 	}
+	// "  BANKRUPTCY last turn: Bankrupt: Roma sold its Temple (upkeep 1 gold/turn) because ..."
+	for (const e of text.matchAll(/^ {2}BANKRUPTCY last turn: (.+)$/gm)) out.bankruptcyEvents.push(e[1].trim());
+	// "  War weariness: Greece 12 point(s), Persia 3 point(s) (Republic feels ...)"
+	if ((m = /^ {2}War weariness: (.+?) \(/m.exec(text))) {
+		for (const w of m[1].matchAll(/([A-Za-z][A-Za-z .'-]*?) (-?\d+) point\(s\)/g)) out.warWeariness[w[1].trim()] = Number(w[2]);
+	}
+	// "  Golden Age: 7 turns left (every worked tile ...)"
+	if ((m = /^ {2}Golden Age: (\d+) turns? left/m.exec(text))) out.goldenAgeTurnsLeft = Number(m[1]);
 	if ((m = RE.breakEven.exec(text))) out.breakEvenScience = Number(m[1]);
 	// The engine's search runs from the highest rate down, so "your current rate
 	// is sustainable" means the current rate IS the break-even; "NO rate is" means 0.
@@ -220,6 +276,7 @@ export function parseBriefing(text) {
 				id: h[1], name: h[2], x: Number(h[3]), y: Number(h[4]), size: Number(h[5]),
 				producing: null, engineDefault: false, turnsLeft: null, buildOptions: [],
 				built: [], builtKnown: false, hurryGold: null, hurryCost: null, notGrowing: false,
+				warWeary: 0, resisting: 0, flipRisk: null, razeWorkers: null,
 			};
 			city.disorder = city.disorderFromHeader;
 			// "[4 happy/0 content/0 unhappy]": a city riots when unhappy > happy,
@@ -259,6 +316,15 @@ export function parseBriefing(text) {
 		} else if (t.startsWith("built:")) {
 			city.built = t.slice("built:".length).split(",").map((s) => s.trim()).filter(Boolean);
 			city.builtKnown = true;
+		} else if ((mm = /^war weary: (\d+) citizen/.exec(t))) {
+			city.warWeary = Number(mm[1]);
+		} else if ((mm = /^resisting: (\d+) citizen/.exec(t))) {
+			city.resisting = Number(mm[1]);
+		} else if ((mm = /^flip risk: (<)?(\d+(?:\.\d+)?)%\/turn to ([A-Za-z][A-Za-z .'-]*?) by culture/.exec(t))) {
+			// "<0.1%" is a real but tiny risk; it parses as 0.1 with below: true.
+			city.flipRisk = { percent: Number(mm[2]), below: !!mm[1], civ: mm[3].trim() };
+		} else if ((mm = /^raze: captured this turn;.*leaves (\d+) Worker/.exec(t))) {
+			city.razeWorkers = Number(mm[1]);
 		} else if ((mm = RE.hurry.exec(t))) {
 			city.hurryCost = mm[1] ? Number(mm[1]) : 0;
 			city.hurryPays = !mm[1] ? "free" : mm[2] === "g" ? "gold" : "pop";
@@ -274,13 +340,15 @@ export function parseBriefing(text) {
 		if (h) {
 			const so = RE.standingOrder.exec(line);
 			const sg = RE.siege.exec(line);
+			const hp = /\bHP (\d+)\/(\d+)\b/.exec(line);
 			unit = {
 				siege: sg ? { strength: Number(sg[1]), range: Number(sg[2]) } : null,
 				id: h[1], type: h[2].trim(), attack: h[3] ? Number(h[3]) : null,
 				defense: h[4] ? Number(h[4]) : null, moves: Number(h[8]),
+				hp: hp ? Number(hp[1]) : null, maxHp: hp ? Number(hp[2]) : null,
 				x: Number(h[6]), y: Number(h[7]),
 				standingOrder: so ? so[1].split(/[\s-]/)[0] : null,
-				busy: false, actions: { verbs: new Set(), bombard: [], jobs: [], attack: [] },
+				busy: false, actions: { verbs: new Set(), bombard: [], jobs: [], attack: [], attackedThisTurn: false },
 			};
 			// "[STUCK: move_to (21,25) has made no progress for 5 turns ...]"
 			const stuck = /\[STUCK: move_to \((-?\d+),(-?\d+)\) has made no progress for (\d+) turns/.exec(line);
