@@ -43,6 +43,26 @@ test("an order after one that uses the unit up is flagged; one before it is not"
 	assert.ok(moved.every((f) => !/is used up/.test(f.message)), JSON.stringify(moved));
 });
 
+test("every unit order after the unit is used up is flagged, including pillage, upgrade and found_city", () => {
+	for (const type of ["pillage", "upgrade", "found_city"]) {
+		const found = lintOrders([{ type: "disband", unit: "Worker-2" }, { type, unit: "Worker-2" }], joinBrief);
+		assert.ok(found.some((f) => f.code === "duplicate_unit_order" && f.index === 1 && /is used up by order #0/.test(f.message)), type);
+	}
+});
+
+test("an order the linter already calls refused neither uses the unit up nor moves it", () => {
+	// Warrior-4 cannot join a city, so the join is refused and the hold still runs.
+	assert.deepEqual(lint([{ type: "join_city", unit: "Warrior-4" }, { type: "hold", unit: "Warrior-4" }], joinBrief), ["action_not_available:error"]);
+	// A refused move leaves the Worker in the city, so the join still uses it up.
+	const found = lintOrders([
+		{ type: "move_unit", unit: "Worker-2", dir: "UP" },
+		{ type: "join_city", unit: "Worker-2" },
+		{ type: "hold", unit: "Worker-2" },
+	], joinBrief);
+	assert.deepEqual(found.map((f) => [f.code, f.index]), [["bad_direction", 0], ["duplicate_unit_order", 2]]);
+	assert.match(found[1].message, /is used up by order #1 \(join_city\)/);
+});
+
 const cityBrief = parseBriefing(`=== TURN 90 | Rome ===
 Government: Monarchy   Gold: 300 (+4/turn)   Rates: science 60% / tax 40% / luxury 0%
 
@@ -76,6 +96,8 @@ test("the Palace and wonders are never for sale", () => {
 		assert.deepEqual(lint([{ type: "sell_building", city: "city-1", building }], cityBrief), ["not_for_sale:error"], building);
 	}
 	assert.deepEqual(lint([{ type: "sell_building", city: "city-1", building: "Library" }], cityBrief), []);
+	// A Civilization III wonder the arena's ruleset does not mark as one is only a warning.
+	assert.deepEqual(lint([{ type: "sell_building", city: "city-1", building: "Copernicus' Observatory" }], cityBrief).filter((x) => x.startsWith("maybe_")), ["maybe_not_for_sale:warn"]);
 });
 
 test("hurry is refused on a wonder and in a resisting city, and allowed where offered", () => {

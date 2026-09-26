@@ -37,9 +37,20 @@ const SMALL_WONDERS = [
 	"Heroic Epic", "Iron Works", "Forbidden Palace", "Military Academy", "The Pentagon", "Wall Street",
 	"Apollo Program", "Strategic Missile Defense", "Intelligence Agency", "Battlefield Medicine", "Secret Police HQ",
 ];
-const WONDERS = new Set([...GREAT_WONDERS, ...SMALL_WONDERS].map((n) => n.toLowerCase()));
+// Wonders of Civilization III that the arena's ruleset does not mark as
+// wonders. Whether the engine refuses to sell them is not certain from the
+// briefing, so selling one is only a warning.
+const OTHER_WONDERS = [
+	"Copernicus' Observatory", "Shakespeare's Theater", "Newton's University", "The United Nations",
+	"The Manhattan Project", "Longevity", "SETI program", "The Statue of Zeus",
+	"The Mausoleum of Mausollos", "Knights Templar",
+];
+const lower = (xs) => new Set(xs.map((n) => n.toLowerCase()));
+const WONDERS = lower([...GREAT_WONDERS, ...SMALL_WONDERS]);
+const MAYBE_WONDERS = lower(OTHER_WONDERS);
 const isWonder = (name) => typeof name === "string" && WONDERS.has(name.toLowerCase());
 const NOT_FOR_SALE = (name) => isWonder(name) || (typeof name === "string" && name.toLowerCase() === "palace");
+const MAYBE_NOT_FOR_SALE = (name) => typeof name === "string" && MAYBE_WONDERS.has(name.toLowerCase());
 
 const VERB_FOR = {
 	move_unit: "move_unit", move_to: "move_to", move_path: "move_path", advance: "advance", bombard: "bombard",
@@ -81,6 +92,7 @@ export function lintOrders(orders, brief) {
 				out.push(f("unknown_unit", "error", i, o, `No unit "${o.unit}" in this briefing. Use the exact unit ids listed under UNITS.`));
 				return;
 			}
+			const firstFinding = out.length;
 			if (u.busy && ["work", "fortify", "sentry", "hold"].includes(t)) {
 				out.push(f("unit_busy", "noop", i, o, `${u.id} is BUSY finishing a job and needs no order; this one is wasted.`));
 			} else if (u.busy && ["move_unit", "move_to", "move_path", "advance"].includes(t)) {
@@ -132,16 +144,21 @@ export function lintOrders(orders, brief) {
 			if (t === "found_city" && !/settler/i.test(u.type)) {
 				out.push(f("not_a_settler", "error", i, o, `${u.id} is a ${u.type}, not a Settler, so it cannot found a city.`));
 			}
-			if (["move_unit", "move_to", "move_path", "advance", "bombard", "fortify", "sentry", "hold", "explore", "work", ...CONSUMING_ORDERS].includes(t)) {
-				// Orders run in array order. After one that uses the unit up, every
-				// later order for it fails with "unit not found"; before it, an order
-				// still runs (moving a Worker into a city, then join_city, is fine).
-				if (consumedAt.has(o.unit)) {
-					const at = consumedAt.get(o.unit);
-					out.push(f("duplicate_unit_order", "warn", i, o, `${u.id} is used up by order #${at} (${orders[at].type}) earlier this turn, so this later order fails. Drop it or put it first.`));
-				} else if (movedUnits.has(o.unit) && !CONSUMING_ORDERS.includes(t)) {
+			// An order the checks above already call a refusal leaves the unit where
+			// it was and in play, so it neither moves nor uses up the unit below.
+			const refused = out.slice(firstFinding).some((x) => x.severity === "error");
+			// Orders run in array order. After one that uses the unit up, every
+			// later order for it fails with "unit not found"; before it, an order
+			// still runs (moving a Worker into a city, then join_city, is fine).
+			if (consumedAt.has(o.unit)) {
+				const at = consumedAt.get(o.unit);
+				out.push(f("duplicate_unit_order", "warn", i, o, `${u.id} is used up by order #${at} (${orders[at].type}) earlier this turn, so this later order fails. Drop it or put it first.`));
+			} else if (["move_unit", "move_to", "move_path", "advance", "bombard", "fortify", "sentry", "hold", "explore", "work"].includes(t)) {
+				if (movedUnits.has(o.unit)) {
 					out.push(f("duplicate_unit_order", "warn", i, o, `${u.id} already has order #${movedUnits.get(o.unit)} (${orders[movedUnits.get(o.unit)].type}) this turn; the later one usually wins.`));
-				}
+				} else movedUnits.set(o.unit, i);
+			}
+			if (!refused) {
 				// join_city and leader_hurry are judged where the unit stands when they
 				// run: after an earlier order moved it, they may be refused and leave
 				// the unit in play, so only then is it not certainly used up.
@@ -149,7 +166,6 @@ export function lintOrders(orders, brief) {
 				if (CONSUMING_ORDERS.includes(t) && !consumedAt.has(o.unit) && !(placeBound && relocated.has(o.unit)))
 					consumedAt.set(o.unit, i);
 				if (RELOCATING_ORDERS.includes(t)) relocated.add(o.unit);
-				if (!movedUnits.has(o.unit)) movedUnits.set(o.unit, i);
 			}
 			return;
 		}
@@ -202,6 +218,8 @@ export function lintOrders(orders, brief) {
 			if (t === "sell_building") {
 				if (NOT_FOR_SALE(o.building)) {
 					out.push(f("not_for_sale", "error", i, o, `${o.building} cannot be sold: the engine never sells the Palace or a wonder.`));
+				} else if (MAYBE_NOT_FOR_SALE(o.building)) {
+					out.push(f("maybe_not_for_sale", "warn", i, o, `${o.building} is a wonder in Civilization III, and the engine refuses to sell wonders; this sale is likely refused.`));
 				} else if (c.builtKnown && !c.built.includes(o.building)) {
 					out.push(f("not_built", "error", i, o, `${c.name} has no ${o.building}. Built there: ${c.built.join(", ") || "nothing"}.`));
 				} else if (LIKELY_DEFENSIVE.has(o.building)) {

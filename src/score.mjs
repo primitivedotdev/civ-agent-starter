@@ -19,7 +19,7 @@
 
 const isMilitary = (u) => (u.attack ?? 0) > 0 || (u.defense ?? 0) > 0;
 const isNonCombat = (u) => /worker|settler|engineer|scout|explorer|catapult|trebuchet|cannon|artillery/i.test(u.type);
-const MOVES = new Set(["move_to", "move_unit", "advance", "explore"]);
+const MOVES = new Set(["move_to", "move_unit", "move_path", "advance", "explore"]);
 
 export function scoreTurn(b, orders, findings = []) {
 	const parts = [];
@@ -60,7 +60,9 @@ export function scoreTurn(b, orders, findings = []) {
 	// than defenders. An unready one the engine itself says to muster for
 	// first, so holding off is right and costs nothing.
 	const strikes = (b.strikes ?? []).filter((x) => (x.attackersAdjacent ?? 0) > (x.defenders ?? 0));
-	const tileOf = (s) => (b.targets?.[s.civ] ?? []).find((t) => t.name === s.city);
+	// Newer briefings put the city's tile on the strike line itself; older ones
+	// only name it, so the tile comes from the rival's target list.
+	const tileOf = (s) => (Number.isFinite(s.x) && Number.isFinite(s.y) ? { x: s.x, y: s.y } : (b.targets?.[s.civ] ?? []).find((t) => t.name === s.city));
 	const taken = strikes.filter((s) => {
 		const t = tileOf(s);
 		return t && list.some((o) => o.type === "move_to" && o.x === t.x && o.y === t.y);
