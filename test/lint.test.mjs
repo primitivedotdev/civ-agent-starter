@@ -1,7 +1,8 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { parseBriefing } from "../src/briefing.mjs";
-import { lintOrders } from "../src/lint.mjs";
+import { existsSync, readFileSync } from "node:fs";
+import { lintOrders, NEVER_FOR_SALE } from "../src/lint.mjs";
 
 const lint = (orders, brief) => lintOrders(orders, brief).map((x) => `${x.code}:${x.severity}`);
 
@@ -96,8 +97,9 @@ test("the Palace and wonders are never for sale", () => {
 		assert.deepEqual(lint([{ type: "sell_building", city: "city-1", building }], cityBrief), ["not_for_sale:error"], building);
 	}
 	assert.deepEqual(lint([{ type: "sell_building", city: "city-1", building: "Library" }], cityBrief), []);
-	// A Civilization III wonder the arena's ruleset does not mark as one is only a warning.
-	assert.deepEqual(lint([{ type: "sell_building", city: "city-1", building: "Copernicus' Observatory" }], cityBrief).filter((x) => x.startsWith("maybe_")), ["maybe_not_for_sale:warn"]);
+	for (const building of ["Copernicus' Observatory", "Shakespeare's Theater", "Newton's University", "The United Nations", "Secret Police HQ"]) {
+		assert.deepEqual(lint([{ type: "sell_building", city: "city-1", building }], cityBrief), ["not_for_sale:error"], building);
+	}
 });
 
 test("hurry is refused on a wonder and in a resisting city, and allowed where offered", () => {
@@ -117,4 +119,20 @@ Techs known: 3. Can research now:
 	assert.deepEqual(lint([{ type: "research", tech: "Alphabet" }], brief), []);
 	assert.deepEqual(lint([{ type: "research", tech: "Bronze Working" }], brief), ["already_researching:noop"]);
 	assert.deepEqual(lint([{ type: "research", tech: "Gunpowder" }], brief), ["not_researchable:error"]);
+});
+
+// The list is copied from the arena engine's ruleset, which is not part of this
+// repo. Point CIV_RULESET at base-ruleset.json to check it has not drifted.
+const RULESET = process.env.CIV_RULESET;
+test("the never-for-sale list matches the arena ruleset", { skip: !RULESET || !existsSync(RULESET) ? "set CIV_RULESET to the engine's base-ruleset.json" : false }, () => {
+	const { buildings } = JSON.parse(readFileSync(RULESET, "utf8"));
+	const expected = buildings
+		.filter((b) => b.greatWonderProperties != null || b.isSmallWonder || (b.flags ?? []).includes("isCenterOfEmpire"))
+		.map((b) => b.name);
+	assert.deepEqual([...NEVER_FOR_SALE].sort(), [...expected].sort());
+});
+
+test("the never-for-sale list has the Palace and no duplicates", () => {
+	assert.ok(NEVER_FOR_SALE.includes("Palace"));
+	assert.equal(new Set(NEVER_FOR_SALE).size, NEVER_FOR_SALE.length);
 });

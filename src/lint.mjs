@@ -24,33 +24,32 @@ const LIKELY_DEFENSIVE = new Set([
 	"Barracks", "SAM Missile Battery", "Bomb Shelter",
 ]);
 
-// Buildings the engine never sells: the Palace, and every Great and Small
+// Buildings the engine never sells: the Palace and every Great and Small
 // Wonder in the arena's ruleset. The engine also refuses to hurry a wonder with
 // gold or population, and the briefing prints no hurry line for one.
-const GREAT_WONDERS = [
-	"The Pyramids", "The Hanging Gardens", "The Colossus", "The Great Lighthouse", "The Great Library",
-	"The Oracle", "The Great Wall", "Sun Tzu's Art of War", "Sistine Chapel", "Magellan's Voyage",
-	"Leonardo's Workshop", "JS Bach's Cathedral", "Smith's Trading Company", "Universal Suffrage",
-	"Hoover Dam", "Theory of Evolution", "Cure for Cancer", "The Internet", "The Temple of Artemis",
+//
+// Generated from the arena engine's ruleset (C7/Lua/game_modes/base-ruleset.json):
+// every building whose greatWonderProperties is present (an empty {} counts) or
+// whose isSmallWonder is true, plus the one flagged isCenterOfEmpire (the
+// Palace). To regenerate, from a checkout of the engine:
+//   node -e 'console.log(JSON.stringify(require("./C7/Lua/game_modes/base-ruleset.json").buildings.filter((b) => b.greatWonderProperties != null || b.isSmallWonder || (b.flags ?? []).includes("isCenterOfEmpire")).map((b) => b.name)))'
+// test/lint.test.mjs checks this list against that ruleset when CIV_RULESET
+// points at the file.
+export const NEVER_FOR_SALE = [
+	"Palace", "The Pyramids", "The Hanging Gardens", "The Colossus", "The Great Lighthouse",
+	"The Great Library", "The Oracle", "The Great Wall", "Sun Tzu's Art of War", "Sistine Chapel",
+	"Magellan's Voyage", "Copernicus' Observatory", "Shakespeare's Theater", "Leonardo's Workshop",
+	"JS Bach's Cathedral", "Newton's University", "Smith's Trading Company", "Universal Suffrage", "Hoover Dam",
+	"Theory of Evolution", "The United Nations", "The Manhattan Project", "Cure for Cancer", "Longevity",
+	"SETI program", "Heroic Epic", "Iron Works", "Forbidden Palace", "Military Academy", "The Pentagon",
+	"Wall Street", "Apollo Program", "Strategic Missile Defense", "Intelligence Agency", "Battlefield Medicine",
+	"The Internet", "The Temple of Artemis", "The Statue of Zeus", "The Mausoleum of Mausollos",
+	"Knights Templar", "Secret Police HQ",
 ];
-const SMALL_WONDERS = [
-	"Heroic Epic", "Iron Works", "Forbidden Palace", "Military Academy", "The Pentagon", "Wall Street",
-	"Apollo Program", "Strategic Missile Defense", "Intelligence Agency", "Battlefield Medicine", "Secret Police HQ",
-];
-// Wonders of Civilization III that the arena's ruleset does not mark as
-// wonders. Whether the engine refuses to sell them is not certain from the
-// briefing, so selling one is only a warning.
-const OTHER_WONDERS = [
-	"Copernicus' Observatory", "Shakespeare's Theater", "Newton's University", "The United Nations",
-	"The Manhattan Project", "Longevity", "SETI program", "The Statue of Zeus",
-	"The Mausoleum of Mausollos", "Knights Templar",
-];
-const lower = (xs) => new Set(xs.map((n) => n.toLowerCase()));
-const WONDERS = lower([...GREAT_WONDERS, ...SMALL_WONDERS]);
-const MAYBE_WONDERS = lower(OTHER_WONDERS);
-const isWonder = (name) => typeof name === "string" && WONDERS.has(name.toLowerCase());
-const NOT_FOR_SALE = (name) => isWonder(name) || (typeof name === "string" && name.toLowerCase() === "palace");
-const MAYBE_NOT_FOR_SALE = (name) => typeof name === "string" && MAYBE_WONDERS.has(name.toLowerCase());
+const NEVER_FOR_SALE_SET = new Set(NEVER_FOR_SALE.map((n) => n.toLowerCase()));
+const PALACE = "palace";
+const isWonder = (name) => typeof name === "string" && name.toLowerCase() !== PALACE && NEVER_FOR_SALE_SET.has(name.toLowerCase());
+const NOT_FOR_SALE = (name) => typeof name === "string" && NEVER_FOR_SALE_SET.has(name.toLowerCase());
 
 const VERB_FOR = {
 	move_unit: "move_unit", move_to: "move_to", move_path: "move_path", advance: "advance", bombard: "bombard",
@@ -218,8 +217,6 @@ export function lintOrders(orders, brief) {
 			if (t === "sell_building") {
 				if (NOT_FOR_SALE(o.building)) {
 					out.push(f("not_for_sale", "error", i, o, `${o.building} cannot be sold: the engine never sells the Palace or a wonder.`));
-				} else if (MAYBE_NOT_FOR_SALE(o.building)) {
-					out.push(f("maybe_not_for_sale", "warn", i, o, `${o.building} is a wonder in Civilization III, and the engine refuses to sell wonders; this sale is likely refused.`));
 				} else if (c.builtKnown && !c.built.includes(o.building)) {
 					out.push(f("not_built", "error", i, o, `${c.name} has no ${o.building}. Built there: ${c.built.join(", ") || "nothing"}.`));
 				} else if (LIKELY_DEFENSIVE.has(o.building)) {
