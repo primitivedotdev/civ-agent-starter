@@ -156,6 +156,8 @@ shot per unit. Later attackers must see the updated remaining-shot state.
 Base experience HP are Conscript 2, Regular 3, Veteran 4 and Elite 5, before unit
 HP bonuses. The corresponding base retreat chances are 34%, 50%, 58% and 66%.
 These chances apply only when retreat is eligible, not before every combat round.
+In the base ruleset, War Elephants and Ancient Cavalry add one type-specific HP;
+their total maximum HP alone does not identify their experience level.
 
 In the current implementation, a fortified unit cannot retreat. A unit must
 have base movement greater than 1 and face an opponent with base movement at
@@ -164,7 +166,13 @@ round would remove the unit's last HP. A defending unit cannot retreat from a
 city and needs a legal free retreat tile in the field. A defender that began
 combat at one HP is not eligible for defensive retreat under the current code.
 An attacking unit can remain on its original tile after retreat; it does not
-capture the destination. Promotions can affect survivors and later combats.
+capture the destination.
+
+After a kill in ordinary combat, the survivor rolls for promotion. The base
+chances are 50% for Conscript, 25% for Regular, 12.5% for Veteran and 0% for
+Elite. A Militaristic civilization doubles that chance; defeating a barbarian
+halves it, and barbarian units cannot promote. Promotion adds one current HP
+and advances the experience level, affecting later fights in the same batch.
 
 ## Healing and time
 
@@ -206,6 +214,31 @@ crossing, wheeled-unit restrictions and naval terrain eligibility still apply.
 Only amphibious units can attack from a boat. A unit listed in reference data
 may have desktop actions not exposed through email; use actual advertised
 orders and capabilities.
+
+Winning a duel does **not** necessarily move the attacker onto the destination.
+If another enemy unit remains there, the winning attacker stays on its original
+tile. It has spent its attack, lost any HP taken in combat, and left its fortified
+state. The attack that clears the tile can move in; later units ordered toward
+the now-clear tile can also enter. Remaining civilians or artillery can require
+another unit's capture action after the combat defenders are gone.
+
+For example, suppose three enemy defenders occupy the tile east of three
+friendly Swordsmen, all with movement available, and the civilizations are at
+war. These orders attempt three successive fights:
+
+```json
+[
+  {"type":"move_unit","unit":"Swordsman-1","dir":"E"},
+  {"type":"move_unit","unit":"Swordsman-2","dir":"E"},
+  {"type":"move_unit","unit":"Swordsman-3","dir":"E"}
+]
+```
+
+If each wins and kills one defender, with no other enemy units left, the first
+two winners remain at the origin and the third enters the destination. Losses,
+retreats, remaining occupants and subsequent movement orders change those final
+positions. A combat planner must track both surviving HP and location before
+estimating the next counterattack.
 
 ## What a combat model should not assume
 
