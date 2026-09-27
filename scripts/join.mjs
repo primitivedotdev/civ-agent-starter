@@ -4,7 +4,11 @@
 //
 //   npm run join -- --username <name>    # first time: your public username
 //   npm run join -- --username <name> --twitter <handle>   # optional, shown on your profile
-//   npm run join                         # later (e.g. after leaving the queue)
+//   npm run join                         # later (e.g. after leaving the queue, or a failed trial)
+//   npm run join -- status               # your account and agents, and what each needs next
+//   npm run join -- rename <name>        # your agent's public name
+//   npm run join -- leave                # leave the queue
+//   npm run join -- remove <address>     # remove an agent that has not finished a game
 //
 // Uses the address npm run setup deployed to (or pass one). Identifies you with
 // the Primitive CLI's own sign-in: the token is sent once to primitiveciv.com
@@ -20,9 +24,11 @@ import { join } from "node:path";
 const ARENA = process.env.CIV_ARENA_URL || "https://www.primitiveciv.com";
 const args = process.argv.slice(2);
 const opt = (k) => { const i = args.indexOf(`--${k}`); return i >= 0 ? args[i + 1] : undefined; };
+const COMMANDS = new Set(["status", "rename", "leave", "remove"]);
+const command = COMMANDS.has(args[0]) ? args[0] : "join";
 const saved = existsSync(".primitive/function.json") ? JSON.parse(readFileSync(".primitive/function.json", "utf8")) : {};
 const address = (args.find((a) => a.includes("@")) ?? saved.address ?? "").toLowerCase();
-if (!address) {
+if (!address && command !== "status") {
 	console.error("Run npm run setup -- <your agent's address> first (or pass the address).");
 	process.exit(2);
 }
@@ -62,10 +68,50 @@ It gets a "you are <Civ>" email, then its first briefing. Its record and rating:
 Watch it live at ${ARENA}/play (sign in with this Primitive account).`);
 };
 
+// Account commands: everything the play page does, from here.
+if (command === "status") {
+	const me = await call("GET", "/api/play/me");
+	if (!me.ok) { console.error(me.error ?? "Could not read your account."); process.exit(1); }
+	console.log(`account: ${me.username ?? "(no username yet: npm run join -- --username <name>)"}; domains: ${(me.domains ?? []).join(", ") || "none"}`);
+	if (!me.agents?.length) console.log("no agents yet: npm run join");
+	for (const a of me.agents ?? []) {
+		console.log(`\n${a.address}  "${a.name ?? "unnamed"}"  ${a.next?.state ?? a.status}`);
+		console.log(`  ${a.next?.say ?? ""}${a.next?.command ? ` Next: ${a.next.command}` : ""}`);
+		if (a.game) console.log(`  playing ${a.game.civ} in ${ARENA}/?game=${encodeURIComponent(a.game.id)}`);
+		if (a.queue) console.log(`  queue: ${a.queue.position} of ${a.queue.queued}, starts ${when(a.queue.startsBy)}`);
+		for (const c of (a.trialChecks ?? []).filter((c) => !c.ok)) console.log(`  trial: FAIL ${c.message}`);
+		console.log(`  rating: ${a.rating}; ${a.gamesPlayed} game(s), ${a.gamesWon} won; ${a.profile}`);
+	}
+	process.exit(0);
+}
+if (command === "rename") {
+	const name = args.slice(1).filter((a) => !a.includes("@")).join(" ").trim();
+	if (!name) { console.error("npm run join -- rename <name>"); process.exit(2); }
+	const r = await call("POST", "/api/play/agent", { address, name });
+	if (!r.ok) { console.error(`${r.error}${r.suggestion ? ` Free: npm run join -- rename ${r.suggestion}` : ""}`); process.exit(1); }
+	console.log(`${address} is now "${r.name}".`);
+	process.exit(0);
+}
+if (command === "leave") {
+	const r = await call("POST", "/api/play/queue", { address, queued: false });
+	if (!r.ok) { console.error(r.error); process.exit(1); }
+	console.log(`${address} left the queue. npm run join puts it back.`);
+	process.exit(0);
+}
+if (command === "remove") {
+	const target = args.find((a) => a.includes("@"));
+	if (!target) { console.error("npm run join -- remove <address> (the address to remove, spelled out)"); process.exit(2); }
+	const r = await call("DELETE", "/api/play/agent", { address: target });
+	if (!r.ok) { console.error(r.error); process.exit(1); }
+	console.log(`${target} is removed from your account. npm run join -- <address> registers another.`);
+	process.exit(0);
+}
+
 console.log(`joining the arena with ${address}...`);
 const r = await call("POST", "/api/play/join", { address, username: opt("username"), twitter: opt("twitter") });
 if (!r.ok) {
 	console.error(`\n${r.error ?? "The arena did not accept that."}`);
+	for (const c of (r.trialChecks ?? []).filter((c) => !c.ok)) console.error(`  trial: FAIL ${c.message}`);
 	process.exit(1);
 }
 if (r.state === "seated") {
@@ -74,6 +120,13 @@ if (r.state === "seated") {
 }
 if (r.state === "queued") {
 	queued(r.queue, r.profile);
+	process.exit(0);
+}
+// Qualified; the 20-turn trial game (it only checks that the agent answers
+// and plays) opens the queue.
+if (r.state === "trial-pending" || r.state === "trial-running") {
+	console.log(`\nQualified. Its trial game ${r.state === "trial-running" ? "is being played" : "starts within a few minutes"}; it joins the queue when that passes.
+Check on it with npm run join -- status. Its profile: ${r.profile}`);
 	process.exit(0);
 }
 
