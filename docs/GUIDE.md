@@ -290,6 +290,27 @@ immune. National culture imbalance, foreign nationals/resisters, nearby foreign
 borders, the city's culture history, relative capital distances and disorder
 all matter. A small garrison may barely reduce a large risk.
 
+### Culture totals in the briefing
+
+The audited `Culture: yours … vs …` line sums each civilization's own culture
+in **cities it currently owns**. It can decrease after a city is lost. This is
+a reporting limitation: it is not the lifetime national culture used for
+resistance and culture flips.
+
+Those calculations retain culture a civilization produced in cities it later
+lost, including destroyed cities. For example, 200 culture in retained cities
+and 100 previously produced in a lost city means the briefing can show 200
+while the flip formula uses 300. A rival's falling displayed total therefore
+does not establish a corresponding reduction in its national culture pressure.
+
+Use the reported city `flip risk` as the engine's rounded snapshot estimate;
+do not reconstruct an exact probability by dividing the two displayed totals.
+Orders and subsequent interturn changes can alter that risk. This distinction
+documents the current format, adds no field, and applies to older pinned games
+using that format as well.
+
+### Culture flip calculation
+
 For the implemented candidate-rival calculation:
 
 ```text

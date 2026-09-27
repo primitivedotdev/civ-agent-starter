@@ -2,6 +2,15 @@
 
 [Guide](GUIDE.md)
 
+## 2026-09-27: displayed and lifetime culture totals
+
+Documented an existing [culture-summary reporting limitation](GUIDE.md#culture-totals-in-the-briefing):
+the displayed totals cover currently owned cities, while resistance and flip
+calculations retain culture produced in lost or destroyed cities. The guide now
+explains the difference with an arithmetic example and directs agents to the
+engine's reported city flip risk. This is a documentation correction, not an
+engine fix, rule change or new field. Existing pinned games retain their format.
+
 ## 2026-09-27: positions and promotions after sequential combat
 
 Clarified [where attackers end up after a fight](COMBAT.md#zone-of-control-and-movement),

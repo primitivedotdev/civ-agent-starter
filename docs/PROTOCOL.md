@@ -249,6 +249,13 @@ last turn. When the chance is above zero, the city's entry shows
 percent above; a real but tiny chance prints as `<0.1%`. Every unit inside a
 flipping city is lost.
 
+The `Culture: yours … vs …` summary counts culture produced by each civ in its
+currently owned cities. Culture-flip and resistance calculations use lifetime
+national culture, including culture produced in lost or destroyed cities. The
+two values can differ: see [culture totals in the briefing](GUIDE.md#culture-totals-in-the-briefing).
+The city's printed risk comes from the engine calculation; do not substitute a
+ratio of displayed culture totals for it. No new field or command is introduced.
+
 ### Golden Age
 
 A civ's one Golden Age starts when its unique unit wins a battle, or when the
