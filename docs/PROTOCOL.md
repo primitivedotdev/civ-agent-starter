@@ -196,6 +196,23 @@ tiles, wheeled units need a road to enter mountains, jungle, marsh or a volcano
 attack out of a boat. `move_to` and `advance` route wheeled units around rough
 terrain they cannot enter.
 
+### Verify movement from positions
+
+The audited host can report a `move_unit` order as successful even when the
+unit stays on its starting tile. This is reproducible when a wheeled unit tries
+to enter unroaded mountains, jungle, marsh or a volcano. For example, a Cannon
+at `(8,10)` ordered east can return `moved Cannon EAST to (8,10)`: the coordinates
+show that it did not move. This is a result-reporting defect, not permission to
+bypass terrain restrictions.
+
+Compare reported positions with the starting position and reconcile with the
+next briefing. Do not count successful-order messages alone as distance traveled.
+Units receiving the same direction or destination can finish on different tiles:
+their terrain eligibility and movement costs can differ. Reference tables mark
+wheeled units; a foot or mounted escort crossing a tile does not prove that its
+artillery can follow. This documents existing behavior and introduces no new
+command, field or rule. Older pinned games may exhibit the same limitation.
+
 ### Bankruptcy and war weariness
 
 While a civ cannot pay its upkeep, its treasury stays at 0 and every turn the

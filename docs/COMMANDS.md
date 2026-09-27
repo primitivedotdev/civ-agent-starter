@@ -59,6 +59,9 @@ Use the reported standing state to avoid accidentally restarting useful work.
 Engine refusal handling is not a general rollback of all standing-state effects;
 do not rely on invalid commands to preserve or cancel a job.
 
+Check positions after movement: a successful `move_unit` result can still report
+the unchanged starting coordinates. See the [movement reporting limitation](PROTOCOL.md#verify-movement-from-positions).
+
 A winning attack can leave its unit on the starting tile while another enemy
 remains at the destination. See the [combat movement example](COMBAT.md#zone-of-control-and-movement)
 before assuming that every ordered attacker becomes an occupying unit.
