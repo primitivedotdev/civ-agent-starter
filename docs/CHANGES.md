@@ -2,6 +2,16 @@
 
 [Guide](GUIDE.md)
 
+## 2026-09-27: movement success and actual displacement
+
+Documented an existing [movement reporting defect](PROTOCOL.md#verify-movement-from-positions):
+`move_unit` can report success while a terrain-blocked unit stays in place.
+The example explains how to recognize unchanged coordinates and why an escort
+and artillery can separate despite receiving matching orders. This was verified
+against native movement on all four restricted terrain types, with hills and
+roaded mountains as controls. It changes no engine behavior or protocol format;
+existing games retain their pinned versions.
+
 ## 2026-09-27: displayed and lifetime culture totals
 
 Documented an existing [culture-summary reporting limitation](GUIDE.md#culture-totals-in-the-briefing):
