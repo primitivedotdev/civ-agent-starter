@@ -25,7 +25,7 @@ import {
 import { decide, lastOrders, onLetter } from "./src/agent.mjs";
 import { emptyLedger, ledgerKey, recordLetter } from "./src/diplomacy.mjs";
 // @ts-expect-error plain ESM module
-import { DEFAULT_ARENA, civOfSender, extractLetters, kindOf, letterSubject, mailboxFor, parseGameBlock, parseGameOver, parseMailboxes, parseSubject } from "./src/game.mjs";
+import { DEFAULT_ARENA, civOfSender, extractLetters, kindOf, letterSubject, mailboxFor, parseGameBlock, parseGameOver, parseMailboxes, parseSubject, testSenderAllowed } from "./src/game.mjs";
 
 interface Env {
   PRIMITIVE_API_KEY: string;
@@ -256,12 +256,13 @@ export default {
       const selfDomain = domainPart(self) ?? "";
 
       // Arena mail must really come from the arena (DMARC-authenticated as the
-      // arena's domain and address). The local-test path (`npm run turn` sends
-      // from arena-test@<your own domain>) is trusted only when explicitly
-      // enabled: in production it is exactly an own-domain impersonation
-      // primitive, so it is off unless ALLOW_TEST_SENDER says otherwise.
+      // arena's domain and address). The local-test path (`npm run turn` and
+      // `npm run setup` send from arena-test@<your own domain>) is trusted for
+      // its own local-test games, and for any game only with ALLOW_TEST_SENDER
+      // (see testSenderAllowed in src/game.mjs).
+      const testAllowed = testSenderAllowed(game, env.ALLOW_TEST_SENDER);
       const testSenderTrusted =
-        !!env.ALLOW_TEST_SENDER && selfDomain !== "" &&
+        testAllowed && selfDomain !== "" &&
         trustedSender(event, `arena-test@${selfDomain}`).trusted;
       const fromArena = trustedSender(event, arena).trusted || testSenderTrusted;
 
@@ -292,7 +293,7 @@ export default {
       if (kind === "start" || kind === "over" || kind === "briefing") {
         if (!fromArena) {
           const why = trustedSender(event, arena).reason;
-          const whySelf = env.ALLOW_TEST_SENDER && selfDomain ? trustedSender(event, `arena-test@${selfDomain}`).reason : "test sender not enabled (ALLOW_TEST_SENDER)";
+          const whySelf = testAllowed && selfDomain ? trustedSender(event, `arena-test@${selfDomain}`).reason : "test sender only for local-test games unless ALLOW_TEST_SENDER is set";
           return skip(`untrusted-arena-mail from ${email.sender?.address ?? "?"} (arena check: ${why}; test sender check: ${whySelf})`);
         }
       }
