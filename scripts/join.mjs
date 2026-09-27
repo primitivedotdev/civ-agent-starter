@@ -25,6 +25,12 @@ const ARENA = process.env.CIV_ARENA_URL || "https://www.primitiveciv.com";
 const args = process.argv.slice(2);
 const opt = (k) => { const i = args.indexOf(`--${k}`); return i >= 0 ? args[i + 1] : undefined; };
 const COMMANDS = new Set(["status", "rename", "leave", "remove"]);
+// A first argument that is neither a command, an address nor a flag is a
+// typo: refuse it rather than join, which can requeue the agent.
+if (args[0] && !args[0].startsWith("--") && !args[0].includes("@") && !COMMANDS.has(args[0])) {
+	console.error(`Unknown command "${args[0]}". Use: status, rename <name>, leave, remove <address>, or no command to join.`);
+	process.exit(2);
+}
 const command = COMMANDS.has(args[0]) ? args[0] : "join";
 const saved = existsSync(".primitive/function.json") ? JSON.parse(readFileSync(".primitive/function.json", "utf8")) : {};
 const address = (args.find((a) => a.includes("@")) ?? saved.address ?? "").toLowerCase();
@@ -109,6 +115,14 @@ if (command === "remove") {
 
 console.log(`joining the arena with ${address}...`);
 const r = await call("POST", "/api/play/join", { address, username: opt("username"), twitter: opt("twitter") });
+// The trial game after qualifying. The arena answers these with HTTP 409 so
+// older copies of this script print the message instead of polling a
+// qualification turn that does not exist; this one reads the state first.
+if (r.state === "trial-pending" || r.state === "trial-running") {
+	console.log(`\n${r.error ?? "Qualified; its trial game comes next."}
+Check on it with npm run join -- status.`);
+	process.exit(0);
+}
 if (!r.ok) {
 	console.error(`\n${r.error ?? "The arena did not accept that."}`);
 	for (const c of (r.trialChecks ?? []).filter((c) => !c.ok)) console.error(`  trial: FAIL ${c.message}`);
@@ -122,13 +136,7 @@ if (r.state === "queued") {
 	queued(r.queue, r.profile);
 	process.exit(0);
 }
-// Qualified; the 20-turn trial game (it only checks that the agent answers
-// and plays) opens the queue.
-if (r.state === "trial-pending" || r.state === "trial-running") {
-	console.log(`\nQualified. Its trial game ${r.state === "trial-running" ? "is being played" : "starts within a few minutes"}; it joins the queue when that passes.
-Check on it with npm run join -- status. Its profile: ${r.profile}`);
-	process.exit(0);
-}
+
 
 // Qualifying: the arena emailed your agent a real turn; wait for its verdict.
 console.log(`playing as ${r.username}. The arena sent your agent its qualification turn; waiting for the reply (up to 2 minutes)...`);
@@ -143,7 +151,11 @@ for (let i = 0; i < 70; i++) {
 	for (const c of s.checks ?? []) console.log(`  ${c.ok ? (c.warning ? "warn" : "pass") : "FAIL"}  ${c.message}`);
 	if (s.status === "passed") {
 		console.log(`\nQualified: ${s.ordersValid ?? 0} of ${s.ordersTotal ?? 0} orders valid, round trip ${Math.round((s.latencyMs ?? 0) / 1000)}s.`);
-		queued(s.queue, r.profile);
+		// A newly qualified agent plays its trial game (20 turns; it only checks
+		// that the agent answers and plays) before it is queued.
+		if (s.queue) queued(s.queue, r.profile);
+		else console.log(`Its trial game (20 turns, unrated) starts within a few minutes; it joins the queue for rated games when that passes.
+Check on it with npm run join -- status. Its record and rating: ${r.profile}`);
 		process.exit(0);
 	}
 	console.log(`\nNot qualified yet. Fix what failed above, run npm run setup, then npm run join again.`);
