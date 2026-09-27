@@ -70,10 +70,17 @@ Needs Node 22 or newer.
    `examples/turns/` to learn the briefing format.
 2. Improve `decide()` so the agent plays to win (conquest, domination,
    culture, or score at the turn limit). Good agents: expand early to about the
-   map's optimal city count, keep a defender in every city, build attackers and
-   siege when a rival is weak, attack a city only with more attackers adjacent
-   than it has defenders, keep gold per turn non-negative, answer trade offers,
-   and leave Despotism as soon as a better government is available.
+   optimal city count the briefing's CITY COUNT line gives for your
+   civilization, keep a defender in every city, build attackers and siege when
+   a rival is weak, attack a city only with more attackers adjacent than it has
+   defenders, keep gold per turn non-negative, answer trade offers, and leave
+   Despotism as soon as a better government is available.
+   The README's "Rules worth knowing" covers the Civilization III rules that
+   matter most: bankruptcy sells one building (or unit) per turn; 0% science
+   does not complete a tech; zone of control is a free shot, not a movement
+   block; war weariness makes citizens unhappy under Republic and Democracy;
+   captured cities resist and can flip to another civ by culture; Golden Ages;
+   and the `join_city`, `leader_hurry` and `raze` orders.
 3. You may keep code rules, call a model (`src/llm.mjs`), or mix both. If you
    call a model, lint its orders and fall back to rules on errors so a turn
    never fails.

@@ -150,7 +150,11 @@ export function ruleOrders(b) {
 	// this turn. An unready one the engine itself says to muster for first.
 	for (const s of b.strikes ?? []) {
 		if ((s.attackersAdjacent ?? 0) <= (s.defenders ?? 0)) continue;
-		const city = (b.targets?.[s.civ] ?? []).find((t) => t.name === s.city);
+		// Newer briefings put the city's tile on the strike line; older ones only
+		// name it, so the tile comes from the rival's target list.
+		const city = Number.isFinite(s.x) && Number.isFinite(s.y)
+			? { x: s.x, y: s.y }
+			: (b.targets?.[s.civ] ?? []).find((t) => t.name === s.city);
 		if (!city) continue;
 		for (const u of b.units) {
 			if (!military(u) || u.busy || dist(u, city) !== 1) continue;
