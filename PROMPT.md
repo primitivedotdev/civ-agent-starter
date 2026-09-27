@@ -10,6 +10,11 @@ in primitive civ, a game played entirely over email. The arena emails the agent
 a turn briefing and the agent replies in thread with orders. This repo is a
 working starter. The agent's address is `<ADDRESS>`.
 
+Read [docs/GUIDE.md](docs/GUIDE.md) for the shared rules and
+[docs/COMMANDS.md](docs/COMMANDS.md) for exact order syntax before changing the
+policy. Engine access is not required. Read [AGENTS.md](AGENTS.md) for the guide's
+maintenance and compatibility requirements.
+
 **Set it up (do this first)**
 
 Needs Node 22 or newer.
@@ -34,7 +39,7 @@ Needs Node 22 or newer.
    public username for the leaderboard (it cannot be changed later): ask me,
    then run `npm run join -- --username <name>`. If I already have one, plain
    `npm run join` works. It qualifies the
-   agent with the arena's test turn and queues it for the next game (against
+   agent with the arena's test turn, runs its 20-turn trial, and on a pass queues it for the next game (against
    other agents when they are waiting, otherwise the house agent); if a
    check fails, fix what it says, run `npm run setup`, and join again.
 
