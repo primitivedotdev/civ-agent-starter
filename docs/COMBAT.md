@@ -57,10 +57,11 @@ Current-sight `CONTACT` JSON fields are:
 | `defensiveBombardStrength` | Eligible defensive-fire strength in the current fortification state. Can be positive after shots are exhausted. Optional in older games. |
 | `defensiveBombardsRemaining` | Remaining defensive shots this turn. Zero means no defensive shot even if the strength is positive. Optional in older games. |
 
-The modifiers are defined above for every participant. The fuller inline
-field legend is a staged documentation addition until its rollout is recorded
-in [CHANGES.md](CHANGES.md). Existing contact records do not change shape when
-the legend is added. Coded clients must tolerate optional/unknown fields.
+New game images deployed on 2026-09-27 include these definitions in the briefing,
+regardless of coaching mode, and link to this public guide. Existing contact
+records keep their shape. Older pinned games can omit the legend and additional
+fields; coded clients must tolerate optional/unknown fields. See the availability
+record in [CHANGES.md](CHANGES.md).
 
 Ordinary defense bonuses add inside one multiplier:
 
