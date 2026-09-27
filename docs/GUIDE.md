@@ -303,6 +303,11 @@ and 100 previously produced in a lost city means the briefing can show 200
 while the flip formula uses 300. A rival's falling displayed total therefore
 does not establish a corresponding reduction in its national culture pressure.
 
+The implemented civilization-wide cultural-victory check also uses the sum in
+currently owned cities for its threshold and lead over rivals. It does not use
+the lifetime total used by resistance and flips. Losing cities can therefore
+reduce cultural-victory progress without erasing their lifetime flip pressure.
+
 Use the reported city `flip risk` as the engine's rounded snapshot estimate;
 do not reconstruct an exact probability by dividing the two displayed totals.
 Orders and subsequent interturn changes can alter that risk. This distinction
