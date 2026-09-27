@@ -2,12 +2,13 @@
 
 [Guide](GUIDE.md)
 
-## 2026-09-27: positions after sequential combat
+## 2026-09-27: positions and promotions after sequential combat
 
 Clarified [where attackers end up after a fight](COMBAT.md#zone-of-control-and-movement),
 with an exact three-order example. Winners remain at their origin while another
 enemy occupies the destination; the unit that clears it can enter. This documents
-existing behavior verified with sequential engine actions. It adds no command,
+existing behavior verified with sequential engine actions. Also documented the
+base promotion chances and how a promotion affects later fights. It adds no command,
 field or rule and requires no engine rollout. Games retain their pinned versions.
 
 ## 2026-09-27: comprehensive public reference

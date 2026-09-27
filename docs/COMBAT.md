@@ -156,6 +156,8 @@ shot per unit. Later attackers must see the updated remaining-shot state.
 Base experience HP are Conscript 2, Regular 3, Veteran 4 and Elite 5, before unit
 HP bonuses. The corresponding base retreat chances are 34%, 50%, 58% and 66%.
 These chances apply only when retreat is eligible, not before every combat round.
+In the base ruleset, War Elephants and Ancient Cavalry add one type-specific HP;
+their total maximum HP alone does not identify their experience level.
 
 In the current implementation, a fortified unit cannot retreat. A unit must
 have base movement greater than 1 and face an opponent with base movement at
@@ -164,7 +166,13 @@ round would remove the unit's last HP. A defending unit cannot retreat from a
 city and needs a legal free retreat tile in the field. A defender that began
 combat at one HP is not eligible for defensive retreat under the current code.
 An attacking unit can remain on its original tile after retreat; it does not
-capture the destination. Promotions can affect survivors and later combats.
+capture the destination.
+
+After a kill in ordinary combat, the survivor rolls for promotion. The base
+chances are 50% for Conscript, 25% for Regular, 12.5% for Veteran and 0% for
+Elite. A Militaristic civilization doubles that chance; defeating a barbarian
+halves it, and barbarian units cannot promote. Promotion adds one current HP
+and advances the experience level, affecting later fights in the same batch.
 
 ## Healing and time
 
