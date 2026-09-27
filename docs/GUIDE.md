@@ -265,8 +265,8 @@ for why bombard damage can disappear before the next assault.
 
 Capturing ordinarily transfers ownership, costs one citizen, and removes the
 Palace, Small Wonders and culture-producing buildings. Great Wonders survive
-capture. A size-one city that has never acquired culture can be automatically
-razed instead. Ownership, surviving buildings and a unit standing on the tile
+capture. A size-one city with less than 10 lifetime culture (across its owners) is
+automatically razed instead. Ownership, surviving buildings and a unit standing on the tile
 must be rechecked after the action.
 
 Resistance and culture flips are different. Foreign citizens can resist;

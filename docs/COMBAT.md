@@ -22,6 +22,12 @@ a unit can survive. Veteran and elite units are harder to kill because of their
 extra HP. The defender is selected by the engine, not chosen freely by the
 attacker, and another defender can become the top choice as the stack changes.
 
+Among eligible defenders, the current selection favors enemies of the attacker
+and compares effective defense (without a directional river bonus) multiplied
+by remaining HP. Domain eligibility is checked first: a ship or aircraft in a
+city does not become its ordinary defender against a land attacker. This means
+a damaged high-defense unit may stop being selected ahead of a healthier unit.
+
 For a duel with constant `p`, attacker HP `a`, defender HP `d`, no retreat and
 no defensive fire, an exact recurrence is:
 
