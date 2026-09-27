@@ -16,6 +16,7 @@ import { join } from "node:path";
 import { lastOrders } from "../src/agent.mjs";
 import { parseBriefing } from "../src/briefing.mjs";
 import { lintOrders } from "../src/lint.mjs";
+import { LOCAL_TEST_PREFIX } from "../src/game.mjs";
 import { sourceHash } from "../src/source-hash.mjs";
 
 const argv = process.argv.slice(2);
@@ -52,7 +53,7 @@ const brief = parseBriefing(text);
 const from = fromOverride || `arena-test@${to.split("@")[1]}`;
 // A fresh game id per run: the CLI deduplicates identical sends, so a repeat
 // of the same turn would otherwise never leave.
-const subject = `primitive civ [local-test-${Date.now().toString(36)}]: ${brief.civ ?? "Test"} turn ${brief.turn ?? 0}`;
+const subject = `primitive civ [${LOCAL_TEST_PREFIX}${Date.now().toString(36)}]: ${brief.civ ?? "Test"} turn ${brief.turn ?? 0}`;
 const bodyFile = join(mkdtempSync(join(tmpdir(), "civ-turn-")), "briefing.txt");
 writeFileSync(bodyFile, text);
 
@@ -79,7 +80,7 @@ const match = json(waited);
 const replyId = (Array.isArray(match) ? match[0] : match)?.id;
 if (!replyId) {
 	console.error("No reply within 120 seconds (the arena's deadline). Check `npm run logs` and that setup routed this address.");
-	console.error(`This script sends as ${from}, which the agent trusts only when its ALLOW_TEST_SENDER secret is set: npm run secret -- ALLOW_TEST_SENDER`);
+	console.error(`This script sends as ${from}; the agent trusts that only as arena-test@ on its own domain. If you deployed before this was allowed, run npm run setup again.`);
 	process.exit(1);
 }
 const full = json(cli("emails", "get", "--id", replyId)) ?? {};

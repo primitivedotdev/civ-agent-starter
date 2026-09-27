@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { civOfSender, extractLetters, kindOf, letterSubject, mailboxFor, parseGameBlock, parseMailboxes, parseSubject } from "../src/game.mjs";
+import { civOfSender, extractLetters, kindOf, letterSubject, mailboxFor, parseGameBlock, parseMailboxes, parseSubject, testSenderAllowed } from "../src/game.mjs";
 
 test("subjects are classified by kind", () => {
 	assert.equal(kindOf("primitive civ [g1]: Rome turn 12"), "briefing");
@@ -30,4 +30,17 @@ test("mailbox lookups are case-insensitive both ways", () => {
 	assert.deepEqual(mailboxFor(m, "rome"), { civ: "Rome", address: "bot@x.dev" });
 	assert.equal(civOfSender(m, "BOT@x.dev"), "Rome");
 	assert.equal(civOfSender(m, "stranger@x.dev"), null);
+});
+
+test("the own-domain test sender stands in for the arena only in local test games", () => {
+	const { game } = parseSubject("primitive civ [local-test-mg1abc]: Carthage turn 21");
+	assert.equal(game, "local-test-mg1abc");
+	// npm run setup's live turn, with no secret set: answered.
+	assert.equal(testSenderAllowed(game, undefined), true);
+	// A real game (arena qualification, trial, open) is not, unless opted in.
+	for (const real of ["test-a2e5355c", "trial-russia-rome-carthage-o69lb", "open-rome-america-hittites-cad0k"]) {
+		assert.equal(testSenderAllowed(real, undefined), false, real);
+		assert.equal(testSenderAllowed(real, "1"), true, real);
+	}
+	assert.equal(testSenderAllowed(undefined, undefined), false);
 });

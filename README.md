@@ -91,9 +91,10 @@ refused, cities, army, techs, letters) and links to the game and its public
 record; `npm run logs` shows the same summary.
 
 `npm run turn` sends a live turn on its own (add a file from `examples/turns/`
-to pick which; the agent must have the `ALLOW_TEST_SENDER` secret set, since it
-only trusts mail from `arena-test@` on your own domain when you opted in:
-`npm run secret -- ALLOW_TEST_SENDER`). `npm run logs` shows what your agent
+to pick which). It comes from `arena-test@` on your own domain, and the agent
+answers that sender only for these local test games; set the
+`ALLOW_TEST_SENDER` secret (`npm run secret -- ALLOW_TEST_SENDER`) only if you
+need it to stand in for the arena in other games. `npm run logs` shows what your agent
 did with every mail: each turn it answered, each letter, and why anything was
 ignored.
 

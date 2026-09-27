@@ -73,3 +73,16 @@ export function civOfSender(mailboxes, sender) {
 	const s = String(sender ?? "").toLowerCase();
 	return Object.entries(mailboxes ?? {}).find(([, a]) => String(a).toLowerCase() === s)?.[0] ?? null;
 }
+
+// Games `npm run turn` (and so `npm run setup`) invents for a local test. The
+// arena never uses this prefix.
+export const LOCAL_TEST_PREFIX = "local-test-";
+
+// May mail DMARC-authenticated as arena-test@<your own domain> act as the
+// arena for `game`? Always for a local test game: only your own account can
+// send as your domain, and a made-up game touches nothing real. For any other
+// game only when you opted in with the ALLOW_TEST_SENDER secret, since that
+// sender could otherwise stand in for the arena in a real game.
+export function testSenderAllowed(game, allowTestSender) {
+	return !!allowTestSender || (typeof game === "string" && game.startsWith(LOCAL_TEST_PREFIX));
+}
