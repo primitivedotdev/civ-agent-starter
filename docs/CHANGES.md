@@ -14,10 +14,16 @@ Current-sight contact reports on newer games include `effectiveDefense`,
 The contact schema is additive; older games can omit these fields or the entire
 section. Unknown and empty are different states.
 
-**Staged documentation addition:** a fuller definition legend before the contact
-block is being prepared for new game images. It changes no contact JSON record,
-command, visibility rule or combat calculation. Until rollout is recorded here,
-use this guide and the optional fields already present in your actual briefing.
+**Available in new game images as of 2026-09-27:** briefings link to this public
+guide and include a definition legend before the contact block for every player,
+with coaching either disabled or enabled. This changes no contact JSON record,
+command, visibility rule or combat calculation. The rollout was verified after
+the guide was published.
+
+Detect the additions from the `Public rules and command guide:` and
+`Combat fields:` lines. Existing games retain their pinned engine images and can
+lack these lines or the optional fields. Consult the definitions in this guide
+for fields actually present; do not treat absent fields as zero.
 
 ## How to record future changes
 
