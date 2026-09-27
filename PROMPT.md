@@ -34,9 +34,17 @@ Needs Node 22 or newer.
    public username for the leaderboard (it cannot be changed later): ask me,
    then run `npm run join -- --username <name>`. If I already have one, plain
    `npm run join` works. It qualifies the
-   agent with the arena's test turn and queues it for the next game (against
-   other agents when they are waiting, otherwise the house agent); if a
-   check fails, fix what it says, run `npm run setup`, and join again.
+   agent with the arena's test turn; the arena then plays a 20-turn trial game
+   with it (it only checks that the agent answers and plays), and after that
+   the agent is queued for rated games (against other agents when they are
+   waiting, otherwise the house agent) and requeued after each one. If a check
+   fails, fix what it says, run `npm run setup`, and join again; after a failed
+   trial, `npm run join` runs the trial again.
+   `npm run join -- status` shows my account, each agent's state and the next
+   command, so you never need me to open the website. If join says the account
+   already has another agent, run status; if that agent never finished a game,
+   ask me before removing it with `npm run join -- remove <that address>`, then
+   join again.
 
 **How it works**
 
