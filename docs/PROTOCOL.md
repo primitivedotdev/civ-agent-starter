@@ -196,22 +196,64 @@ tiles, wheeled units need a road to enter mountains, jungle, marsh or a volcano
 attack out of a boat. `move_to` and `advance` route wheeled units around rough
 terrain they cannot enter.
 
+### Movement outcomes and visible adjacent tiles
+
+**Availability:** this section describes the movement-reporting update documented
+on 2026-09-28 ahead of its rollout. New game images that emit `adjacent_tiles:`
+include this update; older pinned games retain their previous behavior. The order
+syntax and existing `adjacent:` line are unchanged.
+
+In updated games, a rejected `move_unit` attempt reports failure instead of
+claiming that the unit moved to its original coordinates. A valid attack can still
+leave its surviving attacker at the original location: another defender may
+remain on the destination, or the attacker may retreat. Such a result reports
+combat, not a movement failure. Compare the outcome, position and next briefing;
+a successful action is not necessarily a displacement.
+
+Own-unit detail lines can additionally include:
+
+```text
+      adjacent: N:Grassland E:occupied W:Grassland
+      adjacent_tiles: [{"dir":"E","x":14,"y":10,"terrain":"Coast","land":false,"city":false,"occupied":true}]
+```
+
+Each record describes one neighboring tile in the receiving civilization's
+current sight. `dir` is its compass direction; `x` and `y` are the tile's actual
+map coordinates, including wrapping. `terrain` is its base terrain name, not a
+terrain overlay or a movement-cost estimate. `land` states whether it is a land
+tile. `city` states whether it has a visible city. `occupied` states whether a
+visible unit is present, excluding hidden transport cargo. Occupancy does not
+imply water, hostility or permission to enter. Ships can be in ports, and
+`land:false` on a unit contact can also describe aircraft.
+
+Unseen neighbors are omitted from this current-sight list. Omission is unknown,
+not empty or passable. An empty list means no current-sight records were
+included. The starter parser exposes `unit.adjacentTiles`; it returns `null` when
+the line is absent or malformed, and `[]` for an explicit empty list. Unknown
+additional record fields are ignored. The legacy line remains available to
+existing agents. Unit-specific movement and attack legality is still described
+by `actions:`; terrain alone does not determine it.
+
+#### Older movement-reporting defect
+
+Older pinned engines can report `move_unit` success when the unit stays on its
+starting tile. Reproductions include a wheeled unit entering unroaded mountains,
+jungle, marsh or a volcano, and a land unit attempting to enter water occupied
+by a foreign ship. A Cannon at `(8,10)` ordered east can return
+`moved Cannon EAST to (8,10)`: the coordinates show it did not move. This is a
+reporting defect, not permission to bypass terrain restrictions.
+
+Units receiving the same direction or destination can finish on different tiles
+because their movement costs and terrain eligibility differ. Reference tables
+mark wheeled units; a foot or mounted escort crossing a tile does not establish
+that its artillery can follow. Occupancy replaces terrain in older adjacency
+labels, so `E:occupied` alone does not establish a land route.
+
 ### Verify movement from positions
 
-The audited host can report a `move_unit` order as successful even when the
-unit stays on its starting tile. This is reproducible when a wheeled unit tries
-to enter unroaded mountains, jungle, marsh or a volcano. For example, a Cannon
-at `(8,10)` ordered east can return `moved Cannon EAST to (8,10)`: the coordinates
-show that it did not move. This is a result-reporting defect, not permission to
-bypass terrain restrictions.
-
-Compare reported positions with the starting position and reconcile with the
-next briefing. Do not count successful-order messages alone as distance traveled.
-Units receiving the same direction or destination can finish on different tiles:
-their terrain eligibility and movement costs can differ. Reference tables mark
-wheeled units; a foot or mounted escort crossing a tile does not prove that its
-artillery can follow. This documents existing behavior and introduces no new
-command, field or rule. Older pinned games may exhibit the same limitation.
+Compare the returned position with the starting position and the next briefing.
+Use the [movement outcome and visibility contract](#movement-outcomes-and-visible-adjacent-tiles)
+above to distinguish real combat without advance from a rejected movement.
 
 ### Bankruptcy and war weariness
 

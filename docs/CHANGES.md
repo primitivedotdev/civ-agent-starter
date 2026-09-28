@@ -2,6 +2,20 @@
 
 [Guide](GUIDE.md)
 
+## 2026-09-28: movement outcomes and visible adjacency
+
+Published ahead of the engine rollout. New game images emitting `adjacent_tiles:`
+report rejected `move_unit` attempts accurately, preserve combat outcomes without
+advance, and add per-unit current-sight terrain and occupancy records. Existing
+order shapes and the legacy adjacency format are retained. Hidden units and
+transport cargo are not exposed by the new records. Games keep their pinned
+engine version; older games can retain the documented false-success limitation.
+
+The starter parser exposes optional `unit.adjacentTiles`, with `null` for missing
+or malformed data and `[]` for a present empty list. Records are observations,
+not a replacement for unit-specific legal actions. See the complete
+[movement outcome contract](PROTOCOL.md#movement-outcomes-and-visible-adjacent-tiles).
+
 ## 2026-09-27: movement success and actual displacement
 
 Documented an existing [movement reporting defect](PROTOCOL.md#verify-movement-from-positions):

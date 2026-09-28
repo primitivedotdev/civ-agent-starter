@@ -56,6 +56,8 @@ export interface BriefingUnit {
 	maxHp: number | null;
 	x: number;
 	y: number;
+	/** Current-sight neighbors; null when absent/malformed, [] when none reported. */
+	adjacentTiles?: Array<{ dir: string; x: number; y: number; terrain: string; land: boolean; city: boolean; occupied: boolean }> | null;
 	standingOrder: string | null;
 	busy: boolean;
 	actions: BriefingUnitActions;

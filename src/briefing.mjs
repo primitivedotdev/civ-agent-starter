@@ -132,6 +132,27 @@ export function parseObservedUnits(text) {
 	return units.length === expected ? units : null;
 }
 
+// Optional current-sight adjacency. Missing or malformed is unknown, not empty.
+function parseAdjacentTiles(value) {
+	try {
+		const rows = JSON.parse(value), seen = new Set();
+		if (!Array.isArray(rows) || rows.length > 8) return null;
+		const out = [];
+		for (const row of rows) {
+			if (!row || typeof row !== "object" || Array.isArray(row)
+				|| !["N", "NE", "E", "SE", "S", "SW", "W", "NW"].includes(row.dir)
+				|| seen.has(row.dir) || !Number.isSafeInteger(row.x) || !Number.isSafeInteger(row.y)
+				|| typeof row.terrain !== "string" || !row.terrain.trim()
+				|| typeof row.land !== "boolean" || typeof row.city !== "boolean"
+				|| typeof row.occupied !== "boolean") return null;
+			seen.add(row.dir);
+			const { dir, x, y, terrain, land, city, occupied } = row;
+			out.push({ dir, x, y, terrain, land, city, occupied });
+		}
+		return out;
+	} catch { return null; }
+}
+
 export function parseBriefing(text) {
 	const lines = text.split("\n");
 	const out = {
@@ -348,7 +369,7 @@ export function parseBriefing(text) {
 				hp: hp ? Number(hp[1]) : null, maxHp: hp ? Number(hp[2]) : null,
 				x: Number(h[6]), y: Number(h[7]),
 				standingOrder: so ? so[1].split(/[\s-]/)[0] : null,
-				busy: false, actions: { verbs: new Set(), bombard: [], jobs: [], attack: [], attackedThisTurn: false },
+				adjacentTiles: null, busy: false, actions: { verbs: new Set(), bombard: [], jobs: [], attack: [], attackedThisTurn: false },
 			};
 			// "[STUCK: move_to (21,25) has made no progress for 5 turns ...]"
 			const stuck = /\[STUCK: move_to \((-?\d+),(-?\d+)\) has made no progress for (\d+) turns/.exec(line);
@@ -359,6 +380,7 @@ export function parseBriefing(text) {
 		if (!unit) continue;
 		const t = line.trim();
 		if (t.startsWith("actions:")) unit.actions = parseActions(t.slice("actions:".length));
+		else if (t.startsWith("adjacent_tiles:")) unit.adjacentTiles = parseAdjacentTiles(t.slice("adjacent_tiles:".length));
 		else if (t.startsWith("on ")) {
 			// "on Grassland/Grassland f2s0c0 RES:NONE [mine] [road] [occupied]; ..."
 			unit.tile = {
