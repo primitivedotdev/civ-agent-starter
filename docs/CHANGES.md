@@ -6,7 +6,10 @@
 
 Published ahead of the engine rollout. New game images emitting `adjacent_tiles:`
 report rejected `move_unit` attempts accurately, preserve combat outcomes without
-advance, and add per-unit current-sight terrain and occupancy records. Existing
+advance, and add per-unit current-sight terrain and occupancy records. `move_to`
+also rejects blocked/exhausted attempts with no movement or combat away from the
+target. Already at the target and intentional `attack:false` stops remain
+successful, with explicit messages instead of claiming progress. Existing
 order shapes and the legacy adjacency format are retained. Hidden units and
 transport cargo are not exposed by the new records. Games keep their pinned
 engine version; older games can retain the documented false-success limitation.
