@@ -284,6 +284,26 @@ Workers, settlers, scouts and explorers do not count as military under this rule
 Other categories can have separately configured caps; zero disables a cap.
 Read the actual `UNITS (army …, workers …, settlers …)` header.
 
+Images advertising `Unit categories:` count Settlers by their unit type's
+city-founding capability, regardless of location or whether they are loaded.
+`FOUNDABLE` separately reports whether the current tile permits immediate
+founding. A Settler in a city, next to a city, or on unsuitable terrain remains
+a Settler. The `workers` category contains other noncombat units except leaders,
+so it can include Scouts and Explorers as well as Workers.
+
+Worker and Settler caps are disabled by default. If configured above zero, they
+use these same categories and disband surplus units in ascending ordinal unit-ID
+order after advancement. These optional caps do not replace support costs.
+
+**Older pinned-image limitation:** without `Unit categories:`, Settlers can be
+counted as workers wherever their current tile prevents founding. An enabled
+worker cap can consequently remove them, while an enabled Settler cap can miss
+them. With both optional caps disabled, this defect affects category reporting
+and ordering but does not trigger those cap removals. Use individual unit types
+to identify Settlers; a zero Settler header count alone is not reliable there.
+The repair preserves the header format and founding rules and applies to new
+images only. It is not available until the briefing advertises the marker.
+
 After advancement, surplus military units are disbanded in ascending order of
 `base attack + base defense + bombard strength`, breaking ties by ordinal unit-ID
 string. It is not oldest-first, weakest-HP-first, or obsolete-artillery-first.

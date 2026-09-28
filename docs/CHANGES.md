@@ -2,6 +2,16 @@
 
 [Guide](GUIDE.md)
 
+## 2026-09-28: Settler category counts and optional caps
+
+Published ahead of rollout. New images advertising `Unit categories:` classify
+Settlers by city-founding unit capability, independent of current-tile founding
+legality. This corrects the shared unit header, category ordering and optional
+Worker/Settler cap enforcement. Both optional caps remain disabled by default;
+`FOUNDABLE`, founding rules and the header format are unchanged. Older pinned
+games retain the location-dependent classification defect. See
+[unit categories and limits](GUIDE.md#6-army-limits-upgrades-and-recovery).
+
 ## 2026-09-28: known elimination limitation
 
 Documented the existing exception for a civilization that has never owned a
