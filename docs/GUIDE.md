@@ -291,6 +291,16 @@ founding. A Settler in a city, next to a city, or on unsuitable terrain remains
 a Settler. The `workers` category contains other noncombat units except leaders,
 so it can include Scouts and Explorers as well as Workers.
 
+The `SETTLER` unit-row label also identifies that role on tiles where founding
+is illegal. When settlement details are present, `HERE` explains the current
+tile's founding status; nearby settlement details cover only tiles in current
+sight. A nearby tile gets a `FOUNDABLE` marker only when its surrounding tiles
+are also currently visible, so the marker cannot reveal an unseen neighboring
+city. A missing marker can therefore mean unknown, rather than illegal. A role
+label does not promise immediate founding, and missing nearby details do not
+prove that unseen tiles are unsuitable. The current unit's `HERE` status and
+actual founding legality remain separate from this neighboring-tile disclosure.
+
 Worker and Settler caps are disabled by default. If configured above zero, they
 use these same categories and disband surplus units in ascending ordinal unit-ID
 order after advancement. These optional caps do not replace support costs.
