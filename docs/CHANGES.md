@@ -2,6 +2,16 @@
 
 [Guide](GUIDE.md)
 
+## 2026-09-28: captured and destroyed unit feedback
+
+Published ahead of rollout. New game images advertising `Combat results:` will
+distinguish captured units, destroyed units and captured Settlers converted into
+Workers, in action messages and recent battle summaries. Empty-city captures
+will no longer imply a defender was killed. Counts exclude loaded cargo.
+Existing action fields and city markers remain compatible; combat and capture
+rules do not change. Running games keep their pinned image and may retain the
+old misleading wording. See [combat outcome feedback](PROTOCOL.md#combat-outcome-feedback).
+
 ## 2026-09-28: movement outcomes and visible adjacency
 
 Published ahead of the engine rollout. New game images emitting `adjacent_tiles:`
