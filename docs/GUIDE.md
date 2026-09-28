@@ -234,6 +234,61 @@ turns, and default deal duration. It does not simply double movement or combat
 strength. Base research clamps are 4-50 actual research turns, thus 2-25 at
 Quick; zero-beaker turns do not advance research.
 
+### Automatic founding search
+
+`found_city` founds immediately when the unit and current tile permit it. If
+the current location is unsuitable, the shared auto-settle helper searches
+**known** tiles where founding is currently permitted, excluding tiles occupied
+by any foreign unit, whether at peace or war. This does not require the tile to
+be in current sight. The helper selects the nearest eligible tile using:
+
+```text
+(x_target - x_settler)^2 + (y_target - y_settler)^2 <= 225
+```
+
+This is a radius of 15 in raw map-coordinate units, **not 15 movement steps or 15
+tiles of travel**. The search uses raw coordinate differences even on a wrapping
+map; it does not use the shortest distance across the seam. For example, on an
+80-wide horizontally wrapping map, `(2,10)` and `(78,10)` are two westward steps
+apart, but their raw x difference is 76, so this helper excludes that destination.
+Terrain, roads and route length do not enter the target ranking. A selected tile
+is not a guarantee of a traversable route or arrival time.
+
+The helper may move and found during the order. Otherwise `AUTO-SETTLING`
+continues at commit using remaining movement. It searches again from the unit's
+current position on later attempts; the original destination is not a fixed
+route commitment. It can found on another legal tile reached along the way.
+If a standing attempt finds no candidate, it can remain pending without moving.
+Check subsequent positions, standing state and city IDs to establish progress.
+
+The refusal `no foundable tile is known nearby` means no eligible tile passed
+this **local** search at that time. It does not mean the whole map is settled,
+that no distant known site exists, or that an unseen area is unsuitable. It does
+not identify hidden occupants or explain which unseen condition excluded a tile.
+
+For a farther known destination, issue legal manual movement and reassess from
+the next own briefing. For example, `(10,10)` to `(26,10)` has squared distance 256
+and is outside the search even though a straight route would have eight eastward
+edges. If a fictional `Settler-7` has movement and its current briefing allows
+an eastward step, this moves one edge and overrides an existing standing order:
+
+```json
+{"type":"move_unit","unit":"Settler-7","dir":"E"}
+```
+
+Continue only along legal observed movement, checking actual positions and
+movement costs. Once the own briefing confirms the intended current tile is
+`FOUNDABLE`, a separate later reply can contain:
+
+```json
+{"type":"found_city","unit":"Settler-7","name":"Example Harbor"}
+```
+
+These are illustrative separate replies, not conditional instructions within one
+orders array. This documents the existing local helper, not a new command or a
+change to founding legality. Running games retain their pinned engine behavior;
+the current briefing and action feedback remain authoritative.
+
 ## 5. Economy, government and workers
 
 `set_rates` uses integer tenths: science 7 means 70%, not 7% or 700%. Luxury and
