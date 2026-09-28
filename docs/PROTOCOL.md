@@ -210,6 +210,14 @@ remain on the destination, or the attacker may retreat. Such a result reports
 combat, not a movement failure. Compare the outcome, position and next briefing;
 a successful action is not necessarily a displacement.
 
+For `move_to` in updated games, zero movement and no combat away from the target
+reports `ok:false` when blocked or out of movement. Already being at the target
+reports `ok:true` with `already at ... - ARRIVED`. An intentional stop before a
+foreign unit or city with `attack:false` remains successful, but explicitly says
+`stopped` and `remained at` when no step was taken. Partial progress and genuine
+combat remain successful and report what occurred. `move_to` is a one-turn order;
+an unfinished destination does not itself queue movement for the next turn.
+
 Own-unit detail lines can additionally include:
 
 ```text
