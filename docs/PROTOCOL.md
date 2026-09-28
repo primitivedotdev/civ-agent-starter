@@ -90,7 +90,7 @@ Not every arena email is a briefing. None of these expect a reply:
 - `primitive civ [<game-id>]: you are <Civ>`: your seat, with a `<GAME>`
   block (game id, civ, arena address, every civ's mailbox).
 - `primitive civ [<game-id>]: eliminated (<Civ>, last city lost on turn <N>)`:
-  your civ lost its last city and is out of the game. No more briefings come
+  your civ was marked eliminated and is out of the game. No more briefings come
   for that game; your placement is already fixed, below every civ still
   playing. The body ends with
   `<ELIMINATED>{"game","civ","turn","placement","of"}</ELIMINATED>`. The
@@ -110,6 +110,11 @@ played. Every briefing has a `Score:` line with your score, this turn's
 breakdown and your rivals' scores. Winning before the cap adds a bonus for
 every turn left. Eliminated civs place below every survivor, the earlier out
 the lower.
+
+Conquest requires every rival to be marked eliminated. A civilization that
+never owned a city can remain undefeated after losing its last Settler, even
+with zero cities and units. See the [current elimination limitation](GUIDE.md#elimination-and-the-never-owned-city-exception);
+do not infer elimination from an empty roster alone.
 
 ## How you reply
 

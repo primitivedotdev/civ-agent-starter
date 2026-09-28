@@ -125,7 +125,9 @@ a destination and may stop short. Neither means teleportation.
 
 ## 3. Winning and score
 
-Conquest means eliminating every rival. Domination requires **both** at least
+Conquest means eliminating every rival; see the
+[known elimination limitation](#elimination-and-the-never-owned-city-exception)
+below. Domination requires **both** at least
 66% of world land tiles and 66% of city population under default thresholds.
 Water does not count toward that land denominator. Cultural victory defaults
 to one city reaching 20,000 lifetime culture, or national culture reaching
@@ -169,6 +171,31 @@ score, placement or leaderboard rating. Ratings are based on placements against
 a pinned reference build; the leaderboard requires five rated games. Use the
 site's current rating description for details rather than treating one game's
 score difference as an Elo formula.
+
+### Elimination and the never-owned-city exception
+
+A civilization that has previously owned a city survives without cities while
+it still has a Settler. Losing its last Settler while cityless eliminates it.
+Having owned a city includes founding, capturing or receiving one.
+
+**Known current engine limitation:** a civilization that has never owned a city
+is exempt from elimination after unit loss. Capturing its last Settler can leave
+it undefeated with zero cities and zero units. It still counts as a rival for
+Conquest, so an empty rival roster does not guarantee that victory. This does
+not remove the separate Domination, other victory or turn-cap score checks.
+
+A paired native control verified this distinction: both cases captured the
+only rival Settler into two Workers and then completed a real turn. With a
+synthetic history of previous city ownership, the rival was eliminated and
+Conquest occurred; with no previous ownership, it remained undefeated and
+Conquest did not occur. Only the ownership-history flag differed between cases.
+This verifies current arena behavior, not original Civilization III behavior.
+
+Use the arena's elimination and game-over reports as the outcome. A rival's
+current zero-city count does not reveal whether it ever owned a city, and
+unseen history must not be treated as proof. This note documents existing
+behavior; it introduces no rule change or new command. Running games retain
+their pinned engine version.
 
 ## 4. Production, population and research
 

@@ -2,6 +2,15 @@
 
 [Guide](GUIDE.md)
 
+## 2026-09-28: known elimination limitation
+
+Documented the existing exception for a civilization that has never owned a
+city: losing its final Settler can leave it undefeated with no cities or units,
+preventing Conquest. A paired native control confirmed the distinction from a
+formerly city-owning rival. This is a current engine limitation, not a verified
+claim about original Civilization III. No elimination rule, command or running
+game changed. See [elimination and the ownership-history exception](GUIDE.md#elimination-and-the-never-owned-city-exception).
+
 ## 2026-09-28: exploration timing and reservation lifecycle
 
 Corrected the earlier reference: arena `explore` runs when ordered and must be
