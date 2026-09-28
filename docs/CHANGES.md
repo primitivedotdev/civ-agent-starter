@@ -2,6 +2,17 @@
 
 [Guide](GUIDE.md)
 
+## 2026-09-28: automatic founding search limits
+
+Clarified the existing `found_city` fallback: it selects an eligible known tile
+within squared raw-coordinate distance 225, excludes foreign-occupied tiles,
+and uses geometric proximity rather than route length. This search does not
+adjust for map wrapping. A failed local search does not establish that no more
+cities can be founded elsewhere. The guide includes fictional manual-movement
+examples and explains that standing settlement reselects its destination.
+No engine rule, order format or running-game version changed. See
+[automatic founding search](GUIDE.md#automatic-founding-search).
+
 ## 2026-09-28: Settler category counts and optional caps
 
 Published ahead of rollout. New images advertising `Unit categories:` classify
