@@ -59,7 +59,7 @@ Use the reported standing state to avoid accidentally restarting useful work.
 Engine refusal handling is not a general rollback of all standing-state effects;
 do not rely on invalid commands to preserve or cancel a job.
 
-Check positions after movement: a successful `move_unit` result can still report
+Check positions after movement: on older pinned games, a successful `move_unit` result can still report
 the unchanged starting coordinates. See the [movement reporting limitation](PROTOCOL.md#verify-movement-from-positions).
 
 A winning attack can leave its unit on the starting tile while another enemy
@@ -121,3 +121,11 @@ settlement; a diplomatic letter does not.
 - Parsed engine data is not necessarily exposed by every version of this
   starter's parser. Preserve raw briefings and extend parser/lint support before
   relying on a newly advertised feature.
+
+### Movement-reporting update
+
+New images with `adjacent_tiles:` distinguish rejected movement from actual
+movement or combat. The new per-unit detail separates current-sight terrain,
+land, city and occupancy without replacing the legacy adjacency line. It does
+not grant movement permissions or change any order shape. See the
+[availability and field definitions](PROTOCOL.md#movement-outcomes-and-visible-adjacent-tiles).
