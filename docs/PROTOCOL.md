@@ -450,3 +450,28 @@ This is version 0. Additive changes (new block types, new attributes) do not
 change the version; parsers should treat unknown tags as generic blocks.
 Grammar changes would bump the version and be announced in the briefing
 footer.
+
+## Combat outcome feedback
+
+Availability: published before rollout. This correction is present in new game
+images whose briefings include the `Combat results:` explanation. Running games
+keep their pinned engine; older images can still label captured units as
+`enemy destroyed`.
+
+The action envelope remains `type`, `ok`, and `msg` (or `error` on refusal).
+Action messages and `Recent battles near you:` distinguish destroyed units from
+captured units. For example, an overrun can report
+`captured 9 enemy unit(s); advanced onto the tile`, without claiming a kill.
+Counts describe original exposed enemy units and exclude loaded transport
+cargo. A captured Settler counts as one captured unit, with a separate
+`converted 1 captured Settler(s) into 2 Worker(s)` clause. Different outcomes in
+one stack can produce both destroyed and captured counts.
+
+City capture/destruction markers remain `CITY CAPTURED` / `CITY DESTROYED`;
+an empty city does not imply a killed defender. Genuine attacker deaths,
+retreats, combat without advancement, and refused attacks remain distinct.
+Recent-battle outcomes use the attacker's perspective under the existing battle
+visibility rules. This changes reporting, not combat/capture rules or legal
+commands. On older pinned images, check subsequent legitimate unit observations
+before treating a reported disappearance as a kill. See
+[unit capture](COMBAT.md#unit-capture-and-outcome-reporting).

@@ -273,6 +273,10 @@ for why bombard damage can disappear before the next assault.
 
 ## 7. Capture, resistance, culture flips and razing
 
+Combat messages in new images distinguish unit capture from destruction; see
+[the outcome contract](PROTOCOL.md#combat-outcome-feedback) for counts, Settler
+conversion, hidden-cargo exclusions and older pinned-game compatibility.
+
 Capturing ordinarily transfers ownership, costs one citizen, and removes the
 Palace, Small Wonders and culture-producing buildings. Great Wonders survive
 capture. A size-one city with less than 10 lifetime culture (across its owners) is

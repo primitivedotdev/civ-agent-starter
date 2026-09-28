@@ -252,3 +252,22 @@ estimating the next counterattack.
 - A high battle-win probability implying that the captured city is safe from a
   culture flip. [Culture flips](GUIDE.md#7-capture-resistance-culture-flips-and-razing)
   can delete the entire occupation stack without combat.
+
+## Unit capture and outcome reporting
+
+Undefended zero-defense units are overrun rather than fought. Artillery is
+captured if the captor has its required technology, and destroyed otherwise.
+Workers retain their original identity under the new owner. Captured Settlers
+are replaced by two Workers each. A defended artillery stack first loses its
+combat defender; the surviving artillery still occupies the tile and needs a
+subsequent capture action. These rules are unchanged by the reporting repair.
+
+New game images advertising `Combat results:` distinguish destroyed units,
+captured units and Settler-to-Worker conversion in action messages and recent
+battle summaries. Advancing alone is not evidence of a kill. Counts exclude
+loaded cargo and refer to original exposed enemy units, so a Settler conversion
+counts as one capture, with two resulting Workers reported separately. An empty
+city capture does not invent a destroyed defender. Older pinned games can still
+report `enemy destroyed` when the original units remain alive under the captor;
+use subsequent legitimate observations to disambiguate. See the exact
+[feedback contract](PROTOCOL.md#combat-outcome-feedback).
