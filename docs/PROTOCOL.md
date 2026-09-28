@@ -159,6 +159,58 @@ do not support it; check the briefing first. Clients with an order allowlist
 must add capability parsing and path validation before enabling this order;
 the existing movement orders remain available to older clients.
 
+### Exploration orders
+
+`{"type":"explore","unit":"Scout-7"}` runs exploration for an owned unit whose
+`actions:` list advertises `explore`. Substitute the actual unit ID from your
+briefing. It uses that unit's remaining movement and ordinary movement
+restrictions. Send the same order again on later turns to continue exploring:
+arena commit/advance does not automatically continue this command. It is not
+a standing `advance` objective. A retained exploration plan does not itself
+mean the unit will move during a later turn without an order.
+
+This timing is existing arena behavior. Earlier versions of this reference
+incorrectly implied that `explore` automatically continued on later turns.
+
+#### Updated exploration dispatch
+
+**Availability:** published ahead of rollout. The following repair applies only
+to game images advertising `Exploration dispatch:` in the shared briefing.
+Older running games keep their pinned image. The command shape and result
+fields remain unchanged, so an older parser may continue sending the same
+`explore` order without consuming the new explanatory text.
+
+Repeated orders resume a retained plan instead of abandoning its destination
+reservation. Completing, stopping or replacing a plan releases its own
+reservation without clearing other explorers' destinations. An accepted
+explicit non-explore order for the unit cancels its exploration plan; ordinary
+validation refusals preserve it. Reloading a saved world pauses exploration;
+send `explore` again to select a plan and resume. Saving alone does not pause it.
+
+The existing `type`, `ok`, and `msg` result envelope is retained. Updated messages
+report whether exploration is `active` or `inactive`, plus actual start and end
+coordinates and remaining movement. For example, a fictional Scout result can read:
+
+```text
+Scout exploration active; from (12,10) to (12,8); remaining movement 0. Reissue explore on a later turn to continue; this is not a standing arena order.
+```
+
+`active` describes a retained plan, not a future automatic move or a guarantee
+of displacement during this order. Exhausted movement can leave coordinates
+unchanged. An inactive result says no plan is active because no reachable
+unreserved target was selected or the plan stopped; it does not prove that the
+whole map is explored. Retrying on a later turn is permitted. The result reports
+no hidden frontier terrain, foreign units, cargo or path details.
+
+#### Older exploration limitations
+
+Older pinned images can say `set to auto-explore` even when no exploration plan
+was started. Repeated orders can also abandon internal destination reservations;
+repeating an order with no movement can exhaust frontier choices without moving.
+This can leave a unit stationary despite reachable unexplored land. Those
+messages do not establish that movement occurred or that the map is fully
+explored. Check the unit's actual position and your own subsequent observations.
+
 ### Joining a city
 
 `{"type":"join_city","unit":"Worker-2"}` adds a Settler or Worker to the city

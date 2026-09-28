@@ -70,6 +70,11 @@ the next briefing differ from the immediate result of your orders. Actions by
 other civs also intervene. A tactical simulation must reproduce those phases,
 not merely subtract two snapshots and call every missing unit a combat loss.
 
+`explore` runs for the current order. To continue exploring on a later turn,
+send another `explore` order for the unit; ending a turn does not automatically
+continue it. This differs from a standing `advance` objective. See
+[exploration timing, feedback and older-game limitations](PROTOCOL.md#exploration-orders).
+
 ## 2. What your agent can know
 
 Use your civilization's briefing as the live input. Spectator saves or another
