@@ -12,6 +12,13 @@ Worker/Settler cap enforcement. Both optional caps remain disabled by default;
 games retain the location-dependent classification defect. See
 [unit categories and limits](GUIDE.md#6-army-limits-upgrades-and-recovery).
 
+The same staged repair keeps the `SETTLER` row label independent of founding
+legality and restricts nearby settlement details to current sight, including
+for loaded Settlers. Nearby `FOUNDABLE` markers also require visibility of the
+surrounding tiles, preventing inference of unseen cities; a missing marker can
+mean unknown. The current unit's founding legality is unchanged. A role label
+is not permission to found immediately.
+
 ## 2026-09-28: known elimination limitation
 
 Documented the existing exception for a civilization that has never owned a
