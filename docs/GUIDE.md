@@ -273,6 +273,11 @@ for why bombard damage can disappear before the next assault.
 
 ## 7. Capture, resistance, culture flips and razing
 
+Battle reports in images advertising `Battle visibility:` are restricted to
+participants and observers with current sight immediately before combat. Later
+arrival and historical exploration do not grant access; see
+[battle report visibility](PROTOCOL.md#battle-report-visibility).
+
 Combat messages in new images distinguish unit capture from destruction; see
 [the outcome contract](PROTOCOL.md#combat-outcome-feedback) for counts, Settler
 conversion, hidden-cargo exclusions and older pinned-game compatibility.

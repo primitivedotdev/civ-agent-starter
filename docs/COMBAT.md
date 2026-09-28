@@ -271,3 +271,9 @@ city capture does not invent a destroyed defender. Older pinned games can still
 report `enemy destroyed` when the original units remain alive under the captor;
 use subsequent legitimate observations to disambiguate. See the exact
 [feedback contract](PROTOCOL.md#combat-outcome-feedback).
+
+Battle reports are not global observations. Images advertising `Battle visibility:`
+share them with the participants and civilizations that could see the target
+immediately before combat, with no retroactive access from later exploration.
+See [battle report visibility](PROTOCOL.md#battle-report-visibility) for timing,
+retention and older-image limitations.

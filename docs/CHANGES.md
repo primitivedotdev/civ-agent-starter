@@ -2,6 +2,16 @@
 
 [Guide](GUIDE.md)
 
+## 2026-09-28: battle observer visibility
+
+Published ahead of rollout. New images advertising `Battle visibility:` restrict
+uninvolved viewers to destination tiles actively visible immediately before
+combat. Remembered tiles and arriving later do not grant battle intelligence;
+participants retain their own reports. The transient log expires after the
+current/previous-turn window and clears on world replacement. Formats, combat
+rules and hidden-cargo exclusions remain unchanged. Older pinned images retain
+their prior visibility behavior. See [battle report visibility](PROTOCOL.md#battle-report-visibility).
+
 ## 2026-09-28: captured and destroyed unit feedback
 
 Published ahead of rollout. New game images advertising `Combat results:` will
