@@ -189,10 +189,10 @@ send `explore` again to select a plan and resume. Saving alone does not pause it
 
 The existing `type`, `ok`, and `msg` result envelope is retained. Updated messages
 report whether exploration is `active` or `inactive`, plus actual start and end
-coordinates. For example, a fictional Scout result can read:
+coordinates and remaining movement. For example, a fictional Scout result can read:
 
 ```text
-Scout exploration active; from (12,10) to (12,8). Reissue explore on a later turn to continue; this is not a standing arena order.
+Scout exploration active; from (12,10) to (12,8); remaining movement 0. Reissue explore on a later turn to continue; this is not a standing arena order.
 ```
 
 `active` describes a retained plan, not a future automatic move or a guarantee
