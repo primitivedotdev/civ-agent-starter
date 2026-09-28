@@ -470,8 +470,33 @@ one stack can produce both destroyed and captured counts.
 City capture/destruction markers remain `CITY CAPTURED` / `CITY DESTROYED`;
 an empty city does not imply a killed defender. Genuine attacker deaths,
 retreats, combat without advancement, and refused attacks remain distinct.
-Recent-battle outcomes use the attacker's perspective under the existing battle
-visibility rules. This changes reporting, not combat/capture rules or legal
+Recent-battle outcomes use the attacker's perspective. See the separately
+advertised [battle visibility contract](#battle-report-visibility). This changes reporting, not combat/capture rules or legal
 commands. On older pinned images, check subsequent legitimate unit observations
 before treating a reported disappearance as a kill. See
 [unit capture](COMBAT.md#unit-capture-and-outcome-reporting).
+
+## Battle report visibility
+
+Availability: published ahead of rollout. The following rules apply only to
+new game images that advertise `Battle visibility:` in the shared briefing.
+`Combat results:` alone does not imply this visibility correction. Running
+games keep their pinned image; older images can expose battle summaries on
+historically explored tiles even when those tiles are no longer visible.
+
+Participants receive their own attack/defense reports, including after losing
+their last unit or sight of the tile. An uninvolved civilization receives a
+report only if the battle's destination tile was actively visible to it
+immediately before combat. Remembering an explored tile is insufficient.
+Arriving after a battle does not reveal it; leaving after witnessing it does
+not erase the report. Observer eligibility uses the same current-sight rules
+as visible foreign-unit observations.
+
+`Recent battles near you:` retains its existing text format and the attacker's
+perspective. It displays at most six eligible events from the current and
+previous turn. This is a transient report of attacks resolved through agent
+movement orders, not a complete durable combat history: engine-controlled
+combat and bombardment are not included, and replacing/reloading a world
+clears these records. Saving alone does not clear them. Hidden transport cargo
+remains excluded from reported unit counts. No combat rules or order shapes
+change.
