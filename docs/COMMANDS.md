@@ -51,7 +51,7 @@ refuse. You do not receive an intermediate briefing between these two orders.
 | `{"type":"hold","unit":"Warrior-3"}` | Holds location and skips remaining movement this turn. Does not constitute a multi-turn coordinated assault order. |
 | `{"type":"sentry","unit":"Warrior-3"}` | Host behavior is to hold position and skip the turn. Do not assume extra desktop sentry behavior beyond what the briefing reports. |
 | `{"type":"fortify","unit":"Spearman-4"}` | Fortifies an eligible unit and leaves a standing fortified state. Already-fortified units need no repeated order. Fortification affects defense and zero-range defensive bombard eligibility. |
-| `{"type":"explore","unit":"Scout-7"}` | Enables the unit's legal automatic exploration behavior. Can move on subsequent turns; observe its standing state. |
+| `{"type":"explore","unit":"Scout-7"}` | Runs the unit's legal exploration behavior using its remaining movement this turn. Send `explore` again on later turns to continue; arena commit/advance does not continue it automatically. See [exploration timing and compatibility](PROTOCOL.md#exploration-orders). |
 | `{"type":"work","unit":"Worker-2","job":"Road"}` | Requires an eligible worker/job. If needed, shared auto-work can seek a nearby known eligible tile. Non-road yield work is restricted to own territory. Busy work takes turns; moving abandons progress and reissuing can restart it. |
 
 An explicit unit order overrides host standing advance, settle or work orders.

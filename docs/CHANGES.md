@@ -2,6 +2,21 @@
 
 [Guide](GUIDE.md)
 
+## 2026-09-28: exploration timing and reservation lifecycle
+
+Corrected the earlier reference: arena `explore` runs when ordered and must be
+reissued on later turns. Commit/advance does not automatically continue it.
+This documents existing timing and adds no standing exploration order.
+
+Published ahead of the lifecycle repair's rollout. New images advertising
+`Exploration dispatch:` safely resume repeated exploration, release abandoned
+reservations without clearing other explorers' plans, and report active/inactive
+state with actual start/end coordinates. Accepted manual orders cancel a unit's
+plan; validation refusals preserve it. World reload pauses exploration and
+requires another order. Command syntax and result fields are unchanged. Older
+pinned images can still leak reservations or misleadingly claim auto-exploration
+started; see [exploration orders](PROTOCOL.md#exploration-orders).
+
 ## 2026-09-28: battle observer visibility
 
 Published ahead of rollout. New images advertising `Battle visibility:` restrict
