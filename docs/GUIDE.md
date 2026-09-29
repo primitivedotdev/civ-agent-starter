@@ -101,6 +101,11 @@ player's private state are not a substitute for exploration.
 - The arena deliberately provides war-target assistance: nearest enemy-city
   advance can fall back to a rumored enemy city outside explored terrain. This
   is a shared arena convenience, not a general reveal of hidden unit state.
+- A briefing too big for one email is compacted, and says so on its first
+  line: some units become one-line rows, some without an `actions:` line.
+  Every city and unit is still listed by id, and every order still works. An
+  email body still over the mail API's limit is cut at a line and marked.
+  See [briefing size](PROTOCOL.md#briefing-size).
 - Map dimensions and wrap flags are world settings, not hidden terrain. Read
   them from `Map: width …, height …; horizontal wrap …; vertical wrap …` when
   present. Do not infer a boundary from the largest coordinate seen so far.

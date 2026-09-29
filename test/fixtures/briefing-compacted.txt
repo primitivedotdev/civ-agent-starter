@@ -1,0 +1,101 @@
+*** BRIEFING COMPACTED (level 5 of 6): the full briefing is 328805 bytes, over the 90000-byte limit for one email, so some detail is left out. Every city and every unit is still listed with its id, position, moves and HP, and every order works as usual. Left out:
+  - the per-unit adjacent_tiles JSON is omitted (the adjacent line remains wherever a unit's detail is shown)
+  - units on a standing order (fortified, advancing, auto-settling, auto-work, or a worker BUSY on a job) and not next to an enemy are one-line rows (a BUSY worker keeps a short BUSY line)
+  - actions lines are in short form: the same verbs and targets without their explanations (advance, move_path and join_city take the arguments in the order help)
+  - a unit identical to one already listed on the same tile (type, moves, HP and detail) says "same as <id>" and keeps only its actions line
+  - a unit not next to an enemy drops its adjacent line (and a settler its neighbor-tile lines), and the observed foreign units list keeps the 60 nearest your cities
+  A unit shown without an actions line still takes its usual orders; the engine refuses one that is not legal and says why in the next briefing. ***
+
+=== TURN 0 | Greece ===
+Public rules and command guide: https://github.com/primitivedotdev/civ-agent-starter/blob/main/docs/GUIDE.md
+Map: width 100, height 100; horizontal wrap yes; vertical wrap no.
+Government: Despotism   Gold: 10 (-33/turn)   Rates: science 50% / tax 50% / luxury 0% (use set_rates to raise science)   Beakers/turn: 1 (research scales with the number of cities you own)
+  CITY COUNT: you have 40 cities; this map's optimal is ~25 for your civilization. Cities past the optimal lose most of their output to CORRUPTION and still cost upkeep - they add little economy and can drag you negative. Past the optimal, stop founding cities: improve and defend what you have, build Courthouses (cut corruption) in the corrupt ones, or a Forbidden Palace far from your capital.
+  (NO science rate is sustainable: even at 0% science you would lose ~33 gold/turn - see the Expenses line for where it goes)
+  Unit support: you have 234 unit(s), 74 over your free limit of 160 - support cost 74 gold/turn (each disband past the limit saves 1 gold/turn).
+  Expenses: 74 gold/turn unit support + 0 gold/turn building maintenance (1 buildings across 40 cities). Maintenance is paid per building, every turn, forever - captured cities add their upkeep too.
+  *** APPROACHING BANKRUPTCY: 10 gold, losing 33/turn - BROKE IN ~0 TURN(S). Act NOW: raise tax (set_rates), disband units over your free limit, and stop queueing buildings with upkeep you cannot pay. ***
+  DESPOTISM PENALTY: Despotism docks the output of every tile you work, so you are producing far below your potential - free unit support does NOT make up for it. Research a GOVERNMENT tech (The Republic or Monarchy) as your TOP research priority, then revolt. SELF-CHECK: if 'Techs known' already includes The Republic or Monarchy, do not wait for anything else - issue {"type":"revolt"} this turn.
+Researching: NONE - choose a tech to research!
+Techs known: 2. Can research now:
+  Pottery (cost 17 beakers): unlocks Granary; opens research of Map Making
+  Ceremonial Burial (cost 24 beakers): unlocks Temple; opens research of Mysticism
+  Warrior Code (cost 36 beakers): unlocks Archer a2/d1/m1, Jaguar Warrior a1/d1/m2, Bowman a2/d2/m1, Javelin Thrower a2/d2/m1; opens research of Horseback Riding, Monarchy
+  Masonry (cost 48 beakers): unlocks Palace, Walls, The Pyramids, Outpost (worker job); opens research of Mathematics
+  The Wheel (cost 48 beakers): unlocks Chariot a1/d1/m2, needs Horses, War Chariot a2/d1/m2, needs Horses, Three-Man Chariot a2/d2/m2, needs Horses; opens research of Horseback Riding
+  Iron Working (cost 72 beakers): unlocks Swordsman a3/d2/m1, needs Iron, Legionary a3/d3/m1, needs Iron, Immortals a4/d2/m1, needs Iron, Gallic Swordsman a3/d2/m2, needs Iron; opens research of Construction
+  Writing (cost 96 beakers): no direct unlocks; opens research of Philosophy, Code of Laws, Literature, Map Making
+Strategic resources CONNECTED: none. (a unit needing a resource is only buildable in cities connected to it)
+  NOT connected - Horses (gates Chariot/Horseman/Knight): no known source - explore
+  NOT connected - Iron (gates Swordsman/Pikeman/Knight): nearest known at (27,11), inside your borders - ROAD that tile to connect it
+  NOT connected - Saltpeter (gates Musketman/Cavalry/Cannon): nearest known at (37,11), OUTSIDE your borders (expand a city near it)
+  NOT connected - Coal (gates Ironclad): no known source - explore
+  NOT connected - Oil (gates Modern Paratrooper/Tank/Mech Infantry): nearest known at (22,12), inside your borders - ROAD that tile to connect it
+  NOT connected - Rubber (gates Marine/Modern Paratrooper/Infantry): no known source - explore
+  NOT connected - Aluminum (gates Radar Artillery/Cruise Missile/Tactical Nuke): nearest known at (39,9), inside your borders - ROAD that tile to connect it
+  NOT connected - Uranium (gates Tactical Nuke/ICBM/AEGIS Cruiser): nearest known at (28,14), OUTSIDE your borders (expand a city near it)
+  PATH to Monarchy: Warrior Code -> Ceremonial Burial -> Mysticism -> Polytheism -> Monarchy (5 tech(s), total cost ~45)
+  PATH to The Republic: Writing -> Philosophy -> Code of Laws -> The Republic (4 tech(s), total cost ~52)
+
+CITIES (40):   (mechanics: each citizen eats 2 food/turn and surplus fills the food box until the city grows - a city at zero surplus NEVER grows until you work more food tiles or irrigate; if unhappy > happy the city RIOTS and produces nothing; corruption rises with distance from your capital)
+  city-1 Polis 1 (4,4) size 1 [0 happy/1 content/0 unhappy] culture 0 (+1/turn)
+      built: Palace
+      producing: Hoplite [ENGINE DEFAULT - you did not choose this; set_production to change] (10 turns left); food +2/turn, grows in 5 (food box 0/10, +2/turn)
+      build options: Settler(~15t, founds a new city (costs 2 pop)), Worker(~5t, improves tiles (irrigate/mine/road)), Warrior(~5t a1/d1/m1, weak early military - replace with stronger units as soon as you can build them), Hoplite(~10t a1/d3/m1, strong DEFENDER - garrison your cities with these), Barracks(~20t, upkeep -1g/turn, new land units start veteran (more HP); wounded units heal fully here in one turn), Forbidden Palace(~100t, +2 culture/turn), Wealth(~1t)
+  city-2 Polis 2 (10,4) size 1 [0 happy/1 content/0 unhappy]
+      producing: Hoplite [ENGINE DEFAULT - you did not choose this; set_production to change] (10 turns left); food +2/turn, grows in 5 (food box 0/10, +2/turn)
+      build options: Settler(~15t), Worker(~5t), Warrior(~5t a1/d1/m1), Hoplite(~10t a1/d3/m1), Barracks(~20t, upkeep -1g/turn), Forbidden Palace(~100t, +2 culture/turn), Wealth(~1t)
+
+UNITS (army 80/40, workers 148, settlers 6; army combat totals: attack 200 / defense 240):
+  Unit categories: settlers are city-founding unit types even where founding is illegal; workers are other noncombat units except leaders. Category caps use these same counts. FOUNDABLE reports whether the current tile permits immediate founding. Nearby FOUNDABLE markers require current sight of the tile and its neighbors; missing markers can mean unknown.
+  Movement option: move_to attack=false stops before foreign units or cities.
+  Movement option: move_path directions follows up to 60 ordered compass steps, stopping before foreign units or cities.
+  Combat results: destroyed enemy units were removed; captured enemy units changed sides. Captured Settlers count as captured units and become two Workers each. Recent battles distinguish those outcomes; advancing onto a tile alone does not prove a kill. Loaded cargo is excluded from these unit counts.
+  Exploration dispatch: {"type":"explore","unit":"<your unit id>"} spends only that unit's available movement now if it can explore. Repeating it continues its existing plan safely. Feedback reports active/inactive and actual start/end coordinates. Reissue on later turns; explore is not a standing arena order. An accepted explicit non-explore unit order cancels the plan; refused orders preserve it. Reloading a saved world pauses exploration; reissue to resume. No active plan does not prove the whole map is explored.
+  Battle visibility: recent battles include your own attacks/defenses and battles whose destination tile was actively visible to you immediately before combat. Historical exploration or arriving later does not grant access. Reports cover this turn and the previous turn, at most six entries, and are not preserved across a world reload.
+  Movement results: move_unit and move_to report moved only after displacement; a resolved attack can succeed without advancing. A blocked move with no movement or combat returns ok=false. move_to already at its goal, or intentionally stopped by attack=false, succeeds without claiming movement.
+  adjacent_tiles: omitted from this briefing to fit the email size limit (see the note at the top). Only units next to an enemy keep their adjacent line.
+  (combat mechanics: battles run in HP rounds, each won at odds attack/(attack+defense); the DEFENDER'S d is MULTIPLIED by fortifying, terrain (hills/mountains/forest), river crossings, and city walls/size - a fortified d3 unit on a hill behind walls defends like d6+, so raw attacker counts lie; siege units bombard first to strip defender HP without risk; a wounded unit has fewer HP rounds and dies sooner)
+  (at/over the ARMY cap - stop building military units; the engine disbands your weakest units over the cap for you)
+  *** TOO MANY WORKERS: you have 148 Workers for 40 cities. One Worker per city is plenty. STOP building Workers now and disband the surplus (they cost unit support and add nothing).
+  *** THREATENED: Polis 1 (4,4) has 4 enemy unit(s) adjacent; garrison 1.
+  *** 40 military unit(s) have NO orders while you are AT WAR (listed first below).
+  (note: a unit on 'advance' attacks whatever blocks it the moment it arrives, ALONE - it does not wait for other units converging on the same target. Massing an assault means holding units until the group is assembled.)
+  Knight-1 Knight a4/d3/m2 (4,4) moves 2 HP 3/3
+      on Grassland/Grassland f2s0c0 RES:NONE [CITY]
+      adjacent: N:occupied NE:Grassland E:Grassland SE:Grassland S:Grassland SW:Grassland W:Grassland NW:occupied   (move_unit by dir, or move_to x,y)
+      actions: move_unit dir N/NE/E/SE/S/SW/W/NW | move_to x,y | advance | move_path | attack: move onto (4,2) to attack Russia (4 units, best defense 3) | explore | fortify | sentry | hold | disband
+  Scout-2 Scout (4,2) moves 2 HP 3/3
+      on Grassland/Grassland f2s0c0 RES:NONE [occupied]
+      actions: move_unit dir N/NE/E/SE/S/SW/W/NW | move_to x,y | advance | move_path | explore | fortify | sentry | hold | disband
+  Scout-42 Scout (4,2) moves 2 HP 3/3
+      same as Scout-2: same type, tile, moves, HP and detail
+      actions: move_unit dir N/NE/E/SE/S/SW/W/NW | move_to x,y | advance | move_path | explore | fortify | sentry | hold | disband
+  Worker-100 Worker (94,6) moves 1 HP 3/3
+      on Grassland/Grassland f2s0c0 RES:NONE [occupied]; can build here: Mine, Road
+      actions: move_unit dir N/NE/E/SE/S/SW/W/NW | move_to x,y | advance | move_path | work job Mine/Road | explore | fortify | sentry | hold | disband
+  Worker-43 Worker (35,11) moves 0 HP 3/3
+      BUSY: building Road, ~2 turn(s) left. Moving it abandons the job.
+  Worker-45 Worker (3,3) moves 0 HP 3/3
+      BUSY: building Road, ~2 turn(s) left on Grassland/Grassland f2s0c0 RES:NONE [occupied]. Leave this unit alone - moving it abandons the job. Do NOT re-issue 'work'.
+  Settler-43 Settler (75,7) moves 1 HP 3/3  <- SETTLER
+      HERE: Grassland/Grassland f2s0c0 RES:NONE [occupied]  (cannot found: an adjacent tile has a city (cities must be 2+ tiles apart))
+      actions: move_unit dir N/NE/E/SE/S/SW/W/NW | move_to x,y | advance | move_path | explore | fortify | sentry | hold | disband
+  Pikeman-1 Pikeman a1/d3/m1 (11,9) moves 1 HP 3/3  [FORTIFIED - standing order, stays fortified; do NOT re-issue fortify]
+  Combat fields: attack/defense are base strengths. effectiveDefense includes terrain, tile improvements, fortification and city bonuses; excludes river crossings and opponent-specific modifiers.
+  riverDefenseBonus is additional defense only when the attack crosses a river; a positive value does not mean this approach crosses one.
+  defensiveBombardStrength is eligible defensive-fire strength (0 if unavailable in the current fortification state). defensiveBombardsRemaining is shots left this turn; 0 means no defensive fire even if strength is positive.
+
+OBSERVED FOREIGN UNITS (4; current sight, excludes cargo):
+  CONTACT {"id":"Pikeman-41","civ":"Russia","type":"Pikeman","x":4,"y":2,"hp":3,"maxHp":3,"attack":1,"defense":3,"speed":1,"land":true,"fortified":false,"effectiveDefense":3.3000000000000003,"riverDefenseBonus":0.75,"defensiveBombardStrength":0,"defensiveBombardsRemaining":0}
+  CONTACT {"id":"Pikeman-42","civ":"Russia","type":"Pikeman","x":4,"y":2,"hp":3,"maxHp":3,"attack":1,"defense":3,"speed":1,"land":true,"fortified":false,"effectiveDefense":3.3000000000000003,"riverDefenseBonus":0.75,"defensiveBombardStrength":0,"defensiveBombardsRemaining":0}
+  CONTACT {"id":"Pikeman-43","civ":"Russia","type":"Pikeman","x":4,"y":2,"hp":3,"maxHp":3,"attack":1,"defense":3,"speed":1,"land":true,"fortified":false,"effectiveDefense":3.3000000000000003,"riverDefenseBonus":0.75,"defensiveBombardStrength":0,"defensiveBombardsRemaining":0}
+  CONTACT {"id":"Pikeman-44","civ":"Russia","type":"Pikeman","x":4,"y":2,"hp":3,"maxHp":3,"attack":1,"defense":3,"speed":1,"land":true,"fortified":false,"effectiveDefense":3.3000000000000003,"riverDefenseBonus":0.75,"defensiveBombardStrength":0,"defensiveBombardsRemaining":0}
+
+Known tiles: 577. Visible enemy units: 4. Visible enemy cities: none
+Culture: yours 0 (best city Polis 1: 0) vs Russia 0. CULTURAL VICTORY is one of the ways to WIN: a single city reaching 20,000 lifetime culture, or your civilization reaching 100,000 total with at least DOUBLE every rival. Culture accrues every turn from buildings (Temple, Library, Colosseum, Cathedral, wonders) and also expands your borders.
+Score: yours 0 (the average of your per-turn scores over 0 turns) vs Russia 0. This turn's is 400 = territory 360 + 2 x 0 happy + 40 content + 0 specialists. A game that reaches the turn cap is won by the highest score (Civilization III's: every turn, the tiles inside your borders except ocean, plus 2 per happy citizen and 1 per content citizen or specialist; unhappy citizens count nothing). Winning before the cap by another victory adds a bonus for every turn left.
+TRADE with Russia: they know Pottery (you do not); you know Alphabet (they do not); they hold an empty treasury. A swap is available NOW: {"type":"propose_trade","civ":"Russia","give":"tech:Alphabet","want":"tech:Pottery","note":"<why>"} You are AT WAR: a bundle like propose_trade give:"city:<one of your cities>" want:"peace" (or the reverse) can end it with terms.
+Diplomacy: Russia [AT WAR]
+  declare_war on: (none)   make_peace with: Russia   (you meet everyone at peace; declare_war before you can attack a civ)
+  STANDING vs Russia: cities 40 vs 0; army attack 200 vs 4, defense 240 vs 12; techs 2 vs 2.

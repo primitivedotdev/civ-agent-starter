@@ -60,6 +60,15 @@ const RE = {
 	strikeStateOnly: /^ {2}ADJACENT RIVAL CITY: (.+?)'s (.+?) at \((-?\d+),(-?\d+)\), (\d+) defenders?; your units next to it that can still act: (\d+) attacker\(s\)(?: \+ (\d+) siege)?/gm,
 	// "*** THREATENED: Hattusa (22,22) has 5 enemy unit(s) adjacent; garrison 6."
 	threat: /^ {2}\*\*\* THREATENED: (.+?) \((-?\d+),(-?\d+)\) has (\d+) enemy unit\(s\) adjacent; garrison (\d+)/gm,
+	// A briefing too big for one email is compacted, and its first line says so:
+	//   "*** BRIEFING COMPACTED (level 1 of 6): the full briefing is 328264 bytes, over the 180000-byte limit ..."
+	compacted: /^\*\*\* BRIEFING COMPACTED \(level (\d+) of (\d+)\): the full briefing is (\d+) bytes, over the (\d+)-byte limit/m,
+	// The arena's last resort when an email body is still over the mail API's
+	// limit: the briefing is cut at a line and the body starts with this notice.
+	truncated: /^\*\*\* BRIEFING TRUNCATED\b/m,
+	// A compacted unit row that repeats an earlier one on the same tile:
+	//   "      same as Scout-2: same type, tile, moves, HP and detail"
+	sameAs: /^same as (\S+?):/,
 };
 
 // "Settler(~3t, founds a new city (costs 2 pop)), Worker(~1t), Walls(~2t, ...)"
@@ -167,11 +176,24 @@ export function parseBriefing(text) {
 		unitSupport: null,
 		researchCost: {}, techsFrom: {}, overseasTargets: {}, unconnectedResources: [], itemUpkeep: {},
 		bankruptcyEvents: [], warWeariness: {}, goldenAgeTurnsLeft: 0,
+		compaction: null, truncated: false, citiesComplete: true, unitsComplete: true,
 	};
 	out.pathMovement = /^  Movement option: move_path directions follows up to 60 ordered compass steps, stopping before foreign units or cities\.$/m.test(text);
 	out.cautiousMovement = /^  Movement option: move_to attack=false stops before foreign units or cities\.$/m.test(text);
 	out.observedUnits = parseObservedUnits(text);
 	let m;
+	if ((m = RE.compacted.exec(text))) {
+		out.compaction = { level: Number(m[1]), maxLevel: Number(m[2]), fullBytes: Number(m[3]), budget: Number(m[4]) };
+	}
+	out.truncated = RE.truncated.test(text);
+	if (out.truncated) {
+		// A section is complete when the section after it starts before the cut:
+		// a briefing cut among its units still lists every city.
+		const cut = text.indexOf("\n*** BRIEFING TRUNCATED HERE");
+		const before = (re) => { const mm = re.exec(text); return cut >= 0 && !!mm && mm.index < cut; };
+		out.citiesComplete = before(/^UNITS \(/m);
+		out.unitsComplete = before(/^(?:OBSERVED FOREIGN UNITS \(|Known tiles: )/m);
+	}
 	if ((m = RE.turn.exec(text))) { out.turn = Number(m[1]); out.civ = m[2]; }
 	if ((m = RE.gov.exec(text))) { out.government = m[1]; out.gold = Number(m[2]); out.goldPerTurn = Number(m[3]); }
 	if ((m = RE.canRevolt.exec(text))) {
@@ -394,6 +416,24 @@ export function parseBriefing(text) {
 			if (nj) unit.nearestUsefulJob = { job: nj[1], x: Number(nj[2]), y: Number(nj[3]) };
 		}
 		else if (t.startsWith("BUSY:")) unit.busy = true;
+		else if ((m = RE.sameAs.exec(t))) unit.sameAs = m[1];
+	}
+	// A "same as" row has what the unit it names has: the same tile, moves, HP
+	// and detail. Its own header (id, standing tag) and its own actions line,
+	// which the engine prints on such rows, stay its own; a row without one
+	// takes the named unit's actions.
+	const unitsById = byId(out.units);
+	for (const u of out.units) {
+		const src = u.sameAs ? unitsById.get(u.sameAs) : null;
+		if (!src || src === u) continue;
+		if (!u.actions.verbs.size) {
+			const a = src.actions;
+			u.actions = { verbs: new Set(a.verbs), bombard: a.bombard.map((b) => ({ ...b })), jobs: [...a.jobs], attack: a.attack.map((x) => ({ ...x })), attackedThisTurn: a.attackedThisTurn };
+		}
+		if (src.tile) u.tile = { ...src.tile };
+		if (src.nearestUsefulJob) u.nearestUsefulJob = { ...src.nearestUsefulJob };
+		if (src.adjacentTiles) u.adjacentTiles = src.adjacentTiles.map((r) => ({ ...r }));
+		u.busy = u.busy || src.busy;
 	}
 	return out;
 }
