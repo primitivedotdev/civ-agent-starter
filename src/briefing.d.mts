@@ -33,6 +33,8 @@ export interface BriefingCity {
 	flipRisk: { percent: number; below: boolean; civ: string } | null;
 	/** Workers left by razing this city; set only on the turn it was captured ("raze:" line). */
 	razeWorkers: number | null;
+	/** True for the last city of a briefing truncated among its cities: lines after its header may be missing, so an absent hurry or raze line is unknown. */
+	detailCut?: boolean;
 }
 
 export interface BriefingUnitActions {

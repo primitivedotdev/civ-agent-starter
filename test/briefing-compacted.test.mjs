@@ -188,3 +188,23 @@ test("an unlisted id is a warning only in a section the cut may have ended early
 	// A compacted but uncut briefing reports both lists complete.
 	assert.deepEqual([b.citiesComplete, b.unitsComplete], [true, true]);
 });
+
+test("a cut right after a city header leaves that city's hurry and raze unknown", () => {
+	const note = "*** BRIEFING TRUNCATED: cut. ***\n";
+	const cities = "=== TURN 3 | Rome ===\nGovernment: Monarchy   Gold: 500 (+5/turn)\nCITIES (2):\n  city-1 Roma (2,2) size 3\n      hurry: 20g\n  city-2 Antium (6,2) size 2\n";
+	const cutHere = "\n*** BRIEFING TRUNCATED HERE (see the note at the top) ***\n";
+	const p = parseBriefing(note + cities + cutHere);
+	assert.deepEqual(p.cities.map((c) => [c.id, !!c.detailCut]), [["city-1", false], ["city-2", true]]);
+	const orders = [{ type: "hurry", city: "city-2" }, { type: "raze", city: "city-2" }];
+	assert.deepEqual(lint(orders, p), ["hurry_unavailable:warn", "raze_unavailable:warn"]);
+	// Uncut, the same missing lines are refusals.
+	assert.deepEqual(lint(orders, parseBriefing(cities)), ["hurry_unavailable:error", "raze_unavailable:error"]);
+});
+
+test("a cut after every city the header counts keeps the city list complete", () => {
+	const note = "*** BRIEFING TRUNCATED: cut. ***\n";
+	const cities = "=== TURN 3 | Rome ===\nCITIES (1):\n  city-1 Roma (2,2) size 3\n";
+	const p = parseBriefing(note + cities + "\n*** BRIEFING TRUNCATED HERE (see the note at the top) ***\n");
+	assert.deepEqual([p.citiesComplete, p.unitsComplete], [true, false]);
+	assert.deepEqual(lint([{ type: "hurry", city: "city-9" }], p), ["unknown_city:error"]);
+});

@@ -418,6 +418,16 @@ export function parseBriefing(text) {
 		else if (t.startsWith("BUSY:")) unit.busy = true;
 		else if ((m = RE.sameAs.exec(t))) unit.sameAs = m[1];
 	}
+	if (out.truncated && !out.citiesComplete) {
+		// The cut came before the unit list, so the last city listed may have
+		// lost the detail lines after its header (hurry, raze, build options).
+		const last = out.cities[out.cities.length - 1];
+		if (last) last.detailCut = true;
+		// Every city the header counts is listed, so the list itself is whole
+		// even though the next section's header was cut.
+		const hdr = RE.citiesHdr.exec(text);
+		if (hdr && out.cities.length >= Number(hdr[1])) out.citiesComplete = true;
+	}
 	// A "same as" row has what the unit it names has: the same tile, moves, HP
 	// and detail. Its own header (id, standing tag) and its own actions line,
 	// which the engine prints on such rows, stay its own; a row without one

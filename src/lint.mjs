@@ -187,6 +187,8 @@ export function lintOrders(orders, brief) {
 			// briefing's own cities yet, so an unknown id is only a warning here.
 			if (!c) {
 				out.push(f("raze_unverified", "warn", i, o, `No own city "${o.city}" in this briefing. raze works only on a city you captured this turn; it succeeds only if an earlier order in this reply takes it.`));
+			} else if (c.razeWorkers == null && c.detailCut) {
+				out.push(f("raze_unavailable", "warn", i, o, `${c.name} shows no raze offer, but the briefing was truncated after its header, so the line may have been cut.`));
 			} else if (c.razeWorkers == null) {
 				out.push(f("raze_unavailable", "error", i, o, `${c.name} cannot be razed: only a city captured this turn can be, and the briefing offers no raze for it.`));
 			}
@@ -218,7 +220,8 @@ export function lintOrders(orders, brief) {
 					out.push(f("hurry_wonder", "error", i, o, `${c.name} is building ${c.producing}, a wonder. Wonders cannot be hurried with gold or population; build them with shields.`));
 				} else if (c.hurryCost == null) {
 					const why = c.resisting > 0 ? ` Its citizens are resisting your rule, and a resisting city cannot hurry.` : "";
-					out.push(f("hurry_unavailable", "error", i, o, `${c.name} has no hurry option this turn.${why}`));
+					if (c.detailCut) out.push(f("hurry_unavailable", "warn", i, o, `${c.name} shows no hurry option, but the briefing was truncated after its header, so the line may have been cut.`));
+					else out.push(f("hurry_unavailable", "error", i, o, `${c.name} has no hurry option this turn.${why}`));
 				} else if (c.hurryGold != null && brief.gold != null && brief.gold < c.hurryGold) {
 					out.push(f("hurry_too_expensive", "error", i, o, `Hurrying ${c.name} costs ${c.hurryGold}g and you have ${brief.gold}g.`));
 				}
