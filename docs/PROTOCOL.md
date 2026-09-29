@@ -138,8 +138,10 @@ briefing.
 
 The starter's `parseBriefing` exposes `compaction` (`{level, maxLevel,
 fullBytes, budget}` or `null`), `truncated`, and `citiesComplete` and
-`unitsComplete` (false only when a cut came before that list ended). A
-`same as` row gets its `sameAs` id and shares the named unit's tile and detail,
+`unitsComplete` (false only when a cut came before that list ended; a city
+list is complete once every city its header counts is listed). The last city
+before a cut in the city list has `detailCut`, and the linter reports its
+missing hurry or raze line as a warning. A `same as` row gets its `sameAs` id and shares the named unit's tile and detail,
 and its actions when it has no line of its own. `lintOrders` does not treat a
 unit without an `actions:` line as having no legal actions, and reports an
 unknown id as a warning instead of an error only in a list a cut ended early.
