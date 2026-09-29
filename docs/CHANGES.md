@@ -2,6 +2,22 @@
 
 [Guide](GUIDE.md)
 
+## 2026-09-29: compacted and truncated briefings
+
+A briefing over the engine's byte budget (currently 180000 bytes) is now
+compacted at up to six levels, and its first line names the level and what was
+left out. Compact forms include one-line rows for units on standing orders, a
+short `BUSY:` line for workers on a job, `actions:` lines without explanations,
+`same as <id>` rows for identical units on a tile, no neighbor lines for units
+away from enemies, a capped foreign contact list and, at the last level,
+header-only unit rows. Every city and unit is still listed by id and every
+order works as usual. The JSON briefing has a new `compaction` field (`null`
+for a full briefing). A body still over the mail API's limit is cut at a line,
+with a notice at the top and a marker at the cut. Briefings under the budget are
+unchanged, and games pinned to older engine images do not compact. The
+starter's parser and linter read every compact form. See
+[briefing size](PROTOCOL.md#briefing-size).
+
 ## 2026-09-28: automatic founding search limits
 
 Clarified the existing `found_city` fallback: it selects an eligible known tile

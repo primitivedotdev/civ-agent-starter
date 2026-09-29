@@ -33,6 +33,8 @@ export interface BriefingCity {
 	flipRisk: { percent: number; below: boolean; civ: string } | null;
 	/** Workers left by razing this city; set only on the turn it was captured ("raze:" line). */
 	razeWorkers: number | null;
+	/** True for the last city of a briefing truncated among its cities: lines after its header may be missing, so an absent hurry or raze line is unknown. */
+	detailCut?: boolean;
 }
 
 export interface BriefingUnitActions {
@@ -63,6 +65,8 @@ export interface BriefingUnit {
 	actions: BriefingUnitActions;
 	/** Set when the engine reports this unit's move_to has made no progress for turns. */
 	stuck?: { x: number; y: number; turns: number } | null;
+	/** In a compacted briefing, the earlier unit on the same tile whose tile, detail and (when this row has none) actions this one shares. */
+	sameAs?: string;
 }
 
 export interface BriefingStanding {
@@ -167,6 +171,25 @@ export interface ParsedBriefing {
 	cautiousMovement: boolean;
 	/** Foreign units in current sight; null when the section is missing or malformed. */
 	observedUnits: ObservedUnit[] | null;
+	/** Set when the engine compacted the briefing to fit one email; null for a full briefing. */
+	compaction: BriefingCompaction | null;
+	/** True when the arena cut the email body to the mail API's size limit. */
+	truncated: boolean;
+	/** False only when a truncated briefing was cut before its city list ended. */
+	citiesComplete: boolean;
+	/** False only when a truncated briefing was cut before its unit list ended. */
+	unitsComplete: boolean;
+}
+
+/** From the "*** BRIEFING COMPACTED (level L of M): ..." note at the top of a compacted briefing. */
+export interface BriefingCompaction {
+	/** The compaction level applied, 1 to maxLevel; each level keeps the ones before it. */
+	level: number;
+	maxLevel: number;
+	/** Size in bytes of the full briefing before compaction. */
+	fullBytes: number;
+	/** The byte limit the engine compacts to. */
+	budget: number;
 }
 
 export function parseObservedUnits(text: string): ObservedUnit[] | null;

@@ -88,7 +88,11 @@ export function lintOrders(orders, brief) {
 		if (UNIT_ORDERS.has(t)) {
 			const u = units.get(o.unit);
 			if (!u) {
-				out.push(f("unknown_unit", "error", i, o, `No unit "${o.unit}" in this briefing. Use the exact unit ids listed under UNITS.`));
+				// A briefing cut before its unit list ended lost the rows after the
+				// cut, so a missing id may be a real unit: say so, but do not count
+				// it as an error.
+				if (brief.unitsComplete === false) out.push(f("unknown_unit", "warn", i, o, `No unit "${o.unit}" in this briefing, but the briefing was truncated, so it may be listed after the cut.`));
+				else out.push(f("unknown_unit", "error", i, o, `No unit "${o.unit}" in this briefing. Use the exact unit ids listed under UNITS.`));
 				return;
 			}
 			const firstFinding = out.length;
@@ -111,6 +115,9 @@ export function lintOrders(orders, brief) {
 			// A worker standing on a tile with no useful job has no "work" verb, but
 			// the engine still accepts work and walks it somewhere useful.
 			const softVerb = t === "work";
+			// No verbs means no actions line was printed (a standing-order row, or a
+			// compacted briefing's header-only row): the legal set is unknown, not
+			// empty, so only a listed set can rule an order out.
 			if (u.actions.verbs.size && !u.actions.verbs.has(VERB_FOR[t]) && t !== "found_city" && !softVerb) {
 				out.push(f("action_not_available", "error", i, o, `${u.id} (${u.type}) cannot ${t}. Its listed actions are: ${[...u.actions.verbs].join(", ")}.`));
 			}
@@ -123,7 +130,8 @@ export function lintOrders(orders, brief) {
 				out.push(f("bad_direction", "error", i, o, `"${o.dir}" is not a direction. Use one of N, NE, E, SE, S, SW, W, NW.`));
 			}
 			// Only check range when the briefing actually listed this unit's
-			// actions. A unit under a standing order prints a compact line with no
+			// actions. A unit under a standing order, or any unit in a briefing
+			// compacted to its last level, prints a one-line row with no
 			// "actions:" at all, so an empty bombard list is no evidence: the
 			// engine accepts the order on unit type and range alone (the engine
 			// case "bombard" checks canBombard()/canBombardTile(), with no guard
@@ -179,6 +187,8 @@ export function lintOrders(orders, brief) {
 			// briefing's own cities yet, so an unknown id is only a warning here.
 			if (!c) {
 				out.push(f("raze_unverified", "warn", i, o, `No own city "${o.city}" in this briefing. raze works only on a city you captured this turn; it succeeds only if an earlier order in this reply takes it.`));
+			} else if (c.razeWorkers == null && c.detailCut) {
+				out.push(f("raze_unavailable", "warn", i, o, `${c.name} shows no raze offer, but the briefing was truncated after its header, so the line may have been cut.`));
 			} else if (c.razeWorkers == null) {
 				out.push(f("raze_unavailable", "error", i, o, `${c.name} cannot be razed: only a city captured this turn can be, and the briefing offers no raze for it.`));
 			}
@@ -188,7 +198,8 @@ export function lintOrders(orders, brief) {
 		if (CITY_ORDERS.has(t)) {
 			const c = cities.get(o.city);
 			if (!c) {
-				out.push(f("unknown_city", "error", i, o, `No city "${o.city}" in this briefing. Use the exact city ids listed under CITIES.`));
+				if (brief.citiesComplete === false) out.push(f("unknown_city", "warn", i, o, `No city "${o.city}" in this briefing, but the briefing was truncated, so it may be listed after the cut.`));
+				else out.push(f("unknown_city", "error", i, o, `No city "${o.city}" in this briefing. Use the exact city ids listed under CITIES.`));
 				return;
 			}
 			if (t === "set_production") {
@@ -209,7 +220,8 @@ export function lintOrders(orders, brief) {
 					out.push(f("hurry_wonder", "error", i, o, `${c.name} is building ${c.producing}, a wonder. Wonders cannot be hurried with gold or population; build them with shields.`));
 				} else if (c.hurryCost == null) {
 					const why = c.resisting > 0 ? ` Its citizens are resisting your rule, and a resisting city cannot hurry.` : "";
-					out.push(f("hurry_unavailable", "error", i, o, `${c.name} has no hurry option this turn.${why}`));
+					if (c.detailCut) out.push(f("hurry_unavailable", "warn", i, o, `${c.name} shows no hurry option, but the briefing was truncated after its header, so the line may have been cut.`));
+					else out.push(f("hurry_unavailable", "error", i, o, `${c.name} has no hurry option this turn.${why}`));
 				} else if (c.hurryGold != null && brief.gold != null && brief.gold < c.hurryGold) {
 					out.push(f("hurry_too_expensive", "error", i, o, `Hurrying ${c.name} costs ${c.hurryGold}g and you have ${brief.gold}g.`));
 				}

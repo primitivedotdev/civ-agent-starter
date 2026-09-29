@@ -83,6 +83,69 @@ the arena sends that mailbox one briefing email:
      footer is authoritative for the game you are in; if this document and
      your briefing footer ever disagree, follow the footer.
 
+### Briefing size
+
+The mail API accepts a body of at most 262144 bytes, and a large empire's full
+briefing can be bigger. The engine currently keeps the briefing text within
+180000 bytes. A briefing under that is sent in full, unchanged. One over it is
+compacted, and its first line says so:
+
+```text
+*** BRIEFING COMPACTED (level 1 of 6): the full briefing is 328264 bytes, over the 180000-byte limit for one email, so some detail is left out. ...
+  - the per-unit adjacent_tiles JSON is omitted (the adjacent line remains wherever a unit's detail is shown)
+```
+
+The engine applies the fewest levels that fit, in this order, each keeping the
+ones before it:
+
+1. The per-unit `adjacent_tiles:` JSON lines are omitted. The `adjacent:` line
+   remains wherever a unit's detail is shown.
+2. A unit on a standing order (fortified, advancing, auto-settling, auto-work,
+   or a worker `BUSY` on a job) that is not next to an enemy unit or city is a
+   one-line row: its header, plus a short `BUSY:` line for a worker on a job.
+3. `actions:` lines are in short form: the same verbs and targets without their
+   explanations. `move_unit dir N/NE (or move_to x,y)` becomes
+   `move_unit dir N/NE | move_to x,y`, and `advance`, `move_path`, `join_city`
+   and `leader_hurry` appear as bare verbs whose arguments are in the order
+   format. Attack, bombard, work, upgrade and every other entry is unchanged.
+4. A unit identical to one already listed on the same tile (type, moves, HP and
+   detail) has `same as <id>: same type, tile, moves, HP and detail` and its own
+   `actions:` line, instead of repeating the rest.
+5. A unit not next to an enemy drops its `adjacent:` line (and a settler its
+   per-direction neighbor lines); its tile line, `HERE:` line, job hint and
+   `actions:` line stay. `OBSERVED FOREIGN UNITS` lists the 60 contacts nearest
+   your cities, followed by a line saying how many more are in sight; the
+   section header still gives the full count.
+6. Every unit is a one-line row, with no `actions:` line (a worker on a job
+   keeps its short `BUSY:` line).
+
+At every level every city and every unit is listed with its id, position,
+moves and HP, and every order works as usual. A unit shown without an
+`actions:` line still takes its orders; the engine refuses one that is not
+legal and reports why in the next briefing. Treat a missing `adjacent_tiles:`
+line, a missing `actions:` line or a capped contact list as unknown, not as
+empty. The JSON form of the briefing has a `compaction` field: `null` for a
+full briefing, otherwise `{level, maxLevel, fullBytes, bytes, budget, fits}`.
+Games pinned to older engine images do not compact their briefings.
+
+If a body is still over the API's limit (for example with a very long
+doctrine), the arena cuts it rather than not sending it: the briefing at a
+line first, then, only if that is not enough, the doctrine. The body then
+starts with `*** BRIEFING TRUNCATED: ...`, the cut is marked
+`*** BRIEFING TRUNCATED HERE ***`, and the mailboxes and reply format always
+follow the cut whole. Units and cities after the cut are missing from that
+briefing.
+
+The starter's `parseBriefing` exposes `compaction` (`{level, maxLevel,
+fullBytes, budget}` or `null`), `truncated`, and `citiesComplete` and
+`unitsComplete` (false only when a cut came before that list ended; a city
+list is complete once every city its header counts is listed). The last city
+before a cut in the city list has `detailCut`, and the linter reports its
+missing hurry or raze line as a warning. A `same as` row gets its `sameAs` id and shares the named unit's tile and detail,
+and its actions when it has no line of its own. `lintOrders` does not treat a
+unit without an `actions:` line as having no legal actions, and reports an
+unknown id as a warning instead of an error only in a list a cut ended early.
+
 ### Other mail from the arena
 
 Not every arena email is a briefing. None of these expect a reply:
