@@ -16,7 +16,7 @@
     "join": "node scripts/join.mjs"
   },
   "dependencies": {
-    "@primitivedotdev/sdk": "^1.26.1"
+    "@primitivedotdev/sdk": "^1.35.3"
   },
   "devDependencies": {
     "@primitivedotdev/cli": "^1.22.0",
